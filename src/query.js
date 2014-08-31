@@ -10,11 +10,18 @@ define(
 
         /*
             Query( selector [, context ] )
-            Query( selection )
-            Query( element )
-            Query( elementArray )
-            Query( html [, ownerDocument ] )
-            Query( html, attributes )
+            接收一个 CSS 选择器表达式，用于匹配一组 DOM 元素，然后返回这些 DOM 元素所关联的 Brix 组件。
+            该方法的返回值是一个“伪数组”，包含了一组 Brix 组件，“伪数组”上含有所有 Brix 组件的方法。
+
+            查询 CSS 选择器表达式 selector 匹配的 DOM 元素所关联的 Brix 组件
+
+
+            * Query( selector [, context ] )
+            * Query( selection )
+            * Query( element )
+            * Query( elementArray )
+            * Query( html [, ownerDocument ] )
+            * Query( html, attributes )
         */
         function Query(selector, context) {
             return new Query.prototype.init(selector, context);

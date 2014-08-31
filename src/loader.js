@@ -22,42 +22,24 @@
 define(
     [
         'jquery', 'underscore', 'q',
-        '/src/brix.js', '/src/event.js'
+        '/src/constant.js', '/src/option.js', '/src/brix.js', '/src/event.js'
     ],
     function(
         $, _, Q,
-        Brix, Event
+        Constant, parseOptions, Brix, Event
     ) {
 
-        var VERSION = '0.0.1'
         var CACHE = {}
-        var ATTRS = {
-            id: 'bx-id',
-            cid: 'bx-cid',
-            options: 'bx-options'
-        }
-        var SELECTORS = {
-            id: '[bx-id]',
-            cid: '[bx-cid]',
-            options: '[bx-options]'
-        }
 
-        var NAMESPACE = '.brix.loader'
-        var EVENTS = {
-            ready: 'ready',
-            destroy: 'destroy'
-        }
-        var OPTIONS = [
-            'element', // 组件关联的节点
-            'moduleId', // 组件的模块标识符
-            'clientId', // 组件实例的标识符
-            'parentClientId', // 父组件实例的标识符
-            'childClientIds', // 父组件实例的标识符数组
-            'data', // 组件关联的数据
-            'template' // 组件关联的 HTML 模板
-        ]
-        var EXPANDO = "Brix" + (VERSION + Math.random()).replace(/\D/g, "")
-        var UUID = 0
+        /*
+            boot(context)
+
+            * boot(brixImpl)
+            * boot(element)
+
+            初始化元素 context 内的所有组件。
+            初始化所有组件。
+        */
 
         function boot(context) {
             // console.log('function', arguments.callee.name, context && context.element)
@@ -66,7 +48,7 @@ define(
             var queue = $({})
 
             // 1. 查找组件节点
-            var elements = $(SELECTORS.id, context && context.element || context).toArray()
+            var elements = $(Constant.SELECTORS.id, context && context.element || context).toArray()
 
             // 2. 顺序把初始化任务放入队列
             _.each(elements, function(element, index) {
@@ -81,7 +63,8 @@ define(
                     })
             })
 
-            // 3. 出队，执行初始化任务
+            // 3. 逐个出队，执行初始化任务
+            // 4. 全部任务执行完成（无论成败）
             queue
                 .queue(queueName, function() {
                     deferred.resolve(context)
@@ -91,6 +74,15 @@ define(
             return deferred.promise
         }
 
+        /*
+            init(element)
+
+            * init(element)
+
+            初始化元素 element 关联的组件。
+
+            初始化单个组件。
+        */
         function init(element) {
             // console.log('function', arguments.callee.name, element)
 
@@ -99,11 +91,12 @@ define(
             var queue = $({})
 
             var $element = $(element)
-            if ($element.attr(ATTRS.cid)) {
+            if ($element.attr(Constant.ATTRS.cid)) {
                 deferred.resolve()
                 return deferred.promise
             }
 
+            // 1. 解析配置项
             var options = parseOptions(element)
             var BrixImpl, instance
 
@@ -114,7 +107,7 @@ define(
 
             queue
                 .queue(queueName, function(next) {
-                    // 加载组件
+                    // 2. 加载组件模板
                     load(options.moduleId)
                         .then(function(impl) {
                             BrixImpl = impl
@@ -123,13 +116,13 @@ define(
                 })
                 .queue(queueName, function(next) {
                     try {
-                        // 创建实例
+                        // 3. 创建组件实例
                         instance = new BrixImpl(options)
                         // 设置属性 options
                         instance.options = instance.options || {} // 转换为实例属性
                         _.extend(instance.options, options)
-                        // 设置其他共性属性
-                        _.extend(instance, _.pick(options, OPTIONS))
+                        // 设置其他公共属性
+                        _.extend(instance, _.pick(options, Constant.OPTIONS))
 
                         // 拦截销毁方法
                         instance._destroy = instance.destroy
@@ -144,8 +137,8 @@ define(
                 })
                 .queue(queueName, function(next) {
                     // 绑定测试事件
-                    _.each(EVENTS, function(type) {
-                        instance.on(type + NAMESPACE, function(event) {
+                    _.each(Constant.EVENTS, function(type) {
+                        instance.on(type + Constant.NAMESPACE, function(event) {
                             event.stopPropagation()
                             console.log('event', event.type, $(event.currentTarget).attr('bx-id'), event.target /*, event*/ )
                         })
@@ -160,12 +153,12 @@ define(
                 })
                 .queue(queueName, function(next) {
                     // 拦截初始化 TODO
-                    // 执行初始化
+                    // 4. 执行初始化
                     if (instance.init) instance.init()
                     next()
                 })
                 .queue(queueName, function(next) {
-                    // 拦截初始化
+                    // 拦截渲染方法
                     var _render = instance.render
                     instance.render = function() {
                         // 如果存在已经被渲染的子组件，则先销毁
@@ -183,7 +176,7 @@ define(
                         }
                     }
 
-                    // 执行渲染（不存在怎么办？必须写！）
+                    // 5. 执行渲染（不存在怎么办？必须写！）
                     try {
                         instance.render()
                     } catch (error) {
@@ -194,23 +187,24 @@ define(
                     next()
                 })
                 .queue(queueName, function(next) {
-                    // 绑定事件
+                    // 6. 绑定事件
                     Event.delegateEvents(instance)
                     next()
                 })
                 .queue(queueName, function(next) {
                     // 没有后代组件，则不需要递归加载
-                    if (!$element.has(SELECTORS.id).length) {
+                    if (!$element.has(Constant.SELECTORS.id).length) {
                         next()
                         return
                     }
-                    // 递归加载
+                    // 7. 递归加载后代组件
                     boot(instance).then(function(context) {
                         next()
                     })
                 })
                 .queue(queueName, function(next) {
                     deferred.resolve()
+                    // 8. 触发 ready 事件
                     // 当前组件和后代组件的渲染都完成后触发
                     instance.triggerHandler(EVENTS.ready)
                 })
@@ -220,10 +214,14 @@ define(
         }
 
         /*
-            destroy(Query)
-            destroy(brix)
-            destroy(element)
-            destroy(clientId)
+            ## destroy(instance)
+            
+            * destroy(Query)
+            * destroy(brix)
+            * destroy(element)
+            * destroy(clientId)
+
+            销毁某个组件，包括它的后代组件。
         */
         function destroy(instance) {
             // destroy(clientId)
@@ -240,7 +238,7 @@ define(
             // destroy(element)
             if (instance.nodeType) {
                 instance = CACHE[
-                    $(instance).attr(ATTRS.cid)
+                    $(instance).attr(Constant.ATTRS.cid)
                 ]
             }
 
@@ -286,42 +284,6 @@ define(
                 return BrixImpl
             }, console.error)
             return promise
-        }
-
-        // 解析配置项 bx-options
-        function parseOptions(element) {
-            var options
-            var $element, $parent, moduleId, clientId, parentClientId
-
-            // 复用 $element
-            $element = $(element)
-
-            // 如果没有模块标识符，则无需（也无法）加载，立即返回
-            moduleId = $element.attr(ATTRS.id)
-            if (!moduleId) return
-
-            // 为组件关联的 DOM 节点分配唯一标识
-            clientId = UUID++
-            if (!$element.attr(ATTRS.cid)) $element.attr(ATTRS.cid, clientId)
-
-            // 查找父节点
-            $parent = $element.parents(SELECTORS.cid + ':eq(0)')
-            parentClientId = $parent.length ? +$parent.attr(ATTRS.cid) : -1
-
-            // 配置项集合
-            options = $element.attr(ATTRS.options)
-            try { /*jshint -W054 */
-                options = options ? (new Function("return " + options))() : {}
-            } catch (exception) {
-                options = {}
-            }
-            options.element = element
-            options.moduleId = moduleId
-            options.clientId = clientId
-            options.parentClientId = parentClientId
-            options.childClientIds = []
-
-            return options
         }
 
         function cache(instance) {

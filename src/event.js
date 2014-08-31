@@ -6,32 +6,9 @@ define(['jquery', 'underscore'], function($, _) {
     var NAMESPACE = '.bx_event_' + EXPANDO
     var PREFIX = 'bx-';
 
-    function parseEvents(container) {
-        var elements = $(container).add('*', container).toArray()
-        var events = []
-        _.each(elements, function(element) {
-            _.each(element.attributes, function(attribute) {
-                var ma = RE_EVENT.exec(attribute.name)
-                if (ma) {
-                    events.push({
-                        type: ma[1],
-                        handler: attribute.value,
-                        target: element
-                    })
-                }
-            })
-        })
-        return events
-    }
-
-    function parsetTypes(events) {
-        return _.union(
-            _.map(events, function(event) {
-                return event.type
-            })
-        ).sort()
-    }
-
+    /*
+        在当前组件（关联的元素）上，代理 bx-type 风格的事件监听函数。
+    */
     function delegateEvents(instance) {
         var types = parsetTypes(
             parseEvents(instance.element)
@@ -77,6 +54,46 @@ define(['jquery', 'underscore'], function($, _) {
         })
     }
 
+    /*
+        在当前组件（关联的元素）上，移除 bx-type 风格的事件监听函数。
+    */
+    function undelegateEvents(container, types) {
+        var types = parsetTypes(
+            parseEvents(container)
+        )
+        _.each(types, function(type, index) {
+            var name = PREFIX + type
+            var selector = '[' + name + ']'
+            $(container).off(type + NAMESPACE, selector)
+        })
+    }
+
+    function parseEvents(container) {
+        var elements = $(container).add('*', container).toArray()
+        var events = []
+        _.each(elements, function(element) {
+            _.each(element.attributes, function(attribute) {
+                var ma = RE_EVENT.exec(attribute.name)
+                if (ma) {
+                    events.push({
+                        type: ma[1],
+                        handler: attribute.value,
+                        target: element
+                    })
+                }
+            })
+        })
+        return events
+    }
+
+    function parsetTypes(events) {
+        return _.union(
+            _.map(events, function(event) {
+                return event.type
+            })
+        ).sort()
+    }
+
     function parseFnAndParams(handler) {
         var parts = FN_ARGS.exec(handler)
         var fn
@@ -98,17 +115,6 @@ define(['jquery', 'underscore'], function($, _) {
             }
         }
         return {}
-    }
-
-    function undelegateEvents(container, types) {
-        var types = parsetTypes(
-            parseEvents(container)
-        )
-        _.each(types, function(type, index) {
-            var name = PREFIX + type
-            var selector = '[' + name + ']'
-            $(container).off(type + NAMESPACE, selector)
-        })
     }
 
     return {
