@@ -266,7 +266,7 @@ define(
 
             // 触发 destroy 事件
             // 在移除关联的节点后，无法再继续利用浏览器事件模型来传播和触发事件，所以在移除前先触发 destroy 事件。
-            instance.triggerHandler(EVENTS.destroy)
+            instance.triggerHandler(Constant.EVENTS.destroy)
 
             // 从 DOM 树中移除（包括了事件！）
             $(instance.element).remove()

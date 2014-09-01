@@ -101,8 +101,8 @@
 
 ### query.js
 
-* Query( selector [, context ] )
-* Query( element )
+* `Query( selector [, context ] )`
+* `Query( element )`
 
 接收一个 CSS 选择器表达式，用于匹配一组 DOM 元素，然后返回这些 DOM 元素所关联的 Brix 组件。
 
@@ -118,25 +118,25 @@
 
     参考 loader.js。在阅读 3.4.5 的实现方式和试着沿用时，总是被层层嵌套的 Promise 搞晕。所以，我把每个环节重新分为可能需要异步的任务和需要顺序执行的任务。分别用 Promise 和 Queue 来实现。在上面 loader.js 的初始化流程图中，用钟表标识的是异步任务，返回一个 promise 对象。
 
-2. Brix Core 3.4.5 和之前 2.0 不会默认载入 CSS 文件，在项目中应用时需要手动敲入 CSS 依赖，很不方便，这次有什么变化吗？
+2. Brix Core 3.4.5 和之前的 2.0 不会默认载入 CSS 文件，在项目中应用时需要手动敲入 CSS 依赖，很不方便，这次有什么变化吗？
 
     之前没有考虑默认载入 CSS 文件的原因是，在项目中很可能会需要重写样式。这次（待实现）建议增加一个配置项 `{ css: 'path/name.css' }`：在初始化时，如果没有找到这个配置项，就载入默认 CSS 文件，如果指定了，则载入重新的 CSS 文件。
 
-3. Query( selector [, context ] ) 返回的 Brix Component Instance 集合，该如何使用？
+3. `Query( selector [, context ] )` 返回的 Brix Component Instance 集合，该如何使用？
 
-    见 query.js。在 Query( selector [, context ] ) 内部，会收集找到的组件的方法，并绑定至返回值上。
+    见 query.js。在 `Query( selector [, context ] )` 内部，会收集找到的组件的方法，并绑定至返回值上。
 
-    接下来，会把 Query( selector [, context ] ) 改为 Brix( selector [, context ] )，Loader.boot() 支持 CSS 选择器表达式。最终，对外只暴漏 Loader 和 Brix 两个对象。
+    接下来，会把 `Query( selector [, context ] )` 改为 `Brix( selector [, context ] )`，`Loader.boot()` 支持 CSS 选择器表达式。最终，对外只暴漏 Loader 和 Brix 两个对象。
 
 4. 关于局部渲染有什么变化吗？
 
     见前面的表格，局部渲染是至关重要必须引入的一环，如果没有，就需要 Brix Component Implement 自己做很多的处理。在选型上，Brix Core 3.4.5 曾经斟酌过字符串模板和 DOM 模板，字符串模板解析和渲染非常复杂，比如依赖特定的模板引擎和对应的双向绑定工具，DOM 模板的实现则简单的多，所以建议采用 DOM 模板。
 
-    实现局部渲染之后，可以在 在 Loader 中，拦截 Brix Component 的 .init()、.render() 方法，这样，Brix Core 3.4.5 中的 Brix.boot() 就可以取消掉。
+    实现局部渲染之后，可以在 在 Loader 中，拦截 Brix Component 的 `.init()`、`.render()` 方法，这样，Brix Core 3.4.5 中的 `Brix.boot()` 就可以取消掉。
 
 5. 是否会强依赖 KISSY 以及 KISSY 的 Promise、XTemplate、Rich Base 等等。
 
-    只会兼容 KISSY 的模块加载器。KISSY 在不断的完善，但是在项目开发中的友好度不够，所以在每个环节的选型时，在以物竞天择的机制，选择更规范、更友好的库。
+    只会兼容 KISSY 的模块加载器。KISSY 在不断的完善，但是在项目开发中的友好度不够，所以在每个环节的选型时，在以物竞天择的机制，选择更开放、更友好的库。
 
 6. 到底什么能搞完啊！！！
     
