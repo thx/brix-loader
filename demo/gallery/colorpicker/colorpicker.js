@@ -38,7 +38,7 @@ define(
 
         */
         function ColorPicker(options) {}
-        _.extend(ColorPicker.prototype, Brix, {
+        _.extend(ColorPicker.prototype, Brix.prototype, {
             init: function() {
 
             },

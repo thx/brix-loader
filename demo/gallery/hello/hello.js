@@ -28,7 +28,7 @@ define(
         function Hello(options) {
 
         }
-        _.extend(Hello.prototype, Brix, {
+        _.extend(Hello.prototype, Brix.prototype, {
             render: function() {
                 var that = this
                 var $element = $(this.element)

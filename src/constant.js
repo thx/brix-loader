@@ -1,6 +1,9 @@
-define([], function() {
+/* global define */
+
+define(function() {
+
     var VERSION = '0.0.1'
-    var EXPANDO = ('' + Math.random()).replace(/\D/g, '')
+    var EXPANDO = (Math.random() + '').replace(/\D/g, '')
     return {
         VERSION: VERSION,
         // Loader
@@ -14,7 +17,6 @@ define([], function() {
             cid: '[bx-cid]',
             options: '[bx-options]'
         },
-        NAMESPACE: '.brix.loader',
         EVENTS: {
             ready: 'ready',
             destroy: 'destroy'
@@ -28,7 +30,7 @@ define([], function() {
             'data', // 组件关联的数据
             'template' // 组件关联的 HTML 模板
         ],
-        EXPANDO: "Brix" + VERSION + EXPANDO,
+        EXPANDO: 'Brix' + VERSION + EXPANDO,
         UUID: 0,
         // Event
         RE_EVENT: /bx\-(?!id|cid|options)(.+)/,

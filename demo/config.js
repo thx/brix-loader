@@ -1,22 +1,18 @@
 require.config({
 	map: {
+		// 插件
 		'*': {
-			'css': '/bower_components/require-css/css.js',
-			'less': '/bower_components/require-less/less.js'
+			css: '/demo/bower_components/require-css/css.js',
+			less: '/demo/bower_components/require-less/less.js',
+			text: '/demo/bower_components/requirejs-text/text.js'
 		}
 	},
 	paths: {
-		// 插件
-		text: "/bower_components/requirejs-text/text",
-		// 运行依赖库
-		jquery: '/bower_components/jquery/dist/jquery',
-		underscore: '/bower_components/underscore/underscore',
-		q: '/bower_components/q/q',
-		watch: '/bower_components/watch/src/watch',
-		// 开发依赖库
-		mock: '/bower_components/mockjs/dist/mock',
-		backbone: '/bower_components/backbone/backbone',
-		d3: '/bower_components/d3/d3',
+		// DEMO 运行依赖库
+		jquery: '/demo/bower_components/jquery/dist/jquery',
+		underscore: '/demo/bower_components/underscore/underscore',
+		mock: '/demo/bower_components/mockjs/dist/mock',
+		d3: '/demo/bower_components/d3/d3',
 		// 组件
 		'gallery/hello': '/demo/gallery/hello/hello',
 		'gallery/dropdown': '/demo/gallery/dropdown/dropdown',

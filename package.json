@@ -1,6 +1,6 @@
 {
   "name": "brix-loader",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "brix-loader ===========",
   "main": "index.js",
   "scripts": {
@@ -17,10 +17,10 @@
   },
   "homepage": "https://github.com/nuysoft/brix-loader",
   "devDependencies": {
-    "grunt": "~0.4.5",
-    "grunt-contrib-connect": "~0.8.0",
-    "load-grunt-tasks": "~0.6.0",
-    "time-grunt": "~0.4.0",
-    "gulp": "~3.8.7"
+    "gulp": "~3.8.7",
+    "gulp-connect": "~2.0.6",
+    "gulp-jshint": "~1.8.4",
+    "gulp-watch": "~0.7.0",
+    "jshint-stylish": "~0.4.0"
   }
 }

@@ -15,16 +15,14 @@
   ],
   "devDependencies": {
     "requirejs": "~2.1.14",
-    "jquery": "~2.1.1",
-    "underscore": "~1.6.0",
-    "bootstrap": "~3.2.0",
-    "backbone": "~1.1.2",
-    "less": "~1.7.4",
-    "d3": "~3.4.11",
-    "q": "1.0.1",
     "requirejs-text": "~2.0.12",
     "require-less": "~0.1.2",
     "require-css": "~0.1.5",
-    "watch": "*"
+    "jquery": "~2.1.1",
+    "underscore": "~1.6.0",
+    "bootstrap": "~3.2.0",
+    "less": "~1.7.4",
+    "d3": "~3.4.11",
+    "mockjs": "*"
   }
 }

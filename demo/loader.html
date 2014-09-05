@@ -3,84 +3,62 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <title>What have I done</title>
-    <link href="/bower_components/bootstrap/dist/css/bootstrap.css" rel="stylesheet">
-    <link href="/demo/iconfont/iconfont.css" rel="stylesheet">
+    <link href="/demo/bower_components/bootstrap/dist/css/bootstrap.css" rel="stylesheet">
     <link href="./loader.less" rel="stylesheet/less" type="text/css"/>
     <script>window.less = { relativeUrls: true }</script>
-    <script src="/bower_components/less/dist/less-1.7.4.js" type="text/javascript"></script>
-    <script src="/bower_components/requirejs/require.js"></script>
+    <script src="/demo/bower_components/less/dist/less-1.7.4.js" type="text/javascript"></script>
+    <script src="/demo/bower_components/requirejs/require.js"></script>
 </head>
 <body>
     <div class="container">
-        <h1>
-            <i class="iconlogo" style="font-size: 60px; color: #F40;">&#x3433;</i>
-        </h1>
-    </div>
-    <!-- <div class="row">
-        <div class="col-xs-6"></div>
-        <div class="col-xs-6"></div>
-    </div> -->
-    <div class="container">
-        <!--  -->
-        <div class="panel panel-default">
-            <div class="panel-heading code">Hello</div>
-            <div class="panel-body">
-                <div bx-id="gallery/hello"></div>
-            </div>
+        <div class="page-header">
+            <h1>Brix Loader <small></small></h1>
         </div>
-        <!--  -->
-        <div class="panel panel-default">
-            <div class="panel-heading code">Dropdown</div>
-            <div class="panel-body">
-                <select bx-id="gallery/dropdown">
-                    <option value="1">Action</option>
-                    <option value="2">Another action</option>
-                    <option value="3">Something else here</option>
-                </select>
-                <select bx-id="gallery/dropdown" bx-options="{
-                    data: [
-                        { label: 'Action', value: 1, selected: true },
-                        { label: 'Another action', value: 2 },
-                        { label: 'Something else here', value: 3 }
-                    ]
-                }"></select>
-                <select bx-id="gallery/dropdown">
-                    <optgroup label="optgroup 1">
-                        <option value="1">Action</option>
-                    </optgroup>
-                    <optgroup label="optgroup 2">
-                        <option value="2">Another action</option>
-                    </optgroup>
-                    <optgroup label="optgroup 3">
-                        <option value="3">Something else here</option>
-                    </optgroup>
-                </select>
-            </div>
-        </div>
-        <!--  -->
-        <div class="panel panel-default">
-            <div class="panel-heading code">Pagination</div>
-            <div class="panel-body">
-                <div bx-id="gallery/pagination" bx-options="{
-                    total: 100,
-                    cursor: 1,
-                    limit: 10
-                }"></div>
-            </div>
-        </div>
-        <!--  -->
-        <div class="panel panel-default">
-            <div class="panel-heading code">ColorPicker</div>
-            <div class="panel-body">
-                <div bx-id="gallery/colorpicker" class="btn btn-default">ColorPicker</div>
-            </div>
-        </div>
+
+        <h3>Hello</h3>
+        <div bx-id="gallery/hello"></div>
+
+        <h3>Dropdown</h3>
+        <select bx-id="gallery/dropdown" bx-change="console.log(this, arguments)">
+            <option value="1">Action</option>
+            <option value="2">Another action</option>
+            <option value="3">Something else here</option>
+        </select>
+        <select bx-id="gallery/dropdown" bx-options="{
+            data: [
+                { label: 'Action', value: 1, selected: true },
+                { label: 'Another action', value: 2 },
+                { label: 'Something else here', value: 3 }
+            ]
+        }"></select>
+        <select bx-id="gallery/dropdown">
+            <optgroup label="optgroup 1">
+                <option value="1">Action</option>
+            </optgroup>
+            <optgroup label="optgroup 2">
+                <option value="2">Another action</option>
+            </optgroup>
+            <optgroup label="optgroup 3">
+                <option value="3">Something else here</option>
+            </optgroup>
+        </select>
+        
+        <h3>Pagination</h3>
+        <div bx-id="gallery/pagination" bx-options="{
+            total: 100,
+            cursor: 1,
+            limit: 10
+        }"></div>
+        
+        <h3>ColorPicker</h3>
+        <div bx-id="gallery/colorpicker" class="btn btn-default">ColorPicker</div>
     </div>
     <div class="container">
+        <h3>嵌套组件</h3>
         <div bx-id="0" class="panel panel-default" bx-click="console.log(this)">
             <div class="panel-heading code">0</div>
             <div class="panel-body">
-                <div bx-id="0/0" >0/0</div>
+                <div bx-id="0/0">0/0</div>
                 <div bx-id="0/1">0/1</div>
                 <div bx-id="0/2">0/2</div>
             </div>
@@ -108,6 +86,12 @@
 
     <!--  -->
     <script src="./tree.js"></script>
-    <div id="body" class="container"></div>
+    <div id="tree" class="container">
+        <h3>组件树</h3>
+    </div>
+    <!-- <div class="row">
+        <div class="col-xs-6"></div>
+        <div class="col-xs-6"></div>
+    </div> -->
 </body>
 </html>

@@ -38,7 +38,7 @@ define(
         function Pagination(options) {
 
         }
-        _.extend(Pagination.prototype, Brix, {
+        _.extend(Pagination.prototype, Brix.prototype, {
             options: {
                 statistics: true,
                 simplify: false,

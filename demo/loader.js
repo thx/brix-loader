@@ -1,11 +1,11 @@
 // Start the main app logic.
 require(
     [
-        'jquery', 'underscore', 'backbone', 'mock',
+        'jquery', 'underscore', 'mock',
         '/src/brix.js', '/src/loader.js', '/src/query.js'
     ],
     function(
-        $, _, Backbone, Mock,
+        $, _, Mock,
         Brix, Loader, Query
     ) {
         window.Loader = Loader
@@ -14,7 +14,15 @@ require(
 
         var elements = $('[bx-id]')
         _.each(elements, function(element, index) {
-            $('<pre style="margin-top: 10px;">').text(element.outerHTML).insertAfter(element)
+            var htmls = element.outerHTML.split('\n')
+            var indent = htmls[htmls.length - 1].match(/^([\s\t]*)/)[0].length
+            var beautified = _.map(htmls, function(line, index) {
+                return index === 0 ? line : line.slice(indent)
+            })
+            beautified.unshift('<!-- HTML -->')
+            $('<pre style="margin-top: 10px;">')
+                .text(beautified.join('\n'))
+                .insertAfter(element)
         })
 
         Loader.boot()
@@ -36,18 +44,18 @@ function genBrixImpl(Brix, _, Mock) {
     })
 
     function init() {
-        // console.log('model', this.options.moduleId, 'init')
+        // console.log('module', this.options.moduleId, 'init')
     }
 
     function destroy() {
-        // console.log('model', this.options.moduleId, 'destroy')
+        // console.log('module', this.options.moduleId, 'destroy')
     }
 
     function parentFactory(id) {
-        function BrixImpl(options) {
+        function ParentBrixImpl(options) {
             this.options = options || {}
         }
-        _.extend(BrixImpl.prototype, Brix, {
+        _.extend(ParentBrixImpl.prototype, Brix.prototype, {
             init: init,
             destroy: destroy,
             render: function() {
@@ -57,18 +65,18 @@ function genBrixImpl(Brix, _, Mock) {
                         null, 2
                     )
                 )
-                // console.log('model', id, 'render')
+                // console.log('module', id, 'render')
             },
 
         })
-        return BrixImpl
+        return ParentBrixImpl
     }
 
     function childFactory(id) {
-        function BrixImpl(options) {
+        function ChildBrixImpl(options) {
             this.options = options || {}
         }
-        _.extend(BrixImpl.prototype, Brix, {
+        _.extend(ChildBrixImpl.prototype, Brix.prototype, {
             init: init,
             destroy: destroy,
             render: function() {
@@ -84,16 +92,17 @@ function genBrixImpl(Brix, _, Mock) {
                     .append('<div bx-id="' + this.moduleId + '/0" class="col-xs-4"></div>')
                     .append('<div bx-id="' + this.moduleId + '/1" class="col-xs-4"></div>')
                     .append('<div bx-id="' + this.moduleId + '/2" class="col-xs-4"></div>')
+                // console.log('module', id, 'render')
             }
         })
-        return BrixImpl
+        return ChildBrixImpl
     }
 
     function descendantFactory(id) {
-        function BrixImpl(options) {
+        function DescendantBrixImpl(options) {
             this.options = options || {}
         }
-        _.extend(BrixImpl.prototype, Brix, {
+        _.extend(DescendantBrixImpl.prototype, Brix.prototype, {
             init: init,
             destroy: destroy,
             render: function() {
@@ -105,10 +114,10 @@ function genBrixImpl(Brix, _, Mock) {
                     ) +
                     '</pre>'
                 )
-                // console.log('model', id, 'render')
+                // console.log('module', id, 'render')
             }
         })
-        return BrixImpl
+        return DescendantBrixImpl
     }
 
     for (var i = 0; i < 3; i++) {

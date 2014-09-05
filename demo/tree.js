@@ -1,5 +1,20 @@
 /*
     https://github.com/mbostock/d3/wiki/Tree-Layout#tree
+    
+    console api
+        https://developers.google.com/chrome-developer-tools/docs/console-api
+
+    base64 > console
+        console.log("%c", "padding: 14px 45px; line-height: 28px; background:url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFoAAAASCAYAAADbo8kDAAADmUlEQ…JDu4CVq2Dy1yR8/PyJxjqjSa5oZyziX4jhAu2kXXKBdhLoP4eQ5USLTBxcAAAAAElFTkSuQmCC') no-repeat center center;"); // 90x18
+
+    svg > console
+        console.log("%c", "padding: 14px 45px; line-height: 28px; background:url('https://api.travis-ci.org/nuysoft/Mock.svg') no-repeat center center;"); // 90x18
+    
+    svg > FileReader > base64
+        https://github.com/rujs/Image-to-Base64-Converter
+
+    svg > blob > image > canvas
+        http://javascript.ruanyifeng.com/htmlapi/svg.html
 */
 require(['d3', 'mock'], function(d3, Mock) {
 
@@ -17,47 +32,11 @@ require(['d3', 'mock'], function(d3, Mock) {
             return [d.y, d.x];
         });
 
-    var vis = d3.select("#body").append("svg:svg")
+    var vis = d3.select("#tree").append("svg:svg")
         .attr("width", w + m[1] + m[3])
         .attr("height", h + m[0] + m[2])
         .append("svg:g")
         .attr("transform", "translate(" + m[3] + "," + m[0] + ")");
-
-    d3.json("flare.json", function(json) {
-        json = Mock.mock({
-            name: '@word',
-            'children|5-10': [{
-                name: '@word',
-                'children|5-10': [{
-                    name: '@word',
-                    size: '@INT'
-                }]
-            }]
-        })
-
-        // updateWrapper(json)
-        return
-
-        root = json;
-        root.x0 = h / 2;
-        root.y0 = 0;
-
-        function toggleAll(d) {
-            if (d.children) {
-                d.children.forEach(toggleAll);
-                toggle(d);
-            }
-        }
-
-        // Initialize the display to show a few nodes.
-        // root.children.forEach(toggleAll);
-        // toggle(root.children[1]);
-        // toggle(root.children[1].children[2]);
-        // toggle(root.children[9]);
-        // toggle(root.children[9].children[0]);
-
-        update(root);
-    });
 
     function updateWrapper(json) {
         root = json;

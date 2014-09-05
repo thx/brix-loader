@@ -1,10 +1,14 @@
+/* global define */
+
 define(
     [
-        'jquery', 'underscore',
+        'jquery',
+        '/src/util.js',
         '/src/loader.js'
     ],
     function(
-        $, _,
+        jQuery,
+        Util,
         Loader
     ) {
 
@@ -29,7 +33,7 @@ define(
 
         Query.prototype = {
             isQuery: true,
-            init: function(selector, context, rootBrix /* Internal Use Only */ ) {
+            init: function(selector, context) {
                 var that = this
                 var elements
                 var methods = []
@@ -37,26 +41,27 @@ define(
                 // Query( selection )
                 if (typeof selector === "string") {
                     // #id => [bx-id="id"]
-                    selector = selector.replace(/(?:#([\w-_\/]+))/g, function($0, $1) {
-                        return '[bx-id="' + $1 + '"]'
+                    selector = selector.replace(/(?:#([\w-_\/]+))/g, function() {
+                        return '[bx-id="' + arguments[1] + '"]'
                     })
                     // * => [bx-id]
-                    selector = selector.replace(/(\*)/g, function($0, $1) {
+                    selector = selector.replace(/(\*)/g, function() {
                         return '[bx-id]'
                     })
                 }
 
                 // 1. 查找组件节点
-                elements = $(selector, context).toArray()
+                elements = jQuery(selector, context).toArray()
                 // 2. 查找组件节点关联的组件实例
-                _.each(elements, function(element, index) {
-                    var clientId = $(element).attr('bx-cid')
+                Util.each(elements, function(element /*, index*/ ) {
+                    var clientId = element.getAttribute('bx-cid')
                     var instance = Loader.CACHE[clientId]
                     if (clientId === undefined) return
                     if (!instance) return
                     that.push(instance)
-                    _.each(instance.constructor.prototype, function(value, name) {
-                        if (_.isFunction(value)) methods.push(name)
+                    // 收集组件方法
+                    Util.each(instance.constructor.prototype, function(value, name) {
+                        if (Util.isFunction(value)) methods.push(name)
                     })
                 })
                 // 3. 绑定组件方法至 Query() 返回的对象上
@@ -68,10 +73,10 @@ define(
                     getBrick/getBricks
                         返回值的类型可能是实例 or 伪数组
                 */
-                _.each(_.unique(methods, true), function(functionName, index) {
+                Util.each(Util.unique(methods, true), function(functionName /*, index*/ ) {
                     that[functionName] = function() {
                         var args = [].slice.call(arguments)
-                        _.each(this.toArray(), function(instance) {
+                        Util.each(this.toArray(), function(instance) {
                             if (!instance[functionName]) return
                             instance[functionName].apply(instance, args)
                         })
@@ -79,12 +84,11 @@ define(
                 })
 
             },
-            find: function(selector) {
-                // TODO
+            // TODO
+            find: function( /*selector*/ ) {
                 var results = []
-                _.each(this.toArray(), function(instance) {
-
-                })
+                Util.each(this.toArray(), function( /*instance*/ ) {})
+                return results
             },
             // 伪数组
             length: 0,

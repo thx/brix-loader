@@ -78,10 +78,10 @@ define(
         function Dropdown(options) {
 
         }
-        _.extend(Dropdown.prototype, Brix, {
+        _.extend(Dropdown.prototype, Brix.prototype, {
             render: function() {
                 var that = this
-                var $select = $(this.element) // .hide()
+                var $select = $(this.element).hide()
                 this.selectElement = $select.get(0)
 
                 // 如果没有提供选项 data，则从子元素中收集数据
@@ -112,12 +112,10 @@ define(
 
                 if ($select.prev().is('div.btn-group:has(ul.dropdown-menu)')) $select.prev().remove()
                 var html = _.template(template, this)
-                var newElement = $(html).insertBefore($select)
+                var newElement = $(html).insertAfter($select)
                 this.element = newElement
 
-                this.on('change', function(event, data) {
-                    console.log('[event]', event.type, data)
-                })
+                this.delegateBxTypeEvents()
             },
             toggle: function() {
                 $(this.element).toggleClass('open')
