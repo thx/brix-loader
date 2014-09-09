@@ -1,7 +1,7 @@
 define(
     [
         'jquery', 'underscore',
-        '/src/brix.js',
+        '/demo/base/brix.js',
         'gallery/pure-pagination',
         'text!./pagination.tpl',
         'less!./pagination.less'
@@ -48,7 +48,11 @@ define(
                 limit: 1
             },
             init: function() {
-                this.status = new PurePagination(this.options.total, this.options.cursor, this.options.limit)
+                this.status = new PurePagination(
+                    this.options.total,
+                    this.options.cursor,
+                    this.options.limit
+                )
             },
             render: function() {
                 var barStart
@@ -65,11 +69,13 @@ define(
                 var html = _.template(template, this.data)
                 $(this.element).append(html)
 
+                this.delegateBxTypeEvents()
             },
             moveTo: function(event, extraParameters) {
                 this.status.moveTo(extraParameters)
                 $(this.element).empty()
-                this.render(true)
+                debugger
+                this.render()
 
             }
         })

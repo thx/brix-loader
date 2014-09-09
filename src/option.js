@@ -2,7 +2,7 @@
 
 define(
     [
-        '/src/constant.js', '/src/util.js'
+        './constant.js', './util.js'
     ],
     function(
         Constant, Util
@@ -28,7 +28,9 @@ define(
             do {
                 parent = parent.parentNode
             } while (
-                (parent.nodeType !== 9) &&
+                parent &&
+                (parent.nodeType !== 9) && // Document 9
+                (parent.nodeType !== 11) && // DocumentFragment 11
                 !parent.getAttribute(Constant.ATTRS.cid)
             )
             if (parent && parent.nodeType === 1) parentClientId = +parent.getAttribute(Constant.ATTRS.cid)

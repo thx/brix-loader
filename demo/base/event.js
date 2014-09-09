@@ -3,16 +3,18 @@
 
 define(
     [
-        'jquery',
-        '/src/constant.js', '/src/util.js', '/src/option.js'
+        'jquery', '/src/loader.js'
     ],
     function(
-        jQuery,
-        Constant, Util, Options
+        jQuery, Loader
     ) {
         /*
             Util.extend(Brix.prototype, Event)
         */
+        var Util = Loader.Util
+        var Constant = Loader.Constant
+        var Options = Loader.Options
+
         return {
             delegateBxTypeEvents: function() {
                 delegateBxTypeEvents(this, false)
@@ -77,10 +79,14 @@ define(
 
                 if (deep) {
                     instance
+                        .off(type, selector)
+                        .off(type + Constant.NAMESPACE, selector)
                         .on(type, selector, appetizer)
                         .on(type + Constant.NAMESPACE, selector, entrees)
                 } else {
                     instance
+                        .off(type)
+                        .off(type + Constant.NAMESPACE)
                         .on(type, appetizer)
                         .on(type + Constant.NAMESPACE, entrees)
                 }
@@ -121,6 +127,7 @@ define(
 
             })
         }
+
 
         /*
             ## Event.undelegateBxTypeEvents(instance)

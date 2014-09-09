@@ -2,10 +2,10 @@
 
 define(
     [
-        '/src/util.js', '/src/event.js'
+        '/src/loader.js', './event.js'
     ],
     function(
-        Util, Event
+        Loader, Event
     ) {
 
         /*
@@ -26,7 +26,7 @@ define(
             // The constructor function for the new subclass is either defined by you
             // (the "constructor" property in your `extend` definition), or defaulted
             // by us to simply call the parent's constructor.
-            if (protoProps && Util.has(protoProps, 'constructor')) {
+            if (protoProps && Loader.Util.has(protoProps, 'constructor')) {
                 child = protoProps.constructor
             } else {
                 child = function() {
@@ -35,7 +35,7 @@ define(
             }
 
             // Add static properties to the constructor function, if supplied.
-            Util.extend(child, parent, staticProps)
+            Loader.Util.extend(child, parent, staticProps)
 
             // Set the prototype chain to inherit from `parent`, without calling
             // `parent`'s constructor function.
@@ -47,7 +47,7 @@ define(
 
             // Add prototype properties (instance properties) to the subclass,
             // if supplied.
-            if (protoProps) Util.extend(child.prototype, protoProps)
+            if (protoProps) Loader.Util.extend(child.prototype, protoProps)
 
             // Set a convenience property in case the parent's prototype is needed
             // later.
@@ -75,7 +75,7 @@ define(
             */
             destroy: function() {}
         }
-        Util.extend(Brix.prototype, Event)
+        Loader.Util.extend(Brix.prototype, Event)
 
         return Brix
     }

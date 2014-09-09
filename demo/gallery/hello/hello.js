@@ -1,7 +1,7 @@
 define(
     [
         'jquery', 'underscore',
-        '/src/brix.js', 'text!./hello.tpl',
+        '/demo/base/brix.js', 'text!./hello.tpl',
         'less!./hello.less'
     ],
     function(

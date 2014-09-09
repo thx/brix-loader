@@ -1,7 +1,7 @@
 define(
     [
         'jquery', 'underscore',
-        '/src/brix.js',
+        '/demo/base/brix.js',
         'text!./colorpicker.tpl',
         'text!/demo/gallery/colorpicker/colorpicker-svg-slide.tpl',
         'text!/demo/gallery/colorpicker/colorpicker-svg-picker.tpl',

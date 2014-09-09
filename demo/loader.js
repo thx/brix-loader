@@ -2,16 +2,16 @@
 require(
     [
         'jquery', 'underscore', 'mock',
-        '/src/brix.js', '/src/loader.js', '/src/query.js'
+        './base/brix.js', '/src/loader.js'
     ],
     function(
         $, _, Mock,
-        Brix, Loader, Query
+        Brix, Loader
     ) {
         window.Loader = Loader
-        window.Query = Query
         genBrixImpl(Brix, _, Mock)
 
+        // 杂
         var elements = $('[bx-id]')
         _.each(elements, function(element, index) {
             var htmls = element.outerHTML.split('\n')
@@ -24,7 +24,17 @@ require(
                 .text(beautified.join('\n'))
                 .insertAfter(element)
         })
+        _.each($('h3'), function(h3) {
+            h3 = $(h3)
+            var text = h3.text()
+            $('<a>').attr('name', h3.text()).insertBefore(h3)
+            $('<a>').attr('href', '#' + text).text(text)
+                .wrap('<li>')
+                .parent()
+                .appendTo('.navbar')
+        })
 
+        // 正式代码
         Loader.boot()
             .then(function() {
                 Tree.updateWrapper(Loader.tree())
