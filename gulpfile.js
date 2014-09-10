@@ -4,9 +4,16 @@
 */
 var pkg = require('./package.json')
 var gulp = require('gulp')
+var uglify = require('gulp-uglify')
 var jshint = require('gulp-jshint')
 var connect = require('gulp-connect')
 var exec = require('child_process').exec
+
+gulp.task('compress', function() {
+    gulp.src('src/*.js')
+        .pipe(uglify())
+        .pipe(gulp.dest('dist'))
+})
 
 gulp.task('jshint', function() {
     return gulp.src('src/*.js')
@@ -21,7 +28,7 @@ gulp.task('connect', function() {
 })
 
 gulp.task('watch', function(cb) {
-    gulp.watch('src/*.js', ['jshint'])
+    gulp.watch('src/*.js', ['jshint', 'compress'])
         .on('change', function(event) {
             exec('madge --format amd --image ./doc/dependencies.png ./src/',
                 function(error, stdout, stderr) {

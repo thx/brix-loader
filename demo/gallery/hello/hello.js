@@ -1,12 +1,14 @@
 define(
     [
         'jquery', 'underscore',
-        '/demo/base/brix.js', 'text!./hello.tpl',
+        '/demo/base/src/brix.js',
+        'text!./hello.tpl',
         'less!./hello.less'
     ],
     function(
         $, _,
-        Brix, template
+        Brix, 
+        template
     ) {
         /*
 
@@ -33,6 +35,7 @@ define(
                 var that = this
                 var $element = $(this.element)
                 $element.append(template)
+                this.delegateBxTypeEvents()
             }
         })
         return Hello

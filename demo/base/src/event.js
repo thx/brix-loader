@@ -3,17 +3,16 @@
 
 define(
     [
-        'jquery', '/src/loader.js'
+        '/src/loader.js', 'jquery', 'underscore'
     ],
     function(
-        jQuery, Loader
+        Loader, jQuery, _
     ) {
         /*
-            Util.extend(Brix.prototype, Event)
+            _.extend(Brix.prototype, Event)
         */
-        var Util = Loader.Util
-        var Constant = Loader.Constant
         var Options = Loader.Options
+        var Constant = Loader.Constant
 
         return {
             /*
@@ -72,7 +71,7 @@ define(
 
         function delegateBxTypeEvents(instance, deep) {
             var types = Options.parsetBxTypes(instance.element, deep)
-            Util.each(types, function(type /*, index*/ ) {
+            _.each(types, function(type /*, index*/ ) {
                 var name = Constant.PREFIX + type
                 var selector = '[' + name + ']'
                 var triggered = false
@@ -130,7 +129,7 @@ define(
 
         function undelegateBxTypeEvents(instance, deep) {
             var types = Options.parsetBxTypes(instance.element, deep)
-            Util.each(types, function(type /*, index*/ ) {
+            _.each(types, function(type /*, index*/ ) {
                 var name = Constant.PREFIX + type
                 var selector = '[' + name + ']'
                 if (deep) jQuery(instance.element).off(type + Constant.NAMESPACE, selector)

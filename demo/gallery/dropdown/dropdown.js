@@ -1,7 +1,8 @@
 define(
     [
         'jquery', 'underscore',
-        '/demo/base/brix.js', 'text!./dropdown.tpl',
+        '/demo/base/src/brix.js',
+        'text!./dropdown.tpl',
         'less!./dropdown.less'
     ],
     function(

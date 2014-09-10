@@ -4,7 +4,11 @@
 /* global console       */
 
 /*
-    Brix Loader
+    ## Brix Loader
+    
+    组件加载器，负责管理 Brix Component 的整个生命周期，包括加载、初始化、渲染、销毁。
+
+
     解析组件配置、解析组件树、加载组件
     初始化组件、缓存组件、初始化事件
     
@@ -161,8 +165,8 @@ define(
                     // 绑定测试事件
                     Util.each(Constant.EVENTS, function(type) {
                         if (instance.on) {
-                            instance.on(type + Constant.LOADER_NAMESPACE, function(event) {
-                                console.log('module', instance.moduleId, instance.clientId, event.type)
+                            instance.on(type + Constant.NAMESPACE, function(event) {
+                                console.log(label, event.type)
                             })
                         }
                     })
@@ -194,6 +198,17 @@ define(
                             if (hasRenderedChildren) {
                                 boot(instance.element)
                             }
+                            // 同步 clientId
+                            var newElement = instance.element
+                            if (newElement.nodeType && !newElement.getAttribute(Constant.ATTRS.cid)) {
+                                newElement.setAttribute(Constant.ATTRS.cid, options.clientId)
+                            } else if (newElement.length) {
+                                Util.each(newElement, function(item /*, index*/ ) {
+                                    if (item.nodeType && !item.getAttribute(Constant.ATTRS.cid)) {
+                                        item.setAttribute(Constant.ATTRS.cid, options.clientId)
+                                    }
+                                })
+                            }
                         }
                     }
                     // 5. 执行渲染（不存在怎么办？必须有！）
@@ -210,19 +225,21 @@ define(
                     // 从初始的关联元素上解析事件配置项 bx-type，然后逐个绑定到最终的关联元素上。
                     // 以 Dropdown 为例，初试的关联元素是 <select>，最终的关联元素却是 <div class="dropdown">
                     // 这是用户关注的事件。
-                    Util.each(options.events, function(item /*, index*/ ) {
-                        // item: { target type handler fn params }
-                        instance.on(item.type + Constant.LOADER_NAMESPACE, function(event, extraParameters) {
-                            if (item.fn in instance) {
-                                instance[item.fn].apply(
-                                    instance, (extraParameters ? [extraParameters] : [event]).concat(item.params)
-                                )
-                            } else {
-                                /* jshint evil:true */
-                                eval(item.handler)
-                            }
+                    if (instance.on) {
+                        Util.each(options.events, function(item /*, index*/ ) {
+                            // item: { target type handler fn params }
+                            instance.on(item.type + Constant.NAMESPACE, function(event, extraParameters) {
+                                if (item.fn in instance) {
+                                    instance[item.fn].apply(
+                                        instance, (extraParameters ? [extraParameters] : [event]).concat(item.params)
+                                    )
+                                } else {
+                                    /* jshint evil:true */
+                                    eval(item.handler)
+                                }
+                            })
                         })
-                    })
+                    }
                     // 从最终的关联元素上解析事件配置项 bx-type，然后逐个绑定。
                     // if (instance.delegateBxTypeEvents) instance.delegateBxTypeEvents()
                     next()
@@ -320,7 +337,7 @@ define(
             // 在当前组件关联的元素上，移除所有由 Loader 绑定的事件监听函数。
             if (instance.off) {
                 Util.each(instance.options.events, function(item /*, index*/ ) {
-                    instance.off(item.type + Constant.LOADER_NAMESPACE)
+                    instance.off(item.type + Constant.NAMESPACE)
                 })
             }
             // 从 DOM 树中移除当前组件关联的元素。
@@ -357,23 +374,41 @@ define(
         }
 
         /*
-            query(moduleId)
+            * query(element)
+            * query(moduleId)
+
+            根据 moduleId 查找 Brix 组件实例。
+            该方法的返回值是一个数组，包含了一组 Brix 组件实例，并且，数组上含有所有 Brix 组件实例的方法。
          */
         function query(moduleId) {
             var results = []
             var methods = []
 
+            // 1. 根据 element 查找组件实例
+            // query(element)
+            if (moduleId.nodeType) {
+                results.push(
+                    CACHE[
+                        moduleId.getAttribute(Constant.ATTRS.cid)
+                    ]
+                )
+            }
+
             // 1. 根据 moduleId 查找组件实例
-            Util.each(CACHE, function(instance /*, index*/ ) {
-                if (instance.moduleId === moduleId) {
-                    results.push(instance)
-                    // 收集组件方法
-                    Util.each(instance.constructor.prototype, function(value, name) {
-                        if (Util.isFunction(value)) methods.push(name)
-                    })
-                }
-            })
-            
+            // query(moduleId)
+            if (Util.isNumber(moduleId)) {
+                Util.each(CACHE, function(instance /*, index*/ ) {
+                    if (instance.moduleId === moduleId) {
+                        results.push(instance)
+                        // 收集组件方法
+                        Util.each(instance.constructor.prototype, function(value, name) {
+                            if (Util.isFunction(value)) methods.push(name)
+                        })
+                    }
+                })
+            }
+
+
             // 2. 绑定组件方法至 query() 返回的对象上
             Util.each(Util.unique(methods), function(name /*, index*/ ) {
                 results[name] = function() {

@@ -1,7 +1,7 @@
 define(
     [
         'jquery', 'underscore',
-        '/demo/base/brix.js',
+        '/demo/base/src/brix.js',
         'gallery/pure-pagination',
         'text!./pagination.tpl',
         'less!./pagination.less'

@@ -2,7 +2,8 @@
 require(
     [
         'jquery', 'underscore', 'mock',
-        './base/brix.js', '/src/loader.js'
+        '/demo/base/src/brix.js',
+        '/src/loader.js'
     ],
     function(
         $, _, Mock,
@@ -10,6 +11,12 @@ require(
     ) {
         window.Loader = Loader
         genBrixImpl(Brix, _, Mock)
+
+        // 正式代码
+        Loader.boot()
+            .then(function() {
+                Tree.updateWrapper(Loader.tree())
+            })
 
         // 杂
         var elements = $('[bx-id]')
@@ -34,11 +41,6 @@ require(
                 .appendTo('.navbar')
         })
 
-        // 正式代码
-        Loader.boot()
-            .then(function() {
-                Tree.updateWrapper(Loader.tree())
-            })
     }
 )
 

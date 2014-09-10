@@ -42,7 +42,7 @@
 
         <li class="<%= hasNext ? '' : 'disabled' %>"><a href="javascript: void(0);" bx-click="moveTo(<%=next%>)">Next</a></li>
 
-        <li>
+        <li class="hide">
             <select bx-id="gallery/dropdown">
                 <% for( var i = 1; i <= pages; i++ ) { %>
                     <option value="<%= i %>" <%= i == cursor ? 'selected' : '' %>><%= i %></option>

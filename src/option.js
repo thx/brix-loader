@@ -55,7 +55,7 @@ define(
         }
 
         function parseBxEvents(element, deep) {
-            if (element.length) element = element[0]
+            if (!element.nodeType && element.length) element = element[0]
             var elements = deep ? element.getElementsByTagName('*') : [element]
             var events = []
             Util.each(elements, function(element) {

@@ -8,6 +8,8 @@ require.config({
 		}
 	},
 	paths: {
+		bx: '/src/',
+		// loader: '/src/loader',
 		// DEMO 运行依赖库
 		jquery: '/demo/bower_components/jquery/dist/jquery',
 		underscore: '/demo/bower_components/underscore/underscore',
