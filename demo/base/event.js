@@ -16,11 +16,18 @@ define(
         var Options = Loader.Options
 
         return {
+            /*
+                在当前组件（关联的元素）上，代理 bx-type 风格的事件监听函数。
+                TODO 只处理关联元素上的事件，不处理内部的事件！
+            */
             delegateBxTypeEvents: function() {
                 delegateBxTypeEvents(this, false)
                 delegateBxTypeEvents(this, true)
                 return this
             },
+            /*
+                在当前组件（关联的元素）上，移除 bx-type 风格的事件监听函数。
+            */
             undelegateBxTypeEvents: function() {
                 undelegateBxTypeEvents(this)
                 return this
@@ -34,7 +41,7 @@ define(
                 return this
             },
             /*
-            在当前组件（关联的元素）上，为一个或多个事件类型绑定一个事件监听函数，这个监听函数最多执行一次。
+                在当前组件（关联的元素）上，为一个或多个事件类型绑定一个事件监听函数，这个监听函数最多执行一次。
             */
             one: function(types, selector, data, fn) {
                 jQuery(this.element).one(types, selector, data, fn)
@@ -63,13 +70,6 @@ define(
             }
         }
 
-        /*
-            ## Event.delegateBxTypeEvents(instance)
-
-            在当前组件（关联的元素）上，代理 bx-type 风格的事件监听函数。
-
-            只处理关联元素上的事件，不处理内部的事件！
-        */
         function delegateBxTypeEvents(instance, deep) {
             var types = Options.parsetBxTypes(instance.element, deep)
             Util.each(types, function(type /*, index*/ ) {
@@ -128,12 +128,6 @@ define(
             })
         }
 
-
-        /*
-            ## Event.undelegateBxTypeEvents(instance)
-
-            在当前组件（关联的元素）上，移除 bx-type 风格的事件监听函数。
-        */
         function undelegateBxTypeEvents(instance, deep) {
             var types = Options.parsetBxTypes(instance.element, deep)
             Util.each(types, function(type /*, index*/ ) {

@@ -1,5 +1,6 @@
 /* global define        */
 /* global require       */
+/* global document      */
 /* global console       */
 
 /*
@@ -25,18 +26,19 @@
 */
 define(
     [
-        './jqLite.js',
-        './util.js', './constant.js', './option.js'
+        './constant.js', './option.js',
+        './util.js'
     ],
     function(
-        jqLite,
-        Util, Constant, Options
+        Constant, Options,
+        Util
     ) {
         var CACHE = {}
 
         /*
             boot(context)
-
+            
+            * boot()
             * boot(brixImpl)
             * boot(element)
 
@@ -46,11 +48,22 @@ define(
 
         function boot(context) {
             // console.log('function', arguments.callee.name, context && context.element)
+            context = context && context.element || context || document
+
             var deferred = Util.defer()
             var queue = Util.queue()
 
-            // 1. 查找组件节点
-            var elements = jqLite(Constant.SELECTORS.id, context && context.element || context).toArray()
+            // 1. 查找组件节点 [bx-id]
+            var elements = function() {
+                var elements = []
+                if (context.nodeType === 1 && context.getAttribute(Constant.ATTRS.id)) elements.push(context)
+                var descendants = context.getElementsByTagName('*')
+                Util.each(descendants, function(descendant /*, index*/ ) {
+                    if (descendant.nodeType !== 1) return
+                    if (descendant.getAttribute(Constant.ATTRS.id)) elements.push(descendant)
+                })
+                return elements
+            }()
 
             // 2. 顺序把初始化任务放入队列
             Util.each(elements, function(element /*, index*/ ) {
@@ -100,9 +113,12 @@ define(
             var options = Options.parseOptions(element)
             var BrixImpl, instance
 
-            console.time('module ' + options.moduleId + ' ' + options.clientId)
+            var label = 'module ' + options.moduleId + ' ' + options.clientId
+            console.group(label)
+            console.time(label)
             promise.finally(function() {
-                console.timeEnd('module ' + options.moduleId + ' ' + options.clientId)
+                console.timeEnd(label)
+                console.groupEnd(label)
             })
 
             queue
@@ -145,7 +161,7 @@ define(
                     // 绑定测试事件
                     Util.each(Constant.EVENTS, function(type) {
                         if (instance.on) {
-                            instance.on(type + Constant.NAMESPACE, function(event) {
+                            instance.on(type + Constant.LOADER_NAMESPACE, function(event) {
                                 console.log('module', instance.moduleId, instance.clientId, event.type)
                             })
                         }
@@ -156,7 +172,7 @@ define(
                 .queue(function(next) {
                     // 4. 执行初始化
                     if (instance.init) instance.init()
-                    console.log('module', instance.moduleId, instance.clientId, 'init')
+                    console.log(label, 'init')
                     next()
                 })
                 .queue(function(next) {
@@ -186,7 +202,7 @@ define(
                     } catch (error) {
                         deferred.reject(error)
                     }
-                    console.log('module', instance.moduleId, instance.clientId, 'render')
+                    console.log(label, 'render')
                     next()
                 })
                 .queue(function(next) {
@@ -195,8 +211,8 @@ define(
                     // 以 Dropdown 为例，初试的关联元素是 <select>，最终的关联元素却是 <div class="dropdown">
                     // 这是用户关注的事件。
                     Util.each(options.events, function(item /*, index*/ ) {
-                        // target type handler fn params
-                        instance.on(item.type, function(event, extraParameters) {
+                        // item: { target type handler fn params }
+                        instance.on(item.type + Constant.LOADER_NAMESPACE, function(event, extraParameters) {
                             if (item.fn in instance) {
                                 instance[item.fn].apply(
                                     instance, (extraParameters ? [extraParameters] : [event]).concat(item.params)
@@ -228,7 +244,7 @@ define(
                             next()
                         })
                     } else {
-                        // 如果没有后代组件，此时，当前组件已经就绪。
+                        // 如果没有后代组件，那么此时当前组件已经就绪。
                         next()
                     }
                 })
@@ -260,7 +276,7 @@ define(
             // destroy(clientId)
             if (Util.isNumber(instance)) instance = CACHE[instance]
 
-            // destroy(Query)
+            // destroy( Loader.Query() )
             if (instance.isQuery) {
                 Util.each(instance.toArray(), function(element) {
                     destroy(element)
@@ -275,7 +291,7 @@ define(
                 ]
             }
 
-            // 如果已经移除，则立即返回
+            // 如果已经被移除，则立即返回
             if (!instance) return this
 
             // 先递归销毁后代组件
@@ -301,15 +317,23 @@ define(
             // 在移除关联的节点后，无法再继续利用浏览器事件模型来传播和触发事件，所以在移除前先触发 destroy 事件。
             instance.triggerHandler(Constant.EVENTS.destroy)
 
-            // 从 DOM 树中移除（包括了事件！）
-            jqLite(instance.element).remove()
+            // 在当前组件关联的元素上，移除所有由 Loader 绑定的事件监听函数。
+            if (instance.off) {
+                Util.each(instance.options.events, function(item /*, index*/ ) {
+                    instance.off(item.type + Constant.LOADER_NAMESPACE)
+                })
+            }
+            // 从 DOM 树中移除当前组件关联的元素。
+            if (instance.element.parentNode) {
+                instance.element.parentNode.removeChild(instance.element)
+            }
 
             console.log('module', instance.moduleId, instance.clientId, 'destroy')
 
             return this
         }
 
-
+        // 加载模块
         function load(moduleId) {
             // console.log('function', arguments.callee.name, moduleId)
             var deferred = Util.defer()
@@ -319,12 +343,11 @@ define(
                 deferred.resolve(BrixImpl)
                 // }, 0)
             })
-            promise.then(function(BrixImpl) {
-                return BrixImpl
-            }, console.error)
+            promise.then(undefined, console.error)
             return promise
         }
 
+        // 缓存组件
         function cache(instance) {
             // 缓存起来
             CACHE[instance.clientId] = instance
@@ -334,99 +357,41 @@ define(
         }
 
         /*
-            query( selector [, context ] )
+            query(moduleId)
+         */
+        function query(moduleId) {
+            var results = []
+            var methods = []
 
-            接收一个 CSS 选择器表达式，用于匹配一组 DOM 元素，然后返回这些 DOM 元素所关联的 Brix 组件。
-            该方法的返回值是一个“伪数组”，包含了一组 Brix 组件，“伪数组”上含有所有 Brix 组件的方法。
-
-            查询 CSS 选择器表达式 selector 匹配的 DOM 元素所关联的 Brix 组件
-
-            * query( selector [, context ] )
-            * query( selection )
-            * query( element )
-            * query( elementArray )
-            * query( html [, ownerDocument ] )
-            * query( html, attributes )
-        */
-        function query(selector, context) {
-            return new query.prototype.init(selector, context);
-        }
-
-        query.prototype = {
-            isQuery: true,
-            init: function(selector, context) {
-                var that = this
-                var elements
-                var methods = []
-
-                // query( selection )
-                if (typeof selector === "string") {
-                    // #id => [bx-id="id"]
-                    selector = selector.replace(/(?:#([\w-_\/]+))/g, function() {
-                        return '[bx-id="' + arguments[1] + '"]'
-                    })
-                    // * => [bx-id]
-                    selector = selector.replace(/(\*)/g, function() {
-                        return '[bx-id]'
-                    })
-                }
-
-                // 1. 查找组件节点
-                elements = jqLite(selector, context).toArray()
-                // 2. 查找组件节点关联的组件实例
-                Util.each(elements, function(element /*, index*/ ) {
-                    var clientId = element.getAttribute('bx-cid')
-                    var instance = CACHE[clientId]
-                    if (clientId === undefined) return
-                    if (!instance) return
-                    that.push(instance)
+            // 1. 根据 moduleId 查找组件实例
+            Util.each(CACHE, function(instance /*, index*/ ) {
+                if (instance.moduleId === moduleId) {
+                    results.push(instance)
                     // 收集组件方法
                     Util.each(instance.constructor.prototype, function(value, name) {
                         if (Util.isFunction(value)) methods.push(name)
                     })
-                })
-                // 3. 绑定组件方法至 query() 返回的对象上
-                /*
-                    最佳实践：
-                        #id > 真的是 CSS3 Selector 
-                        TODO
-                    用 #id 限制组件的类型
-                    getBrick/getBricks
-                        返回值的类型可能是实例 or 伪数组
-                */
-                Util.each(Util.unique(methods, true), function(functionName /*, index*/ ) {
-                    that[functionName] = function() {
-                        var args = [].slice.call(arguments)
-                        Util.each(this.toArray(), function(instance) {
-                            if (!instance[functionName]) return
-                            instance[functionName].apply(instance, args)
-                        })
-                    }
-                })
+                }
+            })
+            
+            // 2. 绑定组件方法至 query() 返回的对象上
+            Util.each(Util.unique(methods), function(name /*, index*/ ) {
+                results[name] = function() {
+                    var args = [].slice.call(arguments)
+                    Util.each(this, function(instance) {
+                        if (!instance[name]) return
+                        instance[name].apply(instance, args)
+                    })
+                }
+            })
 
-            },
-            // TODO
-            find: function( /*selector*/ ) {
-                var results = []
-                Util.each(this.toArray(), function( /*instance*/ ) {})
-                return results
-            },
-            // 伪数组
-            length: 0,
-            push: [].push,
-            sort: [].sort,
-            splice: [].splice,
-            toArray: function() {
-                return [].slice.call(this)
-            }
+            return results
         }
-
-        query.prototype.init.prototype = query.prototype
 
         /*
             CACHE {
                 uuid: {
-                    id: uuid
+                    clientId: uuid
                     parentClientId: uuid,
                     instance: brix
                 }
@@ -467,4 +432,5 @@ define(
             Constant: Constant,
             Options: Options
         }
-    })
+    }
+)

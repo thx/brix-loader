@@ -72,11 +72,10 @@ define(
                 this.delegateBxTypeEvents()
             },
             moveTo: function(event, extraParameters) {
+                if (arguments.length === 1) extraParameters = event
                 this.status.moveTo(extraParameters)
                 $(this.element).empty()
-                debugger
                 this.render()
-
             }
         })
         return Pagination

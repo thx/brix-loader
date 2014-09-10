@@ -35,6 +35,7 @@ define(function() {
         // Event
         RE_EVENT: /bx\-(?!id|cid|options)(.+)/,
         FN_ARGS: /([^()]+)(?:\((.*?)\))?/,
+        LOADER_NAMESPACE: '.loader_bx_event_' + EXPANDO,
         NAMESPACE: '.bx_event_' + EXPANDO,
         PREFIX: 'bx-'
     }

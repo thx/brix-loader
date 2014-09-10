@@ -53,13 +53,9 @@ function genBrixImpl(Brix, _, Mock) {
         */
     })
 
-    function init() {
-        // console.log('module', this.options.moduleId, 'init')
-    }
+    function init() {}
 
-    function destroy() {
-        // console.log('module', this.options.moduleId, 'destroy')
-    }
+    function destroy() {}
 
     function parentFactory(id) {
         function ParentBrixImpl(options) {
