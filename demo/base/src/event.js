@@ -79,28 +79,33 @@ define(
                 if (deep) {
                     instance
                         .off(type, selector)
-                        .off(type + Constant.NAMESPACE, selector)
+                        .off(type + Constant.COMPONENT_NAMESPACE, selector)
                         .on(type, selector, appetizer)
-                        .on(type + Constant.NAMESPACE, selector, entrees)
+                        .on(type + Constant.COMPONENT_NAMESPACE, selector, entrees)
                 } else {
                     instance
                         .off(type)
-                        .off(type + Constant.NAMESPACE)
+                        .off(type + Constant.COMPONENT_NAMESPACE)
                         .on(type, appetizer)
-                        .on(type + Constant.NAMESPACE, entrees)
+                        .on(type + Constant.COMPONENT_NAMESPACE, entrees)
                 }
 
+                // 开胃菜
                 function appetizer(event) {
                     if (jQuery(event.target).closest('.disabled').length) return
                     event.preventDefault()
                     if (!triggered) {
                         triggered = true
                         setTimeout(function() {
-                            jQuery(event.target).trigger(type + Constant.NAMESPACE, event)
+                            jQuery(event.target).trigger(
+                                type + Constant.COMPONENT_NAMESPACE,
+                                event
+                            )
                         }, 0)
                     }
                 }
 
+                // 主菜
                 function entrees(event, extraParameters) {
                     if (extraParameters) {
                         // 依然使用原来的事件对象。
@@ -132,8 +137,8 @@ define(
             _.each(types, function(type /*, index*/ ) {
                 var name = Constant.PREFIX + type
                 var selector = '[' + name + ']'
-                if (deep) jQuery(instance.element).off(type + Constant.NAMESPACE, selector)
-                else jQuery(instance.element).off(type + Constant.NAMESPACE)
+                if (deep) jQuery(instance.element).off(type + Constant.COMPONENT_NAMESPACE, selector)
+                else jQuery(instance.element).off(type + Constant.COMPONENT_NAMESPACE)
             })
         }
 

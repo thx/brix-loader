@@ -46,11 +46,11 @@ define(
             * boot(brixImpl)
             * boot(element)
 
-            初始化节点 context 内的所有组件。
+            初始化节点 context 以及节点 context 内的所有组件。
             简：初始化所有组件。
         */
 
-        function boot(context) {
+        function boot(context, callback) {
             // console.log('function', arguments.callee.name, context && context.element)
             context = context && context.element || context || document
 
@@ -75,7 +75,7 @@ define(
                     .queue(function(next) {
                         init(element)
                             .then(undefined, function(reason) {
-                                console.error(reason)
+                                console.error(reason.stack)
                             }).finally(function() {
                                 next()
                             })
@@ -87,6 +87,7 @@ define(
             queue
                 .queue(function() {
                     deferred.resolve(context)
+                    if (callback) callback(context)
                 })
                 .dequeue() // 开始
 
@@ -165,7 +166,7 @@ define(
                     // 绑定测试事件
                     Util.each(Constant.EVENTS, function(type) {
                         if (instance.on) {
-                            instance.on(type + Constant.NAMESPACE, function(event) {
+                            instance.on(type + Constant.LOADER_NAMESPACE, function(event) {
                                 console.log(label, event.type)
                             })
                         }
@@ -228,7 +229,7 @@ define(
                     if (instance.on) {
                         Util.each(options.events, function(item /*, index*/ ) {
                             // item: { target type handler fn params }
-                            instance.on(item.type + Constant.NAMESPACE, function(event, extraParameters) {
+                            instance.on(item.type + Constant.LOADER_NAMESPACE, function(event, extraParameters) {
                                 if (item.fn in instance) {
                                     instance[item.fn].apply(
                                         instance, (extraParameters ? [extraParameters] : [event]).concat(item.params)
@@ -337,7 +338,7 @@ define(
             // 在当前组件关联的元素上，移除所有由 Loader 绑定的事件监听函数。
             if (instance.off) {
                 Util.each(instance.options.events, function(item /*, index*/ ) {
-                    instance.off(item.type + Constant.NAMESPACE)
+                    instance.off(item.type + Constant.LOADER_NAMESPACE)
                 })
             }
             // 从 DOM 树中移除当前组件关联的元素。
@@ -377,7 +378,7 @@ define(
             * query(element)
             * query(moduleId)
 
-            根据 moduleId 查找 Brix 组件实例。
+            根据模块标识符 moduleId 查找组件实例。
             该方法的返回值是一个数组，包含了一组 Brix 组件实例，并且，数组上含有所有 Brix 组件实例的方法。
          */
         function query(moduleId) {

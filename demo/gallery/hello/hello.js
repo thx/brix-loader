@@ -32,6 +32,7 @@ define(
         }
         _.extend(Hello.prototype, Brix.prototype, {
             render: function() {
+                // throw new Error('hello...')
                 var that = this
                 var $element = $(this.element)
                 $element.append(template)

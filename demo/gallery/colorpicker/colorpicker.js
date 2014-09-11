@@ -87,6 +87,8 @@ define(
                 $triggerElement.on('click', function(event) {
                     that.toggle()
                 })
+
+                this.delegateBxTypeEvents()
             },
             show: function() {
                 $(this.element).show()
