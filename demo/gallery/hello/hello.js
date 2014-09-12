@@ -7,7 +7,7 @@ define(
     ],
     function(
         $, _,
-        Brix, 
+        Brix,
         template
     ) {
         /*
@@ -37,6 +37,9 @@ define(
                 var $element = $(this.element)
                 $element.append(template)
                 this.delegateBxTypeEvents()
+            },
+            say:function(){
+                console.log(this, 'Hello World!')
             }
         })
         return Hello
