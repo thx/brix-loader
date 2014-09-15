@@ -7,7 +7,7 @@
     "**/.*",
     "node_modules",
     "bower_components",
-    "test"
+    "doc"
   ],
   "devDependencies": {}
 }
