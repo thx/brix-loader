@@ -170,18 +170,6 @@ define(
                     next()
                 })
                 .queue(function(next) {
-                    // 绑定测试事件
-                    Util.each(Constant.EVENTS, function(type) {
-                        if (instance.on) {
-                            instance.on(type + Constant.LOADER_NAMESPACE, function(event) {
-                                console.log(label, event.type)
-                            })
-                        }
-                    })
-                    next()
-                    // .delay(100, queueName) // 每个组件之间的渲染间隔 100ms，方便观察
-                })
-                .queue(function(next) {
                     // 4. 执行初始化
                     if (instance.init) instance.init()
                     console.log(label, 'init')
@@ -228,6 +216,18 @@ define(
                     }
                     console.log(label, 'render')
                     next()
+                })
+                .queue(function(next) {
+                    // 绑定测试事件
+                    Util.each(Constant.EVENTS, function(type) {
+                        if (instance.on) {
+                            instance.on(type + Constant.LOADER_NAMESPACE, function(event) {
+                                console.log(label, event.type)
+                            })
+                        }
+                    })
+                    next()
+                    // .delay(100, queueName) // 每个组件之间的渲染间隔 100ms，方便观察
                 })
                 .queue(function(next) {
                     // 6. 绑定事件
