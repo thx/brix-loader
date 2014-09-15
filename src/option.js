@@ -2,10 +2,12 @@
 
 define(
     [
-        './constant.js', './util.js'
+        'loader/constant',
+        'loader/util'
     ],
     function(
-        Constant, Util
+        Constant,
+        Util
     ) {
         /*
             解析配置项 bx-options

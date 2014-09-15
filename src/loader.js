@@ -30,13 +30,16 @@
 */
 define(
     [
-        './constant.js', './option.js',
-        './util.js'
+        'loader/constant',
+        'loader/option',
+        'loader/util'
     ],
     function(
-        Constant, Options,
+        Constant,
+        Options,
         Util
     ) {
+
         var CACHE = {}
 
         /*
@@ -97,20 +100,23 @@ define(
         /*
             init(element)
 
-            * init(element)
+            * init(element [, callback( error, instance )])
 
             初始化元素 element 关联的组件。
             简：初始化单个组件。
         */
-        function init(element) {
+        function init(element, callback) {
             // console.log('function', arguments.callee.name, element)
 
             var deferred = Util.defer()
             var promise = deferred.promise
             var queue = Util.queue()
 
-            if (element.getAttribute(Constant.ATTRS.cid)) {
-                deferred.resolve()
+            // 如果已经被初始化，则立即返回
+            var clientId = element.getAttribute(Constant.ATTRS.cid)
+            if (clientId) {
+                deferred.resolve(CACHE[clientId])
+                if (callback) callback(undefined, CACHE[clientId])
                 return promise
             }
 
@@ -147,6 +153,7 @@ define(
                         next()
                     } catch (error) {
                         deferred.reject(error)
+                        if (callback) callback(error, instance)
                     }
                 })
                 .queue(function(next) {
@@ -217,6 +224,7 @@ define(
                         instance.render()
                     } catch (error) {
                         deferred.reject(error)
+                        if (callback) callback(error, instance)
                     }
                     console.log(label, 'render')
                     next()
@@ -271,7 +279,8 @@ define(
                     if (instance.triggerHandler) {
                         instance.triggerHandler(Constant.EVENTS.ready)
                     }
-                    deferred.resolve()
+                    deferred.resolve(instance)
+                    if (callback) callback(undefined, instance)
                 })
                 .dequeue()
 
@@ -352,14 +361,18 @@ define(
         }
 
         // 加载模块
-        function load(moduleId) {
+        /*
+            load(moduleId [, callback( error, BrixImpl )])
+        */
+        function load(moduleId, callback) {
             // console.log('function', arguments.callee.name, moduleId)
             var deferred = Util.defer()
             var promise = deferred.promise
             require([moduleId], function(BrixImpl) {
                 // setTimeout(function() {
                 deferred.resolve(BrixImpl)
-                // }, 0)
+                if (callback) callback(undefined, BrixImpl)
+                    // }, 0)
             })
             promise.then(undefined, console.error)
             return promise
