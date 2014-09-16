@@ -1,6 +1,12 @@
 brix-loader
 ===========
 
+[![Build Status](https://api.travis-ci.org/thx/brix-loader.svg)](http://travis-ci.org/thx/brix-loader)
+[![Coverage Status](https://img.shields.io/coveralls/thx/brix-loader.svg)](https://coveralls.io/r/thx/brix-loader?branch=master)
+[![NPM version](https://badge.fury.io/js/mockjs.svg)](http://badge.fury.io/js/mockjs)
+[![Bower version](https://badge.fury.io/bo/mockjs.svg)](http://badge.fury.io/bo/mockjs)
+[![Dependency Status](https://gemnasium.com/thx/brix-loader.svg)](https://gemnasium.com/thx/brix-loader)
+
 <!-- 
 
 https://github.com/pahen/madge
