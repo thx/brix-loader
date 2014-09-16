@@ -209,7 +209,14 @@ define(
                     }
                     // 5. 执行渲染（不存在怎么办？必须有！）
                     try {
-                        instance.render()
+                        instance.render(function(error, instance) {
+                            // 异步待处理 TODO
+                            if (error) {
+                                deferred.reject(error)
+                                if (callback) callback(error, instance)
+                            }
+                            // next()
+                        })
                     } catch (error) {
                         deferred.reject(error)
                         if (callback) callback(error, instance)
