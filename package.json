@@ -1,21 +1,21 @@
 {
   "name": "brix-loader",
   "version": "0.0.1",
-  "description": "brix-loader ===========",
+  "description": "brix-loader",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/nuysoft/brix-loader"
+    "url": "https://github.com/thx/brix-loader"
   },
   "author": "",
-  "license": "BSD-2-Clause",
+  "license": "MIT",
   "bugs": {
-    "url": "https://github.com/nuysoft/brix-loader/issues"
+    "url": "https://github.com/thx/brix-loader/issues"
   },
-  "homepage": "https://github.com/nuysoft/brix-loader",
+  "homepage": "https://github.com/thx/brix-loader",
   "devDependencies": {
     "gulp": "~3.8.7",
     "gulp-connect": "~2.0.6",
