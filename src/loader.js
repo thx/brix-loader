@@ -43,7 +43,7 @@ define(
         var CACHE = {}
 
         /*
-            boot(context)
+            boot( context, callback )
             
             * boot()
             * boot(brixImpl)
