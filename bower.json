@@ -6,5 +6,6 @@
   "ignore": [
     "**/.*"
   ],
+  "dependencies": {},
   "devDependencies": {}
 }
