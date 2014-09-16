@@ -21,10 +21,10 @@
 1. Loader 去掉了所有依赖。
 2. 把原先耦合在一起的代码拆分成了 4 个仓库，通过 bower 管理依赖：
 
-	https://github.com/thx/brix-loader
-	https://github.com/nuysoft/brix-base
-	https://github.com/nuysoft/brix-gallery
-	https://github.com/nuysoft/brix-demo
+	* https://github.com/thx/brix-loader
+	* https://github.com/nuysoft/brix-base
+	* https://github.com/nuysoft/brix-gallery
+	* https://github.com/nuysoft/brix-demo
 
 3. 演示从 https://github.com/nuysoft/brix-demo 开始。
 
