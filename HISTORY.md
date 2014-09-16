@@ -16,6 +16,18 @@
 1. 移除对 Q.js、Underscore.js、jQuery Queue 的依赖，改为在 `src/util.js` 里重新实现，剩余的依赖有：jQuery Selector、jQuery Event。
 2. 支持事件配置项，并且只处理初试配置的事件，不处理组件模板上的事件（由组件自己绑定）
 
+**2014-09-16** 基本完成
+
+1. Loader 去掉了所有依赖。
+2. 把原先耦合在一起的代码拆分成了 4 个仓库，通过 bower 管理依赖：
+
+	https://github.com/thx/brix-loader
+	https://github.com/nuysoft/brix-base
+	https://github.com/nuysoft/brix-gallery
+	https://github.com/nuysoft/brix-demo
+
+3. 演示从 https://github.com/nuysoft/brix-demo 开始。
+
 <!-- 
 错误信息不友好
  -->
