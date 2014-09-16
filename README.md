@@ -56,6 +56,19 @@ require(['loader'], function(Loader){
 
 > 该方法的返回值是一个数组，包含了一组组件实例，并且，数组上含有所有 Brix 组件实例的方法。
 
+## 贡献者 Contributors
+
+    project  : brix-loader
+    repo age : 7 weeks
+    active   : 10 days
+    commits  : 23
+    files    : 30
+    authors  :
+       12	高云                  52.2%
+       11	墨智                  47.8%
+
+<!-- git shortlog -s -n -->
+
 ## License
 
 MIT
