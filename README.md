@@ -1,10 +1,12 @@
 Brix Loader
 ===========
 
-[![Build Status](https://api.travis-ci.org/thx/brix-loader.svg)](http://travis-ci.org/thx/brix-loader)
-[![Coverage Status](https://img.shields.io/coveralls/thx/brix-loader.svg)](https://coveralls.io/r/thx/brix-loader?branch=master)
-[![Bower version](https://badge.fury.io/bo/brix-loader.svg)](http://badge.fury.io/bo/brix-loader)
-[![Dependency Status](https://gemnasium.com/thx/brix-loader.svg)](https://gemnasium.com/thx/brix-loader)
+[![Build Status](http://img.shields.io/travis/thx/brix-loader.svg?style=flat)](http://travis-ci.org/thx/brix-loader)
+[![Coverage Status](https://img.shields.io/coveralls/thx/brix-loader.svg?style=flat)](https://coveralls.io/r/thx/brix-loader?branch=master)
+[![Dependency Status](http://img.shields.io/gemnasium/thx/brix-loader.svg?style=flat)](https://gemnasium.com/thx/brix-loader)
+
+<!-- [![Bower version](https://badge.fury.io/bo/brix-loader.svg)](http://badge.fury.io/bo/brix-loader) -->
+
 
 组件加载器，负责管理组件的整个生命周期，包括加载、初始化、渲染、销毁。
 
@@ -56,6 +58,16 @@ require(['loader'], function(Loader){
 
 > 该方法的返回值是一个数组，包含了一组组件实例，并且，数组上含有所有 Brix 组件实例的方法。
 
+## 文件结构 Structure
+
+```shell
+tree . -I 'node_modules|bower_components'
+```
+<!-- 
+    brew install tree
+    tree . -I 'node_modules|bower_components'
+ -->
+
 ## 贡献者 Contributors
 
     project  : brix-loader
@@ -67,13 +79,17 @@ require(['loader'], function(Loader){
        12	高云                  52.2%
        11	墨智                  47.8%
 
-<!-- git shortlog -s -n -->
+<!-- 
+    brew install git-extras
+    git summary
+ -->
 
 ## License
 
 MIT
 
 <!-- 
+https://github.com/totorojs/totoro
 
 https://github.com/pahen/madge
 	sudo npm -g install madge

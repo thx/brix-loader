@@ -3,6 +3,8 @@
 
 var gulp = require('gulp')
 var jshint = require('gulp-jshint')
+var mocha = require('gulp-mocha')
+var connect = require('gulp-connect')
 var rjs = require('gulp-requirejs')
 var build = {
     baseUrl: 'src',
@@ -15,6 +17,13 @@ gulp.task('jshint', function() {
     return gulp.src(['src/*.js', 'gulpfile.js'])
         .pipe(jshint('.jshintrc'))
         .pipe(jshint.reporter('jshint-stylish'))
+})
+
+gulp.task('mocha', function() {
+    return gulp.src('test/*.js')
+        .pipe(mocha({
+            reporter: 'nyan'
+        }))
 })
 
 gulp.task('rjs', function() {
@@ -31,6 +40,12 @@ gulp.task('watch', function( /*callback*/ ) {
                 }
             )
         })
+})
+
+gulp.task('connect', function() {
+    connect.server({
+        port: 4244
+    })
 })
 
 gulp.task('default', ['watch'])

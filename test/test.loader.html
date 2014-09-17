@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>What have I done</title>
+    <link href="/bower_components/mocha/mocha.css" rel="stylesheet">
+    <script src="/bower_components/chai/chai.js"></script>
+    <script src="/bower_components/mocha/mocha.js"></script>
+    <script src="/bower_components/requirejs/require.js"></script>
+    <script src="/package.js"></script>
+    <script>
+        window._TEST_MODE = true;
+        mocha.setup('bdd')
+    </script>
+</head>
+<body>
+    <div id="mocha"></div>
+
+    <!-- Include the actual tests. -->
+    <script src="./test.loader.js"></script>
+
+    <script type="text/javascript">
+        if (!window.PHANTOMJS) {
+            // Don't run if PHANTOMJS.
+            mocha.run();
+        }
+    </script>
+</body>
+</html>
