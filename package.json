@@ -18,9 +18,9 @@
   "homepage": "https://github.com/thx/brix-loader",
   "devDependencies": {
     "gulp": "*",
-    "gulp-connect": "^2.0.6",
+    "gulp-connect": "*",
     "gulp-jshint": "*",
-    "gulp-mocha": "^1.1.0",
+    "gulp-mocha": "*",
     "gulp-requirejs": "*",
     "gulp-uglify": "*",
     "jshint-stylish": "*"

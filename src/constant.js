@@ -1,12 +1,12 @@
 /* global define */
 
 define(function() {
-
     var VERSION = '0.0.1'
     var EXPANDO = (Math.random() + '').replace(/\D/g, '')
     return {
         VERSION: VERSION,
         // Loader
+        ROOT_CLIENT_ID: -1,
         ATTRS: {
             id: 'bx-id',
             cid: 'bx-cid',

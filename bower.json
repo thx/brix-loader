@@ -8,9 +8,9 @@
   ],
   "dependencies": {},
   "devDependencies": {
-    "requirejs": "~2.1.15",
-    "mocha": "~1.21.4",
-    "should.js": "visionmedia/should.js#~3.3.1",
-    "chai": "~1.9.1"
+    "requirejs": "*",
+    "mocha": "*",
+    "should.js": "*",
+    "chai": "*"
   }
 }

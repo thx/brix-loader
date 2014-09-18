@@ -36,7 +36,7 @@ define(
                 !parent.getAttribute(Constant.ATTRS.cid)
             )
             if (parent && parent.nodeType === 1) parentClientId = +parent.getAttribute(Constant.ATTRS.cid)
-            else parentClientId = -1
+            else parentClientId = Constant.ROOT_CLIENT_ID
 
             // 配置项集合
             options = element.getAttribute(Constant.ATTRS.options)

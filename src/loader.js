@@ -52,7 +52,6 @@ define(
             初始化节点 context 以及节点 context 内的所有组件。
             简：初始化所有组件。
         */
-
         function boot(context, callback) {
             // console.log('function', arguments.callee.name, context && context.element)
             context = context && context.element || context || document
@@ -452,6 +451,20 @@ define(
                     instance: brix
                 }
             }
+            return {
+                name: root,
+                children: [
+                    {
+                        name: moduleId + ',' + clientId,
+                        children: [
+                            {
+                                name
+                                children
+                            }
+                        ]
+                    }
+                ]
+            }
         */
         function tree() {
             var result = {
@@ -464,6 +477,7 @@ define(
                     if (item.parentClientId === parentClientId) {
                         children.push({
                             name: item.moduleId + ',' + item.clientId,
+                            module: item,
                             children: _parseChildren(item.clientId, [])
                         })
                     }
@@ -471,7 +485,7 @@ define(
                 return children
             }
 
-            _parseChildren(-1, result.children)
+            _parseChildren(Constant.ROOT_CLIENT_ID, result.children)
 
             return result
         }
