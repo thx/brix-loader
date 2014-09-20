@@ -10,7 +10,6 @@
   "devDependencies": {
     "requirejs": "*",
     "mocha": "*",
-    "chai": "*",
-    "should.js": "visionmedia/should.js"
+    "chai": "*"
   }
 }

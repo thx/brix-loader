@@ -41,6 +41,13 @@ gulp.task('watch', function( /*callback*/ ) {
 
 // https://github.com/pahen/madge
 gulp.task('madge', function( /*callback*/ ) {
+    exec('madge --format amd ./src/',
+        function(error, stdout /*, stderr*/ ) {
+            if (error) console.log('exec error: ' + error)
+            console.log('module dependencies:')
+            console.log(stdout)
+        }
+    )
     exec('madge --format amd --image ./doc/dependencies.png ./src/',
         function(error /*, stdout, stderr*/ ) {
             if (error) console.log('exec error: ' + error)
@@ -56,6 +63,7 @@ gulp.task('connect', function() {
 })
 
 // TODO
+// https://github.com/search?utf8=%E2%9C%93&q=gulp-mocha-phantomjs+coveralls&type=Code&ref=searchresults
 gulp.task('coveralls', function() {})
 
 gulp.task('default', ['connect', 'watch'])
