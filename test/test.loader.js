@@ -1,7 +1,7 @@
 describe('Loader', function() {
     var Loader
     before(function(done) {
-        require(['loader/loader'], function(moduel) {
+        require(['loader'], function(moduel) {
             Loader = moduel
             done()
         })

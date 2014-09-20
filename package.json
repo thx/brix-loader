@@ -20,7 +20,7 @@
     "gulp": "*",
     "gulp-connect": "*",
     "gulp-jshint": "*",
-    "gulp-mocha": "*",
+    "gulp-mocha-phantomjs": "*",
     "gulp-requirejs": "*",
     "gulp-uglify": "*",
     "jshint-stylish": "*"

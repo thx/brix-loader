@@ -2,8 +2,8 @@
 
 define(
     [
-        'loader/constant',
-        'loader/util'
+        'constant',
+        'util'
     ],
     function(
         Constant,

@@ -1,5 +1,4 @@
 /* global define */
-
 define(function() {
     var VERSION = '0.0.1'
     var EXPANDO = (Math.random() + '').replace(/\D/g, '')

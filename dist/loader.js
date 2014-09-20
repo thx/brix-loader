@@ -1,13 +1,12 @@
 
 /* global define */
-
-define('constant.js',[],function() {
-
+define('constant',[],function() {
     var VERSION = '0.0.1'
     var EXPANDO = (Math.random() + '').replace(/\D/g, '')
     return {
         VERSION: VERSION,
         // Loader
+        ROOT_CLIENT_ID: -1,
         ATTRS: {
             id: 'bx-id',
             cid: 'bx-cid',
@@ -49,7 +48,7 @@ define('constant.js',[],function() {
     
     http://underscorejs.org/
 */
-define('util.js',[],function() {
+define('util',[],function() {
 
     var _ = {}
 
@@ -321,11 +320,13 @@ define('util.js',[],function() {
 /* global define  */
 
 define(
-    'option.js',[
-        './constant.js', './util.js'
+    'option',[
+        'constant',
+        'util'
     ],
     function(
-        Constant, Util
+        Constant,
+        Util
     ) {
         /*
             解析配置项 bx-options
@@ -354,7 +355,7 @@ define(
                 !parent.getAttribute(Constant.ATTRS.cid)
             )
             if (parent && parent.nodeType === 1) parentClientId = +parent.getAttribute(Constant.ATTRS.cid)
-            else parentClientId = -1
+            else parentClientId = Constant.ROOT_CLIENT_ID
 
             // 配置项集合
             options = element.getAttribute(Constant.ATTRS.options)
@@ -438,7 +439,6 @@ define(
 /* global require       */
 /* global document      */
 /* global console       */
-
 /*
     ## Brix Loader
     
@@ -466,9 +466,9 @@ define(
 */
 define(
     'loader',[
-        './constant.js',
-        './option.js',
-        './util.js'
+        'constant',
+        'option',
+        'util'
     ],
     function(
         Constant,
@@ -479,7 +479,7 @@ define(
         var CACHE = {}
 
         /*
-            boot(context)
+            boot( context, callback )
             
             * boot()
             * boot(brixImpl)
@@ -488,7 +488,6 @@ define(
             初始化节点 context 以及节点 context 内的所有组件。
             简：初始化所有组件。
         */
-
         function boot(context, callback) {
             // console.log('function', arguments.callee.name, context && context.element)
             context = context && context.element || context || document
@@ -606,18 +605,6 @@ define(
                     next()
                 })
                 .queue(function(next) {
-                    // 绑定测试事件
-                    Util.each(Constant.EVENTS, function(type) {
-                        if (instance.on) {
-                            instance.on(type + Constant.LOADER_NAMESPACE, function(event) {
-                                console.log(label, event.type)
-                            })
-                        }
-                    })
-                    next()
-                    // .delay(100, queueName) // 每个组件之间的渲染间隔 100ms，方便观察
-                })
-                .queue(function(next) {
                     // 4. 执行初始化
                     if (instance.init) instance.init()
                     console.log(label, 'init')
@@ -657,13 +644,32 @@ define(
                     }
                     // 5. 执行渲染（不存在怎么办？必须有！）
                     try {
-                        instance.render()
+                        instance.render(function(error, instance) {
+                            // 异步待处理 TODO
+                            if (error) {
+                                deferred.reject(error)
+                                if (callback) callback(error, instance)
+                            }
+                            // next()
+                        })
                     } catch (error) {
                         deferred.reject(error)
                         if (callback) callback(error, instance)
                     }
                     console.log(label, 'render')
                     next()
+                })
+                .queue(function(next) {
+                    // 绑定测试事件
+                    Util.each(Constant.EVENTS, function(type) {
+                        if (instance.on) {
+                            instance.on(type + Constant.LOADER_NAMESPACE, function(event) {
+                                console.log(label, event.type)
+                            })
+                        }
+                    })
+                    next()
+                    // .delay(100, queueName) // 每个组件之间的渲染间隔 100ms，方便观察
                 })
                 .queue(function(next) {
                     // 6. 绑定事件
@@ -881,6 +887,20 @@ define(
                     instance: brix
                 }
             }
+            return {
+                name: root,
+                children: [
+                    {
+                        name: moduleId + ',' + clientId,
+                        children: [
+                            {
+                                name
+                                children
+                            }
+                        ]
+                    }
+                ]
+            }
         */
         function tree() {
             var result = {
@@ -893,6 +913,7 @@ define(
                     if (item.parentClientId === parentClientId) {
                         children.push({
                             name: item.moduleId + ',' + item.clientId,
+                            module: item,
                             children: _parseChildren(item.clientId, [])
                         })
                     }
@@ -900,7 +921,7 @@ define(
                 return children
             }
 
-            _parseChildren(-1, result.children)
+            _parseChildren(Constant.ROOT_CLIENT_ID, result.children)
 
             return result
         }

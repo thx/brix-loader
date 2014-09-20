@@ -2,7 +2,6 @@
 /* global require       */
 /* global document      */
 /* global console       */
-
 /*
     ## Brix Loader
     
@@ -30,9 +29,9 @@
 */
 define(
     [
-        'loader/constant',
-        'loader/option',
-        'loader/util'
+        'constant',
+        'option',
+        'util'
     ],
     function(
         Constant,

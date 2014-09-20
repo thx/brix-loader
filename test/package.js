@@ -1,5 +1,5 @@
 require.config({
     paths: {
-        'loader': './dist/loader'
+        'loader': '../dist/loader'
     }
 })
