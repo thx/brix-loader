@@ -23,6 +23,9 @@
     "gulp-mocha-phantomjs": "*",
     "gulp-requirejs": "*",
     "gulp-uglify": "*",
-    "jshint-stylish": "*"
-  }
+    "jshint-stylish": "*",
+    "coveralls": "*",
+    "mocha-lcov-reporter": "0.0.1"
+  },
+  "dependencies": {}
 }
