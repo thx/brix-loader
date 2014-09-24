@@ -328,9 +328,19 @@ define(
         Constant,
         Util
     ) {
-        /*
-            解析配置项 bx-options
-        */
+        /**
+         * 解析配置项 bx-options
+         * @param  {element} 一个 DOM 元素
+         * @return {object}
+         *      {
+         *        element:
+         *        moduleId:
+         *        clientId:
+         *        parentClientId:
+         *        childClientIds:
+         *        events:
+         *      }
+         */
         function parseOptions(element) {
             var options
             var parent, moduleId, clientId, parentClientId
@@ -342,7 +352,7 @@ define(
 
             // 为组件关联的 DOM 节点分配唯一标识
             clientId = Constant.UUID++
-            if (!element.getAttribute(Constant.ATTRS.cid)) element.setAttribute(Constant.ATTRS.cid, clientId)
+            if (element.clientId === undefined) element.clientId = clientId
 
             // 查找父节点
             parent = element
@@ -352,9 +362,9 @@ define(
                 parent &&
                 (parent.nodeType !== 9) && // Document 9
                 (parent.nodeType !== 11) && // DocumentFragment 11
-                !parent.getAttribute(Constant.ATTRS.cid)
+                parent.clientId === undefined
             )
-            if (parent && parent.nodeType === 1) parentClientId = +parent.getAttribute(Constant.ATTRS.cid)
+            if (parent && parent.nodeType === 1) parentClientId = +parent.clientId
             else parentClientId = Constant.ROOT_CLIENT_ID
 
             // 配置项集合
@@ -370,40 +380,77 @@ define(
             options.clientId = clientId
             options.parentClientId = parentClientId
             options.childClientIds = []
+
             options.events = parseBxEvents(element)
 
             return options
         }
 
+        /**
+         * 解析 bx-type 风格的事件配置
+         * @param  {element} 一个 DOM 元素
+         * @param  {boolean} 是否进行深度查找
+         * @return {array}
+         *      [
+         *        {
+         *          target:
+         *          type:
+         *          handler:
+         *          fn:
+         *          params:
+         *        },
+         *      ]
+         */
         function parseBxEvents(element, deep) {
+            // 数组 or 伪数组
             if (!element.nodeType && element.length) element = element[0]
             var elements = deep ? element.getElementsByTagName('*') : [element]
             var events = []
-            Util.each(elements, function(element) {
-                Util.each(element.attributes, function(attribute) {
+            Util.each(elements, function(item /*, index*/ ) {
+                Util.each(item.attributes, function(attribute) {
+                    Constant.RE_EVENT.exec('') // rest lastIndex
                     var ma = Constant.RE_EVENT.exec(attribute.name)
-                    if (ma) {
-                        var item = {
-                            target: element,
-                            type: ma[1],
-                            handler: attribute.value
-                        }
-                        Util.extend(item, parseFnAndParams(attribute.value))
-                        events.push(item)
+                    if (!ma) return
+                    var handleObj = {
+                        target: item,
+                        type: ma[1],
+                        handler: attribute.value
                     }
+                    Util.extend(handleObj, parseFnAndParams(attribute.value))
+                    events.push(handleObj)
                 })
             })
             return events
         }
 
-        function parsetBxTypes(element, deep) {
+        /**
+         * 解析 bx-type 风格的事件类型
+         * @param  {element} 一个 DOM 元素
+         * @param  {boolean} 是否进行深度查找
+         * @return {array}
+         *      [ 'click', 'change', ... ]
+         */
+        function parseBxTypes(element, deep) {
             return Util.unique(
-                Util.map(parseBxEvents(element, deep), function(item) {
-                    return item.type
-                })
+                Util.map(
+                    // [ { target type handler fn params }, ... ]
+                    parseBxEvents(element, deep),
+                    function(item) {
+                        return item.type
+                    }
+                )
             )
         }
 
+        /**
+         * 解析函数名称和参数值
+         * @param  {string} 表达式。
+         * @return {object}
+         *      {
+         *          fn:
+         *          params:
+         *      }
+         */
         function parseFnAndParams(handler) {
             var parts = Constant.FN_ARGS.exec(handler)
             var fn
@@ -430,7 +477,7 @@ define(
         return {
             parseOptions: parseOptions,
             parseBxEvents: parseBxEvents,
-            parsetBxTypes: parsetBxTypes,
+            parseBxTypes: parseBxTypes,
             parseFnAndParams: parseFnAndParams
         }
 
@@ -440,29 +487,117 @@ define(
 /* global document      */
 /* global console       */
 /*
-    ## Brix Loader
     
-    组件加载器，负责管理 Brix Component 的整个生命周期，包括加载、初始化、渲染、销毁。
-
-
-    解析组件配置、解析组件树、加载组件
-    初始化组件、缓存组件、初始化事件
+    # BCD
     
-    方法、属性、事件
-    数据、模板（展现 HTML）、行为（JavaScript（事件））、样式（CSS）
-
-    Q.js
-        https://github.com/kriskowal/q
-        http://documentup.com/kriskowal/q/#getting-started
-        https://github.com/kriskowal/q/wiki/API-Reference#qdefer
-        https://github.com/bellbind/using-promise-q/
-
-    http://gitlab.alibaba-inc.com/river/spec/blob/master/JSON-Schema.md
-    http://gitlab.alibaba-inc.com/limu/brix-central/wikis/BCD
+    **Brix 组件定义规范**（BCD，Brix Component Definition）定义了组件的基本使用方式、公共方法和公共事件。
     
-    http://etaoux.github.io/brix/
-    https://github.com/etaoux/brix/issues
-    http://etaoux.github.io/brix/duck/#!/api/Brix.Gallery.Dropdown
+    **Brix Loader** 是组件加载器，负责管理 Brix Component 的整个生命周期，包括加载、初始化、渲染和销毁。
+    
+    所有支持 BCD 组件定义规范的组件，都可以被 Brix Loader 加载和管理。
+    
+    ## 使用方式
+
+    使用 Brix Component 的书写格式如下：
+
+    ```html
+    <tag bx-id="moduleId" bx-options="{}" bx-type=""></tag>
+    ```
+
+    ### bx-id
+
+    必选。
+
+    `bx-id` 是组件模块标识符。Brix Loader 根据 `bx-id` 的值来加载组件。
+
+    ### bx-options
+
+    可选。
+
+    `bx-options` 指定了组件初始化时所需的配置项。
+
+    ### bx-type
+
+    可选。
+
+    `bx-type` 用于配置事件监听函数。其中，`type` 是事件类型，例如 `bx-click`、`bx-change`。
+
+    ## 公开方法
+
+    详见方法注释。
+    
+    ### Loader.boot( [ context ] [, callback ] )
+    ### Loader.destroy(component [, callback ] )
+    ### Loader.query( moduleId )
+
+    ## 公共事件
+
+    ### ready
+
+    当前组件完全渲染完成后触发，包括子组件的渲染。
+
+    ### destroyed
+
+    当前组件销毁后触发，包括子组件的销毁。
+
+    ## 组件
+
+    *建议*组件实现以下方法：
+
+    * .init()
+        
+        可选。
+
+        组件初始化方法。如果存在，会由 Brix Loader 自动调用。
+
+    * .render()
+
+        必选。
+
+        组件渲染方法。会由 Brix Loader 自动调用。
+
+    * .destroy()
+
+        可选。
+
+        组件销毁方法。如果存在，会由 Brix Loader 自动调用。
+
+    * .on( types, selector, data, fn )
+
+        可选。
+
+        在当前组件（关联的元素）上，为一个或多个事件类型绑定一个事件监听函数。
+
+    * .off( types, selector, fn )
+
+        可选。
+
+        在当前组件（关联的元素）上，移除绑定的一个或多个类型的监听函数。
+
+    * .trigger( type, data )
+
+        可选。
+
+        在当前组件（关联的元素）上，执行所有绑定的事件监听函数和默认行为，并模拟冒泡过程。
+
+    * .triggerHandler( type, data )
+
+        可选。
+
+        在当前组件（关联的元素）上，执行所有绑定的事件监听函数， 但不模拟冒泡过程，也不触发默认行为。
+
+    ===
+
+    备忘
+        组件的组成
+            从用户角度：方法、属性、事件
+            从实现角度：数据、模板（展现 HTML）、行为（JavaScript（事件））、样式（CSS）
+        历史
+            http://etaoux.github.io/brix/
+            https://github.com/etaoux/brix/issues
+            http://etaoux.github.io/brix/duck/#!/api/Brix.Gallery.Dropdown
+        规范
+            http://gitlab.alibaba-inc.com/limu/brix-central/wikis/BCD
 */
 define(
     'loader',[
@@ -477,20 +612,37 @@ define(
     ) {
 
         var CACHE = {}
+        var DEBUG = false
 
         /*
-            boot( context, callback )
-            
-            * boot()
-            * boot(brixImpl)
-            * boot(element)
+            ### Loader.boot( [ context ] [, callback ] )
 
-            初始化节点 context 以及节点 context 内的所有组件。
+            * Loader.boot()
+            * Loader.boot( component )
+            * Loader.boot( element )
+            * Loader.boot( callback )
+
+            初始化节点 context 以及节点 context 内的所有组件，当所有组件初始化完成后回调函数 callback 被执行。
+
+            * **context** 可选。一个 DOM 元素。默认为 document.body。
+            * **callback** 可选。一个回调函数，当所有组件初始化完成后被执行。
+
             简：初始化所有组件。
         */
         function boot(context, callback) {
             // console.log('function', arguments.callee.name, context && context.element)
-            context = context && context.element || context || document
+
+            // boot(callback)
+            if (Util.isFunction(context)) {
+                callback = context
+                context = document.body
+            } else {
+                // boot( component )
+                // boot( element )
+                context = context && context.element ||
+                    context ||
+                    document.body
+            }
 
             var deferred = Util.defer()
             var queue = Util.queue()
@@ -513,6 +665,7 @@ define(
                     .queue(function(next) {
                         init(element)
                             .then(undefined, function(reason) {
+                                // Display the current call stack
                                 console.error(reason.stack)
                             }).finally(function() {
                                 next()
@@ -548,8 +701,8 @@ define(
             var queue = Util.queue()
 
             // 如果已经被初始化，则立即返回
-            var clientId = element.getAttribute(Constant.ATTRS.cid)
-            if (clientId) {
+            var clientId = element.clientId
+            if (clientId !== undefined) {
                 deferred.resolve(CACHE[clientId])
                 if (callback) callback(undefined, CACHE[clientId])
                 return promise
@@ -560,11 +713,11 @@ define(
             var BrixImpl, instance
 
             var label = 'module ' + options.moduleId + ' ' + options.clientId
-            console.group(label)
-            console.time(label)
+            if (DEBUG) console.group(label)
+            if (DEBUG) console.time(label)
             promise.finally(function() {
-                console.timeEnd(label)
-                console.groupEnd(label)
+                if (DEBUG) console.timeEnd(label)
+                if (DEBUG) console.groupEnd(label)
             })
 
             queue
@@ -607,7 +760,7 @@ define(
                 .queue(function(next) {
                     // 4. 执行初始化
                     if (instance.init) instance.init()
-                    console.log(label, 'init')
+                    if (DEBUG) console.log(label, 'init')
                     next()
                 })
                 .queue(function(next) {
@@ -630,15 +783,17 @@ define(
                                 boot(instance.element)
                             }
                             // 同步 clientId
-                            var newElement = instance.element
-                            if (newElement.nodeType && !newElement.getAttribute(Constant.ATTRS.cid)) {
-                                newElement.setAttribute(Constant.ATTRS.cid, options.clientId)
-                            } else if (newElement.length) {
-                                Util.each(newElement, function(item /*, index*/ ) {
-                                    if (item.nodeType && !item.getAttribute(Constant.ATTRS.cid)) {
-                                        item.setAttribute(Constant.ATTRS.cid, options.clientId)
-                                    }
-                                })
+                            var relatedElement = instance.relatedElement
+                            if (relatedElement) {
+                                if (relatedElement.nodeType && (relatedElement.clientId === undefined)) {
+                                    relatedElement.clientId = options.clientId
+                                } else if (relatedElement.length) {
+                                    Util.each(relatedElement, function(item /*, index*/ ) {
+                                        if (item.nodeType && (item.clientId === undefined)) {
+                                            item.clientId = options.clientId
+                                        }
+                                    })
+                                }
                             }
                         }
                     }
@@ -656,7 +811,7 @@ define(
                         deferred.reject(error)
                         if (callback) callback(error, instance)
                     }
-                    console.log(label, 'render')
+                    if (DEBUG) console.log(label, 'render')
                     next()
                 })
                 .queue(function(next) {
@@ -664,7 +819,7 @@ define(
                     Util.each(Constant.EVENTS, function(type) {
                         if (instance.on) {
                             instance.on(type + Constant.LOADER_NAMESPACE, function(event) {
-                                console.log(label, event.type)
+                                if (DEBUG) console.log(label, event.type)
                             })
                         }
                     })
@@ -730,38 +885,57 @@ define(
         }
 
         /*
-            ## destroy(instance)
+            ### Loader.destroy(component [, callback ] )
             
-            * destroy(Query)
-            * destroy(brix)
-            * destroy(element)
-            * destroy(clientId)
+            * Loader.destroy( component )
+            * Loader.destroy( component, callback )
+            * Loader.destroy( element )
+            * Loader.destroy( element, callback )
+            * Loader.destroy( array )
+            * Loader.destroy( array, callback )
+            
+            私有方法：
 
+            * Loader.destroy( clientId )
+            * Loader.destroy( clientId, callback )
+            
             销毁某个组件，包括它的后代组件。
+
+            * **component** 某个组件实例。
+            * **element** 一个 DOM 元素。
+            * **array** 一个含有组件示例或 DOM 元素的数组。
+            * **callback** 可选。一个回调函数，当组件销毁后被执行。
         */
-        function destroy(instance) {
-            if (!instance) return this
-
-            // destroy(clientId)
-            if (Util.isNumber(instance)) instance = CACHE[instance]
-
-            // destroy( Loader.Query() )
-            if (instance.isQuery) {
-                Util.each(instance.toArray(), function(element) {
-                    destroy(element)
-                })
-                return
+        function destroy(instance, callback) {
+            if (!instance) {
+                if (callback) callback()
+                return this
             }
 
-            // destroy(element)
+            // destroy( clientId )
+            if (Util.isNumber(instance)) instance = CACHE[instance]
+
+            // destroy( array )
+            if (Util.isArray(instance)) {
+                Util.each(instance, function(item) {
+                    destroy(item)
+                })
+                if (callback) callback()
+                return this
+            }
+
+            // destroy( element )
             if (instance.nodeType === 1) {
                 instance = CACHE[
-                    instance.getAttribute(Constant.ATTRS.cid)
+                    instance.clientId
                 ]
             }
 
             // 如果已经被移除，则立即返回
-            if (!instance) return this
+            if (!instance) {
+                if (callback) callback()
+                return this
+            }
 
             // 先递归销毁后代组件
             if (instance.childClientIds.length) {
@@ -797,7 +971,10 @@ define(
                 instance.element.parentNode.removeChild(instance.element)
             }
 
-            console.log('module', instance.moduleId, instance.clientId, 'destroy')
+            var label = 'module ' + instance.moduleId + ' ' + instance.clientId
+            if (DEBUG) console.log(label, 'destroy')
+
+            if (callback) callback()
 
             return this
         }
@@ -822,7 +999,7 @@ define(
 
         // 缓存组件
         function cache(instance) {
-            // 缓存起来
+            // 放入缓存
             CACHE[instance.clientId] = instance
             // 关联父组件
             var parent = CACHE[instance.parentClientId]
@@ -830,29 +1007,34 @@ define(
         }
 
         /*
-            * query(element)
-            * query(moduleId)
+            ### Loader.query( moduleId )
+
+            * Loader.query( moduleId )
+            * Loader.query( element )
 
             根据模块标识符 moduleId 查找组件实例。
-            该方法的返回值是一个数组，包含了一组 Brix 组件实例，并且，数组上含有所有 Brix 组件实例的方法。
+
+            * **moduleId** 模块标识符。
+            * **element** 设置了属性 bx-id 的 DOM 元素。
+
+            > 该方法的返回值是一个数组，包含了一组 Brix 组件实例，并且，数组上含有所有 Brix 组件实例的方法。
          */
         function query(moduleId) {
             var results = []
             var methods = []
 
             // 1. 根据 element 查找组件实例
-            // query(element)
+            // query( element )
             if (moduleId.nodeType) {
                 results.push(
                     CACHE[
-                        moduleId.getAttribute(Constant.ATTRS.cid)
+                        moduleId.clientId
                     ]
                 )
-            }
 
-            // 1. 根据 moduleId 查找组件实例
-            // query(moduleId)
-            if (Util.isNumber(moduleId)) {
+            } else {
+                // 1. 根据 moduleId 查找组件实例
+                // query( moduleId )
                 Util.each(CACHE, function(instance /*, index*/ ) {
                     if (instance.moduleId === moduleId) {
                         results.push(instance)
@@ -863,7 +1045,6 @@ define(
                     }
                 })
             }
-
 
             // 2. 绑定组件方法至 query() 返回的对象上
             Util.each(Util.unique(methods), function(name /*, index*/ ) {

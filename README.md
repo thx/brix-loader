@@ -20,7 +20,6 @@ $ bower install --save-dev brix-loader
 
 
 ```js
-
 require.config({
     paths: {
         'loader': 'bower_components/brix-loader/dist/'
@@ -28,27 +27,42 @@ require.config({
 })
 
 require(['loader'], function(Loader){
-	Loader.boot('body', function(){
-		var instances = Loader.query('brix/gallery/dropdown')
-		instance.toggle()
-	})
+    Loader.boot('body', function(){
+        var instances = Loader.query('brix/gallery/dropdown')
+        instance.toggle()
+    })
 })
 ```
 
 ## 公开方法 API
 
-### Loader.boot( context [, callback] )
+### Loader.boot( [ context ] [, callback ] )
 
-初始化节点 context 以及节点 context 内的所有组件。
+* Loader.boot()
+* Loader.boot( component )
+* Loader.boot( element )
+* Loader.boot( callback )
 
-* **context** 一个 DOM 元素。
-* **callback** 一个函数，当所有组件初始化完成后被执行。
+初始化节点 context 以及节点 context 内的所有组件，当所有组件初始化完成后回调函数 callback 被执行。
 
-### Loader.destroy( instance )
+* **context** 可选。一个 DOM 元素。默认为 document.body。
+* **callback** 可选。一个回调函数，当所有组件初始化完成后被执行。
+
+### Loader.destroy(component [, callback ] )
+
+* Loader.destroy( component )
+* Loader.destroy( component, callback )
+* Loader.destroy( element )
+* Loader.destroy( element, callback )
+* Loader.destroy( array )
+* Loader.destroy( array, callback )
 
 销毁某个组件，包括它的后代组件。
 
-* **instance** 某个组件实例。
+* **component** 某个组件实例。
+* **element** 一个 DOM 元素。
+* **array** 一个含有组件示例或 DOM 元素的数组。
+* **callback** 可选。一个回调函数，当组件销毁后被执行。
 
 ### Loader.query( moduleId )
 
@@ -56,33 +70,29 @@ require(['loader'], function(Loader){
 
 * **moduleId** 模块标识符。
 
-> 该方法的返回值是一个数组，包含了一组组件实例，并且，数组上含有所有 Brix 组件实例的方法。
+* Loader.query( moduleId )
+* Loader.query( element )
+
+根据模块标识符 moduleId 查找组件实例。
+
+* **moduleId** 模块标识符。
+* **element** 设置了属性 bx-id 的 DOM 元素。
+
+> 该方法的返回值是一个数组，包含了一组 Brix 组件实例，并且，数组上含有所有 Brix 组件实例的方法。
 
 ## 文件结构 Structure
 
 ```shell
+brew install tree
 tree . -I 'node_modules|bower_components'
 ```
-<!-- 
-    brew install tree
-    tree . -I 'node_modules|bower_components'
- -->
 
 ## 贡献者 Contributors
 
-    project  : brix-loader
-    repo age : 7 weeks
-    active   : 10 days
-    commits  : 23
-    files    : 30
-    authors  :
-       12	高云                  52.2%
-       11	墨智                  47.8%
-
-<!-- 
-    brew install git-extras
-    git summary
- -->
+```shell
+brew install git-extras
+git summary
+```
 
 ## License
 
@@ -92,16 +102,16 @@ MIT
 https://github.com/totorojs/totoro
 
 https://github.com/pahen/madge
-	sudo npm -g install madge
-	sudo brew install graphviz
-	madge --format amd ./src/
-	madge --format amd --image ./doc/dependencies.png ./src/
-		blue = has dependencies
-		green = has no dependencies
-		red = has circular dependencies
+    sudo npm -g install madge
+    sudo brew install graphviz
+    madge --format amd ./src/
+    madge --format amd --image ./doc/dependencies.png ./src/
+        blue = has dependencies
+        green = has no dependencies
+        red = has circular dependencies
 
 .editorconfig
-	https://github.com/search?o=desc&q=gulp+boilerplate&ref=searchresults&s=stars&type=Repositories&utf8=%E2%9C%93
+    https://github.com/search?o=desc&q=gulp+boilerplate&ref=searchresults&s=stars&type=Repositories&utf8=%E2%9C%93
     https://github.com/sindresorhus/gulp-plugin-boilerplate/
 
 r.js
