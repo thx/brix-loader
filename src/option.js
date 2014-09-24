@@ -62,8 +62,6 @@ define(
             options.parentClientId = parentClientId
             options.childClientIds = []
 
-            options.events = parseBxEvents(element)
-
             return options
         }
 

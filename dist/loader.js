@@ -22,7 +22,8 @@ define('constant',[],function() {
             destroy: 'destroy'
         },
         OPTIONS: [
-            'element', // 组件关联的节点
+            'element', // 组件真正的节点
+            'relatedElement', // 组件关联的节点
             'moduleId', // 组件的模块标识符
             'clientId', // 组件实例的标识符
             'parentClientId', // 父组件实例的标识符
@@ -33,7 +34,7 @@ define('constant',[],function() {
         EXPANDO: 'Brix' + VERSION + EXPANDO,
         UUID: 0,
         // Event
-        RE_EVENT: /bx\-(?!id|cid|options)(.+)/,
+        RE_EVENT: /bx\-(?!id|options)(.+)/,
         FN_ARGS: /([^()]+)(?:\((.*?)\))?/,
         LOADER_NAMESPACE: '._loader',
         COMPONENT_NAMESPACE: '._component',
@@ -380,8 +381,6 @@ define(
             options.clientId = clientId
             options.parentClientId = parentClientId
             options.childClientIds = []
-
-            options.events = parseBxEvents(element)
 
             return options
         }
