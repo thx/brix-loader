@@ -66,10 +66,6 @@ require(['loader'], function(Loader){
 
 ### Loader.query( moduleId )
 
-根据模块标识符 moduleId 查找组件实例。
-
-* **moduleId** 模块标识符。
-
 * Loader.query( moduleId )
 * Loader.query( element )
 
