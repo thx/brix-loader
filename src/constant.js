@@ -28,7 +28,8 @@ define(function() {
             'parentClientId', // 父组件实例的标识符
             'childClientIds', // 父组件实例的标识符数组
             'data', // 组件关联的数据
-            'template' // 组件关联的 HTML 模板
+            'template', // 组件关联的 HTML 模板
+            'css' // 组件关联的 CSS 文件
         ],
         EXPANDO: 'Brix' + VERSION + EXPANDO,
         UUID: 0,
