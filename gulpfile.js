@@ -10,7 +10,12 @@ var exec = require('child_process').exec
 
 // https://github.com/spenceralger/gulp-jshint
 gulp.task('jshint', function() {
-    return gulp.src(['src/*.js', 'gulpfile.js'])
+    var globs = [
+        'src/*.js', 'gulpfile.js',
+        '../brix-components/**/*.js',
+        '!../brix-components/bower_components/**/*'
+    ]
+    return gulp.src(globs)
         .pipe(jshint('.jshintrc'))
         .pipe(jshint.reporter('jshint-stylish'))
 })
