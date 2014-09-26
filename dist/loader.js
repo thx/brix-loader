@@ -482,10 +482,10 @@ define(
         }
 
     });
-/* global define        */
-/* global require       */
-/* global document      */
-/* global console       */
+/* global define   */
+/* global require  */
+/* global document */
+/* global console  */
 /*
     
     # BCD
