@@ -43,7 +43,7 @@
     详见方法注释。
     
     ### Loader.boot( [ context ] [, callback ] )
-    ### Loader.destroy(component [, callback ] )
+    ### Loader.destroy( component [, callback ] )
     ### Loader.query( moduleId )
 
     ## 公共事件
@@ -118,7 +118,7 @@
 define(
     [
         'constant',
-        'option',
+        'options',
         'util'
     ],
     function(
@@ -225,7 +225,7 @@ define(
             }
 
             // 1. 解析配置项
-            var options = Options.parseOptions(element)
+            var options = Options.parse(element)
             var BrixImpl, instance
 
             var label = 'module ' + options.moduleId + ' ' + options.clientId
@@ -276,7 +276,7 @@ define(
                 .queue(function(next) {
                     // 4. 执行初始化
                     if (instance.init) instance.init()
-                    if (DEBUG) console.log(label, 'init')
+                    if (DEBUG) console.log(label, 'call  init')
                     next()
                 })
                 .queue(function(next) {
@@ -301,9 +301,11 @@ define(
                             // 同步 clientId
                             var relatedElement = instance.relatedElement
                             if (relatedElement) {
+                                // element
                                 if (relatedElement.nodeType && (relatedElement.clientId === undefined)) {
                                     relatedElement.clientId = options.clientId
                                 } else if (relatedElement.length) {
+                                    // [ element ]
                                     Util.each(relatedElement, function(item /*, index*/ ) {
                                         if (item.nodeType && (item.clientId === undefined)) {
                                             item.clientId = options.clientId
@@ -315,6 +317,7 @@ define(
                     }
                     // 5. 执行渲染（不存在怎么办？必须有！）
                     try {
+                        // TODO
                         instance.render(function(error, instance) {
                             // 异步待处理 TODO
                             if (error) {
@@ -327,7 +330,7 @@ define(
                         deferred.reject(error)
                         if (callback) callback(error, instance)
                     }
-                    if (DEBUG) console.log(label, 'render')
+                    if (DEBUG) console.log(label, 'call  render')
                     next()
                 })
                 .queue(function(next) {
@@ -335,7 +338,7 @@ define(
                     Util.each(Constant.EVENTS, function(type) {
                         if (instance.on) {
                             instance.on(type + Constant.LOADER_NAMESPACE, function(event) {
-                                if (DEBUG) console.log(label, event.type)
+                                if (DEBUG) console.log(label, 'event', event.type)
                             })
                         }
                     })
@@ -347,7 +350,7 @@ define(
                     // 从初始的关联元素上解析事件配置项 bx-type，然后逐个绑定到最终的关联元素上。
                     // 以 Dropdown 为例，初试的关联元素是 <select>，最终的关联元素却是 <div class="dropdown">
                     // 这是用户关注的事件。
-                    if (instance.on) {
+                    if (instance.on && options.events) {
                         Util.each(options.events, function(item /*, index*/ ) {
                             // item: { target type handler fn params }
                             instance.on(item.type + Constant.LOADER_NAMESPACE, function(event, extraParameters) {
@@ -523,19 +526,21 @@ define(
         }
 
         /*
-            ### Loader.query( moduleId )
-
+            ### Loader.query( moduleId [, context ] )
+            
+            * Loader.query( moduleId, context )
             * Loader.query( moduleId )
             * Loader.query( element )
 
             根据模块标识符 moduleId 查找组件实例。
 
             * **moduleId** 模块标识符。
+            * **context** 限定参查找的范围，可以是 moduleId、component、element。
             * **element** 设置了属性 bx-id 的 DOM 元素。
 
             > 该方法的返回值是一个数组，包含了一组 Brix 组件实例，并且，数组上含有所有 Brix 组件实例的方法。
          */
-        function query(moduleId) {
+        function query(moduleId, context) {
             var results = []
             var methods = []
 
@@ -553,11 +558,14 @@ define(
                 // query( moduleId )
                 Util.each(CACHE, function(instance /*, index*/ ) {
                     if (instance.moduleId === moduleId) {
-                        results.push(instance)
-                        // 收集组件方法
-                        Util.each(instance.constructor.prototype, function(value, name) {
-                            if (Util.isFunction(value)) methods.push(name)
-                        })
+                        // 是否在 context 内
+                        if (context === undefined || parents(instance, context).length) {
+                            results.push(instance)
+                            // 收集组件方法
+                            Util.each(instance.constructor.prototype, function(value, name) {
+                                if (Util.isFunction(value)) methods.push(name)
+                            })
+                        }
                     }
                 })
             }
@@ -573,6 +581,37 @@ define(
                 }
             })
 
+            return results
+        }
+
+        /*
+            查找父组件
+            context
+                moduleId  
+                component options render
+                element   nodeType
+         */
+        function parents(instance, context) {
+            var results = []
+            var parent = instance
+            if (context === undefined) return results
+
+            // parents(instance, component)
+            // parents(instance, element)
+            if (context.options && context.render || context.nodeType) {
+                while ((parent = CACHE[parent.parentClientId])) {
+                    if (parent.clientId === context.clientId) {
+                        results.push(parent)
+                    }
+                }
+            } else {
+                // parents(instance, moduleId)    
+                while ((parent = CACHE[parent.parentClientId])) {
+                    if (parent.moduleId === context) {
+                        results.push(parent)
+                    }
+                }
+            }
             return results
         }
 
