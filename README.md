@@ -61,17 +61,19 @@ require(['loader'], function(Loader){
 
 * **component** 某个组件实例。
 * **element** 一个 DOM 元素。
-* **array** 一个含有组件示例或 DOM 元素的数组。
+* **array** 一个含有组件实例或 DOM 元素的数组。
 * **callback** 可选。一个回调函数，当组件销毁后被执行。
 
-### Loader.query( moduleId )
+### Loader.query( moduleId [, context ] )
 
+* Loader.query( moduleId, context )
 * Loader.query( moduleId )
 * Loader.query( element )
 
 根据模块标识符 moduleId 查找组件实例。
 
 * **moduleId** 模块标识符。
+* **context** 限定参查找的范围，可以是 moduleId、component、element。
 * **element** 设置了属性 bx-id 的 DOM 元素。
 
 > 该方法的返回值是一个数组，包含了一组 Brix 组件实例，并且，数组上含有所有 Brix 组件实例的方法。

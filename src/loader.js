@@ -44,7 +44,7 @@
     
     ### Loader.boot( [ context ] [, callback ] )
     ### Loader.destroy( component [, callback ] )
-    ### Loader.query( moduleId )
+    ### Loader.query( moduleId [, context ] )
 
     ## 公共事件
 
@@ -422,7 +422,7 @@ define(
 
             * **component** 某个组件实例。
             * **element** 一个 DOM 元素。
-            * **array** 一个含有组件示例或 DOM 元素的数组。
+            * **array** 一个含有组件实例或 DOM 元素的数组。
             * **callback** 可选。一个回调函数，当组件销毁后被执行。
         */
         function destroy(instance, callback) {
