@@ -22,7 +22,7 @@ define(
          *        events:
          *      }
          */
-        function parseOptions(element) {
+        function parse(element) {
             var options
             var parent, moduleId, clientId, parentClientId
 
@@ -154,10 +154,7 @@ define(
         }
 
         return {
-            parseOptions: parseOptions,
-            parseBxEvents: parseBxEvents,
-            parseBxTypes: parseBxTypes,
-            parseFnAndParams: parseFnAndParams
+            parse: parse
         }
 
     })

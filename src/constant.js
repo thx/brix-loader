@@ -20,16 +20,20 @@ define(function() {
             ready: 'ready',
             destroy: 'destroy'
         },
-        OPTIONS: [
-            'element', // 组件真正的节点
-            'relatedElement', // 组件关联的节点
+        /*
+            以下属性会被自动从 options 复制到组件实例上。
+            其他预设但是不会自动复制的选项有：
+            * css 组件关联的 CSS 文件
+         */
+        OPTIONS: [ // 以下属性会被自动复制到组件实例上
+            'element', // 组件关联的节点
+            'relatedElement', // 组件真正的节点
             'moduleId', // 组件的模块标识符
             'clientId', // 组件实例的标识符
             'parentClientId', // 父组件实例的标识符
             'childClientIds', // 父组件实例的标识符数组
             'data', // 组件关联的数据
-            'template', // 组件关联的 HTML 模板
-            'css' // 组件关联的 CSS 文件
+            'template' // 组件关联的 HTML 模板
         ],
         EXPANDO: 'Brix' + VERSION + EXPANDO,
         UUID: 0,
