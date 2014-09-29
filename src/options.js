@@ -1,5 +1,4 @@
 /* global define  */
-
 define(
     [
         'constant',
@@ -62,95 +61,23 @@ define(
             options.parentClientId = parentClientId
             options.childClientIds = []
 
+            // 解析 HTML data- 中的配置项
+            Util.extend(
+                options,
+                data(element)
+            )
+
             return options
         }
 
-        /**
-         * 解析 bx-type 风格的事件配置
-         * @param  {element} 一个 DOM 元素
-         * @param  {boolean} 是否进行深度查找
-         * @return {array}
-         *      [
-         *        {
-         *          target:
-         *          type:
-         *          handler:
-         *          fn:
-         *          params:
-         *        },
-         *      ]
-         */
-        function parseBxEvents(element, deep) {
-            // 数组 or 伪数组
-            if (!element.nodeType && element.length) element = element[0]
-            var elements = deep ? element.getElementsByTagName('*') : [element]
-            var events = []
-            Util.each(elements, function(item /*, index*/ ) {
-                Util.each(item.attributes, function(attribute) {
-                    Constant.RE_EVENT.exec('') // rest lastIndex
-                    var ma = Constant.RE_EVENT.exec(attribute.name)
-                    if (!ma) return
-                    var handleObj = {
-                        target: item,
-                        type: ma[1],
-                        handler: attribute.value
-                    }
-                    Util.extend(handleObj, parseFnAndParams(attribute.value))
-                    events.push(handleObj)
-                })
+        function data(element) {
+            var options = {}
+            Util.each(element.attributes, function(attribute) {
+                var ma = /data-(.+)/.exec(attribute.name)
+                if (!ma) return
+                options[ma[1]] = attribute.value
             })
-            return events
-        }
-
-        /**
-         * 解析 bx-type 风格的事件类型
-         * @param  {element} 一个 DOM 元素
-         * @param  {boolean} 是否进行深度查找
-         * @return {array}
-         *      [ 'click', 'change', ... ]
-         */
-        function parseBxTypes(element, deep) {
-            return Util.unique(
-                Util.map(
-                    // [ { target type handler fn params }, ... ]
-                    parseBxEvents(element, deep),
-                    function(item) {
-                        return item.type
-                    }
-                )
-            )
-        }
-
-        /**
-         * 解析函数名称和参数值
-         * @param  {string} 表达式。
-         * @return {object}
-         *      {
-         *          fn:
-         *          params:
-         *      }
-         */
-        function parseFnAndParams(handler) {
-            var parts = Constant.FN_ARGS.exec(handler)
-            var fn
-            var params
-            if (parts && parts[1]) {
-                fn = parts[1]
-                params = parts[2] || ''
-                try {
-                    // 1. 尝试保持参数的类型 
-                    /* jshint -W061 */
-                    params = eval('(function(){ return [].splice.call(arguments, 0 ) })(' + params + ')')
-                } catch (error) {
-                    // 2. 如果失败，只能解析为字符串
-                    params = parts[2].split(/,\s*/)
-                }
-                return {
-                    fn: fn,
-                    params: params
-                }
-            }
-            return {}
+            return options
         }
 
         return {

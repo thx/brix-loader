@@ -146,8 +146,6 @@ define(
             简：初始化所有组件。
         */
         function boot(context, callback) {
-            // console.log('function', arguments.callee.name, context && context.element)
-
             // boot(callback)
             if (Util.isFunction(context)) {
                 callback = context
@@ -250,8 +248,7 @@ define(
                         // 3. 创建组件实例
                         instance = new BrixImpl(options)
                         // 设置属性 options
-                        instance.options = instance.options || {} // 转换为实例属性
-                        Util.extend(instance.options, options)
+                        instance.options = Util.extend({}, instance.options, options)
                         // 设置其他公共属性
                         Util.extend(instance, Util.pick(options, Constant.OPTIONS))
                         next()
@@ -662,9 +659,32 @@ define(
             return result
         }
 
-        return {
+        var tasks = Util.queue()
+        var booting = false
+        var Loader = {
             CACHE: CACHE,
-            boot: boot,
+            boot: function(context, callback) {
+                // boot(callback)
+                if (Util.isFunction(context)) {
+                    callback = context
+                    context = document.body
+                } else {
+                    // boot( component )
+                    // boot( element )
+                    context = context && context.element ||
+                        context ||
+                        document.body
+                }
+                tasks.queue(function(next) {
+                    booting = true
+                    boot(context, function( /* context */ ) {
+                        booting = false
+                        callback(context)
+                        next()
+                    })
+                })
+                if (!booting) tasks.dequeue()
+            },
             init: init,
             destroy: destroy,
             query: query,
@@ -674,5 +694,7 @@ define(
             Constant: Constant,
             Options: Options
         }
+
+        return Loader
     }
 )
