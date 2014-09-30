@@ -410,10 +410,7 @@ define(
         }
 
     });
-/* global define   */
-/* global require  */
-/* global document */
-/* global console  */
+/* global define, require, document, console  */
 /*
     
     # BCD
@@ -987,6 +984,7 @@ define(
                         if (!instance[name]) return
                         instance[name].apply(instance, args)
                     })
+                    return this
                 }
             })
 
