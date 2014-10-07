@@ -544,7 +544,11 @@ define(
 
             * Loader.boot()
             * Loader.boot( component )
+            * Loader.boot( component, callback )
             * Loader.boot( element )
+            * Loader.boot( element, callback )
+            * Loader.boot( array{element|component} )
+            * Loader.boot( array{element|component}, callback )
             * Loader.boot( callback )
 
             初始化节点 context 以及节点 context 内的所有组件，当所有组件初始化完成后回调函数 callback 被执行。
@@ -560,8 +564,10 @@ define(
                 callback = context
                 context = document.body
             } else {
-                // boot( component )
-                // boot( element )
+                // boot( component )                    context.element
+                // boot( element )                      element
+                // boot( array{element|component} )
+                // boot()                               document.body
                 context = context && context.element ||
                     context ||
                     document.body
@@ -572,12 +578,17 @@ define(
 
             // 1. 查找组件节点 [bx-id]
             var elements = function() {
+                // element or [ element ]
+                var contextArray = context.nodeType ? [context] : context
                 var elements = []
-                if (context.nodeType === 1 && context.getAttribute(Constant.ATTRS.id)) elements.push(context)
-                var descendants = context.getElementsByTagName('*')
-                Util.each(descendants, function(descendant /*, index*/ ) {
-                    if (descendant.nodeType !== 1) return
-                    if (descendant.getAttribute(Constant.ATTRS.id)) elements.push(descendant)
+                Util.each(contextArray, function(item /*, index*/ ) {
+                    item = item.element || item
+                    if (item.nodeType === 1 && item.getAttribute(Constant.ATTRS.id)) elements.push(item)
+                    var descendants = item.getElementsByTagName('*')
+                    Util.each(descendants, function(descendant /*, index*/ ) {
+                        if (descendant.nodeType !== 1) return
+                        if (descendant.getAttribute(Constant.ATTRS.id)) elements.push(descendant)
+                    })
                 })
                 return elements
             }()
