@@ -162,6 +162,34 @@ define(function() {
         return hasOwnProperty.call(obj, key)
     }
 
+    /* 非 Underscore 方法 */
+
+    // 去掉 HTML 的缩进
+    _.trimHTML = function(element) {
+        var htmls = element.outerHTML.split('\n')
+        var indent = htmls[htmls.length - 1].match(/^([\s\t]*)/)[0].length
+        return _.map(htmls, function(line, index) {
+            return index === 0 ? line : line.slice(indent)
+        }).join('\n')
+    }
+
+    // 去掉 <pre><code></code></pre> 的缩进
+    _.trimPredefined = function(element) {
+        var rtrim = /^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g
+        var text = $(element).html().replace(/&lt;/g, '<').replace(/&gt;/g, '>')
+        var lines = text.split('\n')
+        var indent
+        _.each(lines, function(line, index) {
+            if (!line) return
+            if (indent !== undefined) return
+            indent = line.match(/^([\s\t]*)/)[0].length
+        })
+        lines = _.map(lines, function(line, index) {
+            return line.slice(indent)
+        })
+        return lines.join('\n').replace(rtrim, '')
+    }
+
     // Queue 实现
 
     function Queue() {

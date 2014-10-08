@@ -1,4 +1,4 @@
-/* global define  */
+/* global define, JSON */
 define(
     [
         'constant',
@@ -75,7 +75,12 @@ define(
             Util.each(element.attributes, function(attribute) {
                 var ma = /data-(.+)/.exec(attribute.name)
                 if (!ma) return
-                options[ma[1]] = attribute.value
+                try {
+                    /* jshint evil:true */
+                    options[ma[1]] = eval(attribute.value)
+                } catch (error) {
+                    options[ma[1]] = attribute.value
+                }
             })
             return options
         }

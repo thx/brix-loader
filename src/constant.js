@@ -11,6 +11,11 @@ define(function() {
             cid: 'bx-cid',
             options: 'bx-options'
         },
+        DATA_ATTRS: { // data-*
+            id: 'data-module',
+            cid: 'data-cid',
+            options: /data-(.+)/
+        },
         SELECTORS: {
             id: '[bx-id]',
             cid: '[bx-cid]',
