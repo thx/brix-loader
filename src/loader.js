@@ -688,7 +688,7 @@ define(
                     booting = true
                     boot(context, function( /* context */ ) {
                         booting = false
-                        callback(context)
+                        if (callback) callback(context)
                         next()
                     })
                 })
