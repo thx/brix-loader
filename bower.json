@@ -4,7 +4,16 @@
   "homepage": "https://github.com/thx/brix-loader",
   "license": "MIT",
   "ignore": [
-    "**/.*"
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "src",
+    "test",
+    "doc",
+    "package.json",
+    "gulpfile.js",
+    "CONTRIBUTING.md",
+    "HISTORY.md"
   ],
   "dependencies": {},
   "devDependencies": {
