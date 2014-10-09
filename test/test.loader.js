@@ -15,21 +15,21 @@ describe('Loader', function() {
     })
 
     describe('init()', function() {
-        it('should boot without error', function(done) {
+        it('should init without error', function(done) {
             // Loader.
             done()
         })
     })
 
     describe('destroy()', function() {
-        it('should boot without error', function(done) {
+        it('should destroy without error', function(done) {
             // Loader.
             done()
         })
     })
 
     describe('query()', function() {
-        it('should boot without error', function(done) {
+        it('should query without error', function(done) {
             // Loader.
             done()
         })

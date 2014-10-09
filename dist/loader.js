@@ -229,15 +229,15 @@ define('util',[],function() {
     // 去掉 <pre><code></code></pre> 的缩进
     _.trimPredefined = function(element) {
         var rtrim = /^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g
-        var text = $(element).html().replace(/&lt;/g, '<').replace(/&gt;/g, '>')
+        var text = element.innerHTML.replace(/&lt;/g, '<').replace(/&gt;/g, '>')
         var lines = text.split('\n')
         var indent
-        _.each(lines, function(line, index) {
+        _.each(lines, function(line /*, index*/ ) {
             if (!line) return
             if (indent !== undefined) return
             indent = line.match(/^([\s\t]*)/)[0].length
         })
-        lines = _.map(lines, function(line, index) {
+        lines = _.map(lines, function(line /*, index*/ ) {
             return line.slice(indent)
         })
         return lines.join('\n').replace(rtrim, '')
@@ -354,9 +354,50 @@ define('util',[],function() {
         return new Deferred()
     }
 
+    // Deferred helper
+    _.when = function( /* subordinate, ..., subordinateN */ ) {
+        // TODO
+    }
+
+    /*
+        定时器辅助工具，可以把多个 setInterval 合并成一个。
+        来自 Countdown 组件。
+     */
+    var Timer = {
+        push: function(task, interval) {
+            this.timers = this.timers || {}
+            this.timers[interval] = this.timers[interval] || []
+            this.timers[interval].push(task)
+            this.run()
+        },
+        pop: function(task, interval) {
+            var timers = this.timers
+            if (!timers || !timers[interval]) return
+            for (var i = 0; i < timers[interval].length; i++) {
+                if (timers[interval] === task) timers[interval].splice(i--, 1)
+            }
+        },
+        run: function() {
+            _.each(this.timers, function(item, interval) {
+                if (!item.length) {
+                    clearInterval(item.timer)
+                    return
+                }
+                if (!item.timer) {
+                    item.timer = setInterval(function() {
+                        _.each(item, function(fn /*, index*/ ) {
+                            fn()
+                        })
+                    }, interval)
+                }
+            })
+        }
+    }
+    _.Timer = Timer
+
     return _
 });
-/* global define, JSON */
+/* global define */
 define(
     'options',[
         'constant',
@@ -433,11 +474,13 @@ define(
             Util.each(element.attributes, function(attribute) {
                 var ma = /data-(.+)/.exec(attribute.name)
                 if (!ma) return
+
+                var value = attribute.value
                 try {
                     /* jshint evil:true */
-                    options[ma[1]] = eval(attribute.value)
+                    options[ma[1]] = /^\s*[\[{]/.test(value) ? eval(value) : value
                 } catch (error) {
-                    options[ma[1]] = attribute.value
+                    options[ma[1]] = value
                 }
             })
             return options
@@ -591,7 +634,7 @@ define(
 
             初始化节点 context 以及节点 context 内的所有组件，当所有组件初始化完成后回调函数 callback 被执行。
 
-            * **context** 可选。一个 DOM 元素。默认为 document.body。
+            * **context** 可选。一个 DOM 元素，或一组 DOM 元素。默认为 document.body。
             * **callback** 可选。一个回调函数，当所有组件初始化完成后被执行。
 
             简：初始化所有组件。
@@ -604,26 +647,28 @@ define(
             } else {
                 // boot( component )                    context.element
                 // boot( element )                      element
-                // boot( array{element|component} )
+                // boot( array{element|component} )     element
                 // boot()                               document.body
                 context = context && context.element ||
                     context ||
                     document.body
             }
 
-            var deferred = Util.defer()
+            // 初始化任务队列
             var queue = Util.queue()
 
             // 1. 查找组件节点 [bx-id]
             var elements = function() {
-                // element or [ element ]
+                // element or [ element|component ]
                 var contextArray = context.nodeType ? [context] : context
                 var elements = []
                 Util.each(contextArray, function(item /*, index*/ ) {
+                    // component or element
                     item = item.element || item
                     if (item.nodeType === 1 && item.getAttribute(Constant.ATTRS.id)) elements.push(item)
                     var descendants = item.getElementsByTagName('*')
                     Util.each(descendants, function(descendant /*, index*/ ) {
+                        if (/pre|code/i.test(descendant.parentNode.nodeName)) return
                         if (descendant.nodeType !== 1) return
                         if (descendant.getAttribute(Constant.ATTRS.id)) elements.push(descendant)
                     })
@@ -635,13 +680,10 @@ define(
             Util.each(elements, function(element /*, index*/ ) {
                 queue
                     .queue(function(next) {
-                        init(element)
-                            .then(undefined, function(reason) {
-                                // Display the current call stack
-                                console.error(reason.stack)
-                            }).finally(function() {
-                                next()
-                            })
+                        init(element, function(error /*, instance*/ ) {
+                            if (error) console.error(error.stack)
+                            next()
+                        })
                     })
             })
 
@@ -649,12 +691,10 @@ define(
             // 4. 全部任务执行完成（无论成败）
             queue
                 .queue(function() {
-                    deferred.resolve(context)
                     if (callback) callback(context)
                 })
-                .dequeue() // 开始
+                .dequeue() // 开始出队执行
 
-            return deferred.promise
         }
 
         /*
@@ -666,18 +706,14 @@ define(
             简：初始化单个组件。
         */
         function init(element, callback) {
-            // console.log('function', arguments.callee.name, element)
-
-            var deferred = Util.defer()
-            var promise = deferred.promise
+            // 初始化任务队列
             var queue = Util.queue()
 
             // 如果已经被初始化，则立即返回
             var clientId = element.clientId
             if (clientId !== undefined) {
-                deferred.resolve(CACHE[clientId])
                 if (callback) callback(undefined, CACHE[clientId])
-                return promise
+                return
             }
 
             // 1. 解析配置项
@@ -685,21 +721,25 @@ define(
             var BrixImpl, instance
 
             var label = 'module ' + options.moduleId + ' ' + options.clientId
-            if (DEBUG) console.group(label)
-            if (DEBUG) console.time(label)
-            promise.finally(function() {
-                if (DEBUG) console.timeEnd(label)
-                if (DEBUG) console.groupEnd(label)
-            })
+            if (DEBUG) {
+                console.group(label)
+                console.time(label)
+                var _callback = callback
+                callback = function(error, instance) {
+                    console.timeEnd(label)
+                    console.groupEnd(label)
+                    _callback(error, instance)
+                }
+            }
 
             queue
                 .queue(function(next) {
                     // 2. 加载组件模块
-                    load(options.moduleId)
-                        .then(function(impl) {
-                            BrixImpl = impl
-                            next()
-                        })
+                    /* jshint unused:false */
+                    load(options.moduleId, function(error, module) {
+                        BrixImpl = module
+                        next()
+                    })
                 })
                 .queue(function(next) {
                     try {
@@ -711,7 +751,6 @@ define(
                         Util.extend(instance, Util.pick(options, Constant.OPTIONS))
                         next()
                     } catch (error) {
-                        deferred.reject(error)
                         if (callback) callback(error, instance)
                     }
                 })
@@ -736,24 +775,48 @@ define(
                 })
                 .queue(function(next) {
                     // 拦截渲染方法
-                    if (!instance._render) {
-                        instance._render = instance.render
-                        instance.render = function() {
-                            // 如果存在已经被渲染的子组件，则先销毁
-                            var hasRenderedChildren
-                            if (instance.childClientIds.length) {
-                                hasRenderedChildren = true
-                                Util.each(instance.childClientIds, function(childClientId) {
-                                    if (CACHE[childClientId]) destroy(childClientId)
-                                })
-                            }
-                            // 调用组件的 .render()
-                            instance._render.apply(this, arguments)
-                            // 再次渲染子组件
+                    if (instance._render) next()
+
+                    instance._render = instance.render
+                    instance.render = function() {
+                        var deferred = Util.defer()
+                        var promise = deferred.promise
+
+                        // 如果存在已经被渲染的子组件，则先销毁
+                        var hasRenderedChildren
+                        if (instance.childClientIds.length) {
+                            hasRenderedChildren = true
+                            Util.each(instance.childClientIds, function(childClientId) {
+                                if (CACHE[childClientId]) destroy(childClientId)
+                            })
+                        }
+                        // 调用组件的 .render()
+                        var result = instance._render.apply(this, arguments)
+                        if (result && result.then) {
+                            result.then(function() {
+                                renderChildren()
+                                syncClientId()
+                            })
+                        } else {
+                            renderChildren()
+                            syncClientId()
+                        }
+
+                        return promise
+
+                        // 再次初始化子组件
+                        function renderChildren() {
                             if (hasRenderedChildren) {
-                                boot(instance.element)
+                                boot(instance.element, function( /* context */ ) {
+                                    deferred.resolve()
+                                })
+                            } else {
+                                deferred.resolve()
                             }
-                            // 同步 clientId
+                        }
+
+                        // 同步 clientId
+                        function syncClientId() {
                             var relatedElement = instance.relatedElement
                             if (relatedElement) {
                                 // element
@@ -769,24 +832,31 @@ define(
                                 }
                             }
                         }
+
                     }
+                    next()
+                })
+                .queue(function(next) {
                     // 5. 执行渲染（不存在怎么办？必须有！）
                     try {
-                        // TODO
-                        instance.render(function(error, instance) {
-                            // 异步待处理 TODO
-                            if (error) {
-                                deferred.reject(error)
-                                if (callback) callback(error, instance)
-                            }
-                            // next()
+                        var result = instance.render(function(error /*, instance*/ ) {
+                            if (error) {}
                         })
+                        if (DEBUG) console.log(label, 'call  render')
+
+                        // deferred
+                        if (result && result.then) {
+                            result.then(function() {
+                                next()
+                            }, function(error) {
+                                if (callback) callback(error, instance)
+                            })
+                        } else {
+                            next()
+                        }
                     } catch (error) {
-                        deferred.reject(error)
                         if (callback) callback(error, instance)
                     }
-                    if (DEBUG) console.log(label, 'call  render')
-                    next()
                 })
                 .queue(function(next) {
                     // 绑定测试事件
@@ -837,7 +907,7 @@ define(
                     })
                     // 7. 如果有后代组件，则递归加载
                     if (hasBrixElement) {
-                        boot(instance).then(function() {
+                        boot(instance, function() {
                             next()
                         })
                     } else {
@@ -850,12 +920,10 @@ define(
                     if (instance.triggerHandler) {
                         instance.triggerHandler(Constant.EVENTS.ready)
                     }
-                    deferred.resolve(instance)
                     if (callback) callback(undefined, instance)
                 })
-                .dequeue()
+                .dequeue() // 开始出队执行
 
-            return promise
         }
 
         /*
@@ -953,22 +1021,15 @@ define(
             return this
         }
 
-        // 加载模块
         /*
+            加载模块
             load(moduleId [, callback( error, BrixImpl )])
         */
         function load(moduleId, callback) {
-            // console.log('function', arguments.callee.name, moduleId)
-            var deferred = Util.defer()
-            var promise = deferred.promise
-            require([moduleId], function(BrixImpl) {
-                // setTimeout(function() {
-                deferred.resolve(BrixImpl)
-                if (callback) callback(undefined, BrixImpl)
-                    // }, 0)
+            require([moduleId], function(module) {
+                if (callback) callback(undefined, module)
             })
-            promise.then(undefined, console.error)
-            return promise
+            return this
         }
 
         // 缓存组件
@@ -1130,6 +1191,7 @@ define(
                 } else {
                     // boot( component )
                     // boot( element )
+                    // boot()
                     context = context && context.element ||
                         context ||
                         document.body
@@ -1143,6 +1205,7 @@ define(
                     })
                 })
                 if (!booting) tasks.dequeue()
+                return this
             },
             init: init,
             destroy: destroy,
