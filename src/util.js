@@ -176,15 +176,15 @@ define(function() {
     // 去掉 <pre><code></code></pre> 的缩进
     _.trimPredefined = function(element) {
         var rtrim = /^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g
-        var text = $(element).html().replace(/&lt;/g, '<').replace(/&gt;/g, '>')
+        var text = element.innerHTML.replace(/&lt;/g, '<').replace(/&gt;/g, '>')
         var lines = text.split('\n')
         var indent
-        _.each(lines, function(line, index) {
+        _.each(lines, function(line /*, index*/ ) {
             if (!line) return
             if (indent !== undefined) return
             indent = line.match(/^([\s\t]*)/)[0].length
         })
-        lines = _.map(lines, function(line, index) {
+        lines = _.map(lines, function(line /*, index*/ ) {
             return line.slice(indent)
         })
         return lines.join('\n').replace(rtrim, '')
@@ -300,6 +300,47 @@ define(function() {
     _.defer = function() {
         return new Deferred()
     }
+
+    // Deferred helper
+    _.when = function( /* subordinate, ..., subordinateN */ ) {
+        // TODO
+    }
+
+    /*
+        定时器辅助工具，可以把多个 setInterval 合并成一个。
+        来自 Countdown 组件。
+     */
+    var Timer = {
+        push: function(task, interval) {
+            this.timers = this.timers || {}
+            this.timers[interval] = this.timers[interval] || []
+            this.timers[interval].push(task)
+            this.run()
+        },
+        pop: function(task, interval) {
+            var timers = this.timers
+            if (!timers || !timers[interval]) return
+            for (var i = 0; i < timers[interval].length; i++) {
+                if (timers[interval] === task) timers[interval].splice(i--, 1)
+            }
+        },
+        run: function() {
+            _.each(this.timers, function(item, interval) {
+                if (!item.length) {
+                    clearInterval(item.timer)
+                    return
+                }
+                if (!item.timer) {
+                    item.timer = setInterval(function() {
+                        _.each(item, function(fn /*, index*/ ) {
+                            fn()
+                        })
+                    }, interval)
+                }
+            })
+        }
+    }
+    _.Timer = Timer
 
     return _
 })
