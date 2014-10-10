@@ -450,7 +450,7 @@ define(
 
             // 如果没有模块标识符，则无需（也无法）加载，立即返回
             moduleId = element.getAttribute(Constant.ATTRS.id)
-            if (!moduleId) return
+            if (!moduleId) return {}
 
             // 为组件关联的 DOM 节点分配唯一标识
             clientId = Constant.UUID++
@@ -743,6 +743,12 @@ define(
                 return
             }
 
+            // 如果没有属性 bx-id，则不需要初始化
+            if (!element.getAttribute(Constant.ATTRS.id)) {
+                if (callback) callback(undefined, undefined)
+                return this
+            }
+
             // 1. 解析配置项
             var options = Options.parse(element)
             var BrixImpl, instance
@@ -976,7 +982,7 @@ define(
             * **callback** 可选。一个回调函数，当组件销毁后被执行。
         */
         function destroy(instance, callback) {
-            if (!instance) {
+            if (instance === undefined) {
                 if (callback) callback()
                 return this
             }
@@ -1027,7 +1033,7 @@ define(
 
             // 触发 destroy 事件
             // 在移除关联的节点后，无法再继续利用浏览器事件模型来传播和触发事件，所以在移除前先触发 destroy 事件。
-            instance.triggerHandler(Constant.EVENTS.destroy)
+            if (instance.triggerHandler) instance.triggerHandler(Constant.EVENTS.destroy)
 
             // 在当前组件关联的元素上，移除所有由 Loader 绑定的事件监听函数。
             if (instance.off) {
@@ -1239,7 +1245,7 @@ define(
                     booting = true
                     boot(context, function( /* context */ ) {
                         booting = false
-                        if (callback) callback(context)
+                        if (callback) callback()
                         next()
                     })
                 })
