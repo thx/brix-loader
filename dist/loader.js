@@ -1075,7 +1075,8 @@ define(
             * Loader.query( moduleId )
             * Loader.query( element )
             * Loader.query( elementArray )
-            * Loader.query( array{element} )
+            
+            // * Loader.query( array{element} )
 
             根据模块标识符 moduleId 查找组件实例。
 
@@ -1099,7 +1100,7 @@ define(
                 )
 
             } else if (moduleId.length && !Util.isString(moduleId)) {
-                // query( array[element] )
+                // query( elementArray )
                 Util.each(moduleId, function(element /*, index*/ ) {
                     results.push(
                         CACHE[

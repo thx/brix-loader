@@ -101,6 +101,10 @@
 
     ===
 
+    # Why Brix?
+
+    像使用原生元素一样使用组件。
+
     备忘
         组件的组成
             从用户角度：方法、属性、事件
@@ -554,6 +558,9 @@ define(
             * Loader.query( moduleId, context )
             * Loader.query( moduleId )
             * Loader.query( element )
+            * Loader.query( elementArray )
+            
+            // * Loader.query( array{element} )
 
             根据模块标识符 moduleId 查找组件实例。
 
@@ -576,6 +583,15 @@ define(
                     ]
                 )
 
+            } else if (moduleId.length && !Util.isString(moduleId)) {
+                // query( elementArray )
+                Util.each(moduleId, function(element /*, index*/ ) {
+                    results.push(
+                        CACHE[
+                            element.clientId
+                        ]
+                    )
+                })
             } else {
                 // 1. 根据 moduleId 查找组件实例
                 // query( moduleId )
