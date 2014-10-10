@@ -1,5 +1,5 @@
 /* global define        */
-/* global setTimeout    */
+/* global setTimeout, setInterval, clearInterval */
 
 /*
     Brix Loader Utility Functions
