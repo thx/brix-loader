@@ -1,5 +1,28 @@
 
 /* global define */
+/*
+    
+    代码风格：
+    https://github.com/thx/brix-loader/issues/1
+
+    使用 Brix 组件时，需要指定必需的『模块 ID』和可选的『组件配置』，现在的纠结之处在于它们的代码风格：
+
+    ### 模块 ID
+    
+    1. <div bx-id="component/hello">
+    2. <div data-id="component/hello">
+    3. <div data-module="component/hello">
+    4. <div bx-name="component/hello">
+    5. <div data-name="component/hello">
+
+    ## 组件配置
+    
+    1. <div bx-options="{ msg: 'world' }">
+    2. <div bx-msg="world">
+    3. <div data-msg="world">
+    
+    你期望用上哪种风格？求投票。
+ */
 define('constant',[],function() {
     var VERSION = '0.0.1'
     var EXPANDO = (Math.random() + '').replace(/\D/g, '')
@@ -52,7 +75,7 @@ define('constant',[],function() {
     }
 });
 /* global define        */
-/* global setTimeout    */
+/* global setTimeout, setInterval, clearInterval */
 
 /*
     Brix Loader Utility Functions
@@ -594,6 +617,10 @@ define(
 
     ===
 
+    # Why Brix?
+
+    像使用原生元素一样使用组件。
+
     备忘
         组件的组成
             从用户角度：方法、属性、事件
@@ -1047,6 +1074,8 @@ define(
             * Loader.query( moduleId, context )
             * Loader.query( moduleId )
             * Loader.query( element )
+            * Loader.query( elementArray )
+            * Loader.query( array{element} )
 
             根据模块标识符 moduleId 查找组件实例。
 
@@ -1069,6 +1098,15 @@ define(
                     ]
                 )
 
+            } else if (moduleId.length && !Util.isString(moduleId)) {
+                // query( array[element] )
+                Util.each(moduleId, function(element /*, index*/ ) {
+                    results.push(
+                        CACHE[
+                            element.clientId
+                        ]
+                    )
+                })
             } else {
                 // 1. 根据 moduleId 查找组件实例
                 // query( moduleId )
