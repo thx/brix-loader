@@ -645,7 +645,7 @@ define(
     ) {
 
         var CACHE = {}
-        var DEBUG = false
+        var DEBUG = !false
 
         /*
             ### Loader.boot( [ context ] [, callback ] )
@@ -802,9 +802,21 @@ define(
                 })
                 .queue(function(next) {
                     // 4. 执行初始化
-                    if (instance.init) instance.init()
-                    if (DEBUG) console.log(label, 'call  init')
-                    next()
+                    if (instance.init) {
+                        var result = instance.init()
+                        if (DEBUG) console.log(label, 'call  init')
+
+                        // 如果返回了 Promise，则依赖 Promise 的状态
+                        if (result && result.then) {
+                            result.then(function() {
+                                next()
+                            })
+                        } else {
+                            next()
+                        }
+                    } else {
+                        next()
+                    }
                 })
                 .queue(function(next) {
                     // 拦截渲染方法
@@ -825,6 +837,8 @@ define(
                         }
                         // 调用组件的 .render()
                         var result = instance._render.apply(this, arguments)
+
+                        // 如果返回了 Promise，则依赖 Promise 的状态
                         if (result && result.then) {
                             result.then(function() {
                                 renderChildren()
