@@ -14,12 +14,6 @@ describe('Loader', function() {
         })
     })
 
-    describe('init()', function() {
-        it('should init without error', function(done) {
-            Loader.init(document.body, done)
-        })
-    })
-
     describe('query()', function() {
         it('should query without error', function(done) {
             if (Loader.query('0').length) done()
@@ -59,9 +53,9 @@ function genBrixImpl(_) {
                 this.element.innerHTML =
                     content(this) +
                     '<ul>' +
-                    ('<li bx-id="' + this.moduleId + '/0"></li>') +
-                    ('<li bx-id="' + this.moduleId + '/1"></li>') +
-                    ('<li bx-id="' + this.moduleId + '/2"></li>') +
+                    ('<li bx-name="' + this.moduleId + '/0"></li>') +
+                    ('<li bx-name="' + this.moduleId + '/1"></li>') +
+                    ('<li bx-name="' + this.moduleId + '/2"></li>') +
                     '</ul>'
             }
         })
@@ -77,9 +71,9 @@ function genBrixImpl(_) {
                 this.element.innerHTML =
                     content(this) +
                     '<ul>' +
-                    ('<li bx-id="' + this.moduleId + '/0"></li>') +
-                    ('<li bx-id="' + this.moduleId + '/1"></li>') +
-                    ('<li bx-id="' + this.moduleId + '/2"></li>')
+                    ('<li bx-name="' + this.moduleId + '/0"></li>') +
+                    ('<li bx-name="' + this.moduleId + '/1"></li>') +
+                    ('<li bx-name="' + this.moduleId + '/2"></li>')
                 '</ul>'
             }
         })

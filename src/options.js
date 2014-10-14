@@ -61,7 +61,7 @@ define(
             options.parentClientId = parentClientId
             options.childClientIds = []
 
-            // 解析 HTML data- 中的配置项
+            // 解析 HTML5 data-* 中的配置项
             Util.extend(
                 options,
                 data(element)
@@ -70,6 +70,9 @@ define(
             return options
         }
 
+        /*
+            解析 HTML5 data-* 中的配置项，优先级比 bx-options 中的更高。
+         */
         function data(element) {
             var options = {}
             Util.each(element.attributes, function(attribute) {
@@ -79,7 +82,9 @@ define(
                 var value = attribute.value
                 try {
                     /* jshint evil:true */
-                    options[ma[1]] = /^\s*[\[{]/.test(value) ? eval(value) : value
+                    options[ma[1]] = /^\s*[\[{]/.test(value) ?
+                        eval('(function(){ return [].splice.call(arguments, 0 )[0] })(' + value + ')') :
+                        value
                 } catch (error) {
                     options[ma[1]] = value
                 }

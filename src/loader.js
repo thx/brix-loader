@@ -14,14 +14,14 @@
     使用 Brix Component 的书写格式如下：
 
     ```html
-    <tag bx-id="moduleId" bx-options="{}" bx-type=""></tag>
+    <tag bx-name="moduleId" bx-options="{}" bx-type=""></tag>
     ```
 
-    ### bx-id
+    ### bx-name
 
     必选。
 
-    `bx-id` 是组件模块标识符。Brix Loader 根据 `bx-id` 的值来加载组件。
+    `bx-name` 是组件模块标识符。Brix Loader 根据 `bx-name` 的值来加载组件。
 
     ### bx-options
 
@@ -129,7 +129,7 @@ define(
     ) {
 
         var CACHE = {}
-        var DEBUG = !false
+        var DEBUG = false
 
         /*
             ### Loader.boot( [ context ] [, callback ] )
@@ -168,7 +168,7 @@ define(
             // 初始化任务队列
             var queue = Util.queue()
 
-            // 1. 查找组件节点 [bx-id]
+            // 1. 查找组件节点 [bx-name]
             var elements = function() {
                 // element or [ element|component ]
                 var contextArray = context.nodeType ? [context] : context
@@ -227,7 +227,7 @@ define(
                 return
             }
 
-            // 如果没有属性 bx-id，则不需要初始化
+            // 如果没有模块标识符，则不需要初始化
             if (!element.getAttribute(Constant.ATTRS.id)) {
                 if (callback) callback(undefined, undefined)
                 return this
@@ -253,7 +253,7 @@ define(
                 .queue(function(next) {
                     // 2. 加载组件模块
                     /* jshint unused:false */
-                    load(options.moduleId, function(error, module) {
+                    _require(options.moduleId, function(error, module) {
                         BrixImpl = module
                         next()
                     })
@@ -554,9 +554,9 @@ define(
 
         /*
             加载模块
-            load(moduleId [, callback( error, BrixImpl )])
+            _require(moduleId [, callback( error, BrixImpl )])
         */
-        function load(moduleId, callback) {
+        function _require(moduleId, callback) {
             require([moduleId], function(module) {
                 if (callback) callback(undefined, module)
             })
@@ -586,7 +586,7 @@ define(
 
             * **moduleId** 模块标识符。
             * **context** 限定参查找的范围，可以是 moduleId、component、element。
-            * **element** 设置了属性 bx-id 的 DOM 元素。
+            * **element** 设置了属性 bx-name 的 DOM 元素。
 
             > 该方法的返回值是一个数组，包含了一组 Brix 组件实例，并且，数组上含有所有 Brix 组件实例的方法。
          */
@@ -676,6 +676,27 @@ define(
         }
 
         /*
+            
+            ### Loader.load( moduleId, element [, callback ] )
+            
+            * Loader.load( moduleId, element [, callback ] )
+            * Loader.load( moduleId, elementArray [, callback ] )
+
+            加载组件 moduleId 到指定的节点 element 中。
+
+            * **moduleId** 必选。模块标识符。
+            * **element** 必选。目标元素。
+            * **elementArray** 必选。目标元素数组。
+            * **callback** 可选。一个回调函数，当组件加载完成后被执行。
+         */
+
+        function load(moduleId, element, callback) {
+            console.log(moduleId, element, callback)
+
+            return this
+        }
+
+        /*
             CACHE {
                 uuid: {
                     clientId: uuid
@@ -750,7 +771,7 @@ define(
                 if (!booting) tasks.dequeue()
                 return this
             },
-            init: init,
+            load: load,
             destroy: destroy,
             query: query,
             tree: tree,

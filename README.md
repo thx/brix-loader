@@ -74,7 +74,7 @@ require(['loader'], function(Loader){
 
 * **moduleId** 模块标识符。
 * **context** 限定参查找的范围，可以是 moduleId、component、element。
-* **element** 设置了属性 bx-id 的 DOM 元素。
+* **element** 设置了属性 bx-name 的 DOM 元素。
 
 > 该方法的返回值是一个数组，包含了一组 Brix 组件实例，并且，数组上含有所有 Brix 组件实例的方法。
 
