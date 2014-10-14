@@ -21,6 +21,22 @@
     3. <div data-msg="world">
     
     你期望用上哪种风格？求投票。
+
+    ## 结论
+
+    基于投票结果，确定 Brix Loader 支持的写法如下：
+
+    ### 模块 ID
+
+    * `<div bx-name="component/hello">`
+
+    ### 组件配置
+
+    同时支持：
+
+    * `<div bx-options="{ msg: 'world' }">`
+    * `<div data-msg="world">`
+
  */
 define(function() {
     var VERSION = '0.0.1'
@@ -30,19 +46,14 @@ define(function() {
         // Loader
         ROOT_CLIENT_ID: -1,
         ATTRS: {
-            id: 'bx-id',
-            cid: 'bx-cid',
-            options: 'bx-options'
-        },
-        DATA_ATTRS: { // data-*
-            id: 'data-module',
-            cid: 'data-cid',
-            options: /data-(.+)/
+            id: 'bx-name',
+            options: 'bx-options',
+            cid: 'data-cid'
         },
         SELECTORS: {
-            id: '[bx-id]',
-            cid: '[bx-cid]',
-            options: '[bx-options]'
+            id: '[bx-name]',
+            options: '[bx-options]',
+            cid: '[data-cid]',
         },
         EVENTS: {
             ready: 'ready',
@@ -66,7 +77,7 @@ define(function() {
         EXPANDO: 'Brix' + VERSION + EXPANDO,
         UUID: 0,
         // Event
-        RE_EVENT: /bx\-(?!id|options)(.+)/,
+        RE_EVENT: /bx\-(?!name|options)(.+)/,
         FN_ARGS: /([^()]+)(?:\((.*?)\))?/,
         LOADER_NAMESPACE: '._loader',
         COMPONENT_NAMESPACE: '._component',
