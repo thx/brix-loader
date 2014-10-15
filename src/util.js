@@ -164,6 +164,19 @@ define(function() {
 
     /* 非 Underscore 方法 */
 
+    // 解析参数为 object
+    _.unparam = function(param) {
+        if (!param) return {}
+
+        var re = {};
+        for (var i = 0, arr = param.split('&'), kv;
+            (kv = arr[i]); i++) {
+            kv = kv.split('=');
+            re[kv[0]] = kv[1];
+        }
+        return re;
+    }
+
     // 去掉 HTML 的缩进
     _.trimHTML = function(element) {
         var htmls = element.outerHTML.split('\n')
