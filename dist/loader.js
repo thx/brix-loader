@@ -251,6 +251,19 @@ define('util',[],function() {
 
     /* 非 Underscore 方法 */
 
+    // 解析参数为 object
+    _.unparam = function(param) {
+        if (!param) return {}
+
+        var re = {};
+        for (var i = 0, arr = param.split('&'), kv;
+            (kv = arr[i]); i++) {
+            kv = kv.split('=');
+            re[kv[0]] = kv[1];
+        }
+        return re;
+    }
+
     // 去掉 HTML 的缩进
     _.trimHTML = function(element) {
         var htmls = element.outerHTML.split('\n')
@@ -530,7 +543,7 @@ define(
         }
 
     });
-/* global define, require, document, console  */
+/* global define, require, document, location, console  */
 /*
     
     # BCD
@@ -661,7 +674,7 @@ define(
     ) {
 
         var CACHE = {}
-        var DEBUG = false
+        var DEBUG = ~location.search.indexOf('debug')
 
         /*
             ### Loader.boot( [ context ] [, callback ] )
@@ -682,7 +695,7 @@ define(
 
             简：初始化所有组件。
         */
-        function boot(context, callback) {
+        function boot(context, callback, extraOptions /* Internal Use Only */ ) {
             // boot(callback)
             if (Util.isFunction(context)) {
                 callback = context
@@ -726,7 +739,7 @@ define(
                         init(element, function(error /*, instance*/ ) {
                             if (error) console.error(error.stack)
                             next()
-                        })
+                        }, extraOptions)
                     })
             })
 
@@ -748,7 +761,7 @@ define(
             初始化元素 element 关联的组件。
             简：初始化单个组件。
         */
-        function init(element, callback) {
+        function init(element, callback, extraOptions /* Internal Use Only */ ) {
             // 初始化任务队列
             var queue = Util.queue()
 
@@ -762,11 +775,13 @@ define(
             // 如果没有模块标识符，则不需要初始化
             if (!element.getAttribute(Constant.ATTRS.id)) {
                 if (callback) callback(undefined, undefined)
-                return this
+                return
             }
 
             // 1. 解析配置项
             var options = Options.parse(element)
+            if (extraOptions) Util.extend(options, extraOptions)
+
             var BrixImpl, instance
 
             var label = 'module ' + options.moduleId + ' ' + options.clientId
@@ -777,7 +792,7 @@ define(
                 callback = function(error, instance) {
                     console.timeEnd(label)
                     console.groupEnd(label)
-                    _callback(error, instance)
+                    if (_callback) _callback(error, instance)
                 }
             }
 
@@ -1017,11 +1032,17 @@ define(
                 return this
             }
 
+            // destroy( [] )
+            if (!instance.nodeType && !instance.length) {
+                if (callback) callback()
+                return this
+            }
+
             // destroy( clientId )
             if (Util.isNumber(instance)) instance = CACHE[instance]
 
             // destroy( array )
-            if (Util.isArray(instance)) {
+            if (!instance.nodeType && instance.length) {
                 Util.each(instance, function(item) {
                     destroy(item)
                 })
@@ -1031,15 +1052,42 @@ define(
 
             // destroy( element )
             if (instance.nodeType === 1) {
-                instance = CACHE[
-                    instance.clientId
-                ]
+                // destroy( context )
+                if (instance.clientId === undefined) {
+                    var descendants = instance.getElementsByTagName('*')
+                        // 倒序遍历，以避免某个元素被移除后，漏掉相邻的元素
+                    for (var i = descendants.length - 1, descendant; i >= 0; i--) {
+                        descendant = descendants[i]
+                        if (!descendant) return
+                        if (descendant.nodeType !== 1) return
+                        if (descendant.getAttribute(Constant.ATTRS.id)) destroy(descendant)
+                    }
+                    if (callback) callback()
+                    return this
+                } else {
+                    // destroy( element )
+                    instance = CACHE[
+                        instance.clientId
+                    ]
+                }
             }
 
             // 如果已经被移除，则立即返回
             if (!instance) {
                 if (callback) callback()
                 return this
+            }
+
+            var label = 'module ' + instance.moduleId + ' ' + instance.clientId
+            if (DEBUG) {
+                console.group(label)
+                console.time(label)
+                var _callback = callback
+                callback = function(error, instance) {
+                    console.timeEnd(label)
+                    console.groupEnd(label)
+                    if (_callback) _callback(error, instance)
+                }
             }
 
             // 先递归销毁后代组件
@@ -1076,7 +1124,6 @@ define(
                 instance.element.parentNode.removeChild(instance.element)
             }
 
-            var label = 'module ' + instance.moduleId + ' ' + instance.clientId
             if (DEBUG) console.log(label, 'destroy')
 
             if (callback) callback()
@@ -1188,9 +1235,12 @@ define(
             var parent = instance
             if (context === undefined) return results
 
+            // 从当前组件 instance 开始，逐层向上遍历
+
             // parents(instance, component)
             // parents(instance, element)
             if (context.options && context.render || context.nodeType) {
+                // 在 instance 的祖先元素中，查找与 context.clientId 匹配的元素
                 while ((parent = CACHE[parent.parentClientId])) {
                     if (parent.clientId === context.clientId) {
                         results.push(parent)
@@ -1198,6 +1248,7 @@ define(
                 }
             } else {
                 // parents(instance, moduleId)    
+                // 在 instance 的祖先元素中，查找与 context 匹配的元素
                 while ((parent = CACHE[parent.parentClientId])) {
                     if (parent.moduleId === context) {
                         results.push(parent)
@@ -1209,10 +1260,10 @@ define(
 
         /*
             
-            ### Loader.load( moduleId, element [, callback ] )
+            ### Loader.load( element, moduleId, options [, callback ] )
             
-            * Loader.load( moduleId, element [, callback ] )
-            * Loader.load( moduleId, elementArray [, callback ] )
+            * Loader.load( element, moduleId, options [, callback ] )
+            * Loader.load( elementArray, moduleId, options [, callback ] )
 
             加载组件 moduleId 到指定的节点 element 中。
 
@@ -1220,11 +1271,48 @@ define(
             * **element** 必选。目标元素。
             * **elementArray** 必选。目标元素数组。
             * **callback** 可选。一个回调函数，当组件加载完成后被执行。
+            
+            > 因为每个组件的行为不可以预测（例如，table 是增强，dropdwon 是替换，pagination 是插入），导致销毁和再次加载的行为也不可预测，所以不能直接在节点 element 上加载，而是在其内新建一个容器元素 `<div>`，在这个容器元素上加载组件 moduleId。
+
+            #### Examples
+            
+            ```js
+            var target = $('<div>').insertBefore(document.body.firstChild)
+            Loader.load(target, 'components/hello', {message: 'load' })
+            Loader.unload(target)
+            ```
          */
+        function load(element, moduleId, options, callback) {
+            // load(element, moduleId, options, callback)
+            if (element.nodeType) element = [element]
 
-        function load(moduleId, element, callback) {
-            console.log(moduleId, element, callback)
+            // 1. 销毁已有组件
+            destroy(element)
 
+            // load(elementArray, moduleId, options, callback)
+            Util.each(element, function(item /*, index*/ ) {
+                // item.setAttribute(Constant.ATTRS.id, moduleId)
+                // 2. 为组件 moduleId 新建一个容器元素
+                item.innerHTML = '<div bx-name="' + moduleId + '"></div>'
+            })
+
+            // 3. 初始化组件 moduleId
+            boot(element, callback, options)
+            return this
+        }
+
+        /*
+            ### Loader.unload( element [, callback ] )
+            
+            * Loader.unload( element [, callback ] )
+
+            卸载节点 element 中加载的组件。
+
+            * **element** 必选。目标元素。
+            * **callback** 可选。一个回调函数，当组件卸载完成后被执行。
+         */
+        function unload(element, callback) {
+            destroy(element, callback)
             return this
         }
 
@@ -1303,10 +1391,12 @@ define(
                 if (!booting) tasks.dequeue()
                 return this
             },
-            load: load,
             destroy: destroy,
             query: query,
             tree: tree,
+
+            load: load,
+            unload: unload,
 
             Util: Util,
             Constant: Constant,
