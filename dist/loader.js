@@ -747,7 +747,7 @@ define(
             // 4. 全部任务执行完成（无论成败）
             queue
                 .queue(function() {
-                    if (callback) callback(context)
+                    if (callback) callback()
                 })
                 .dequeue() // 开始出队执行
 
@@ -806,6 +806,7 @@ define(
                     }, function(error) {
                         // http://requirejs.org/docs/api.html#errbacks
                         if (callback) callback(error, instance)
+                        else console.error(error)
                     })
                 })
                 .queue(function(next) {
@@ -819,6 +820,7 @@ define(
                         next()
                     } catch (error) {
                         if (callback) callback(error, instance)
+                        else console.error(error)
                     }
                 })
                 .queue(function(next) {
@@ -931,12 +933,14 @@ define(
                                 next()
                             }, function(error) {
                                 if (callback) callback(error, instance)
+                                else console.error(error)
                             })
                         } else {
                             next()
                         }
                     } catch (error) {
                         if (callback) callback(error, instance)
+                        else console.error(error)
                     }
                 })
                 .queue(function(next) {
@@ -1278,6 +1282,15 @@ define(
             // load(element, moduleId, options, callback)
             if (element.nodeType) element = [element]
 
+            // 如果 element 上设置了 bx-name，则先移除掉
+            // 因为在 load() 模式下，element 仅仅当做容器元素使用，否则会和 boot() 模式冲突。
+            // Util.each(element, function(item, index) {
+            //     if (item.getAttribute(Constant.ATTRS.id)) {
+            //         delete item.clientId
+            //         item.removeAttribute(Constant.ATTRS.id)
+            //     }
+            // })
+
             // 1. 销毁已有组件
             destroy(element)
 
@@ -1374,7 +1387,7 @@ define(
                 }
                 tasks.queue(function(next) {
                     booting = true
-                    boot(context, function( /* context */ ) {
+                    boot(context, function() {
                         booting = false
                         if (callback) callback()
                         next()
