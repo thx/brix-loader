@@ -255,9 +255,12 @@ define(
                 .queue(function(next) {
                     // 2. 加载组件模块
                     /* jshint unused:false */
-                    _require(options.moduleId, function(error, module) {
+                    require([options.moduleId], function(module) {
                         BrixImpl = module
                         next()
+                    }, function(error) {
+                        // http://requirejs.org/docs/api.html#errbacks
+                        if (callback) callback(error, instance)
                     })
                 })
                 .queue(function(next) {
@@ -488,7 +491,7 @@ define(
             }
 
             // destroy( [] )
-            if (!instance.nodeType && !instance.length) {
+            if (!Util.isNumber(instance) && !instance.nodeType && !instance.length) {
                 if (callback) callback()
                 return this
             }
@@ -583,17 +586,6 @@ define(
 
             if (callback) callback()
 
-            return this
-        }
-
-        /*
-            加载模块
-            _require(moduleId [, callback( error, BrixImpl )])
-        */
-        function _require(moduleId, callback) {
-            require([moduleId], function(module) {
-                if (callback) callback(undefined, module)
-            })
             return this
         }
 
