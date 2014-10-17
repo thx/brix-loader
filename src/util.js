@@ -189,7 +189,7 @@ define(function() {
     // 去掉 <pre><code></code></pre> 的缩进
     _.trimPredefined = function(element) {
         var rtrim = /^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g
-        var text = element.innerHTML.replace(/&lt;/g, '<').replace(/&gt;/g, '>')
+        var text = element.innerHTML.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&')
         var lines = text.split('\n')
         var indent
         _.each(lines, function(line /*, index*/ ) {

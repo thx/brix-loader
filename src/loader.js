@@ -327,7 +327,7 @@ define(
                             })
                         }
                         // 调用组件的 .render()
-                        var result = instance._render.apply(this, arguments)
+                        var result = instance._render.apply(instance, arguments)
 
                         // 如果返回了 Promise，则依赖 Promise 的状态
                         if (result && result.then) {

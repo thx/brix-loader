@@ -276,7 +276,7 @@ define('util',[],function() {
     // 去掉 <pre><code></code></pre> 的缩进
     _.trimPredefined = function(element) {
         var rtrim = /^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g
-        var text = element.innerHTML.replace(/&lt;/g, '<').replace(/&gt;/g, '>')
+        var text = element.innerHTML.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&')
         var lines = text.split('\n')
         var indent
         _.each(lines, function(line /*, index*/ ) {
@@ -872,7 +872,7 @@ define(
                             })
                         }
                         // 调用组件的 .render()
-                        var result = instance._render.apply(this, arguments)
+                        var result = instance._render.apply(instance, arguments)
 
                         // 如果返回了 Promise，则依赖 Promise 的状态
                         if (result && result.then) {
