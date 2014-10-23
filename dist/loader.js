@@ -838,7 +838,12 @@ define(
                 })
                 .queue(function(next) {
                     // 4. 执行初始化
-                    if (instance.init) {
+                    if (!instance.init) {
+                        next()
+                        return
+                    }
+
+                    try {
                         var result = instance.init()
                         if (DEBUG) console.log(label, 'call  init')
 
@@ -850,8 +855,9 @@ define(
                         } else {
                             next()
                         }
-                    } else {
-                        next()
+                    } catch (error) {
+                        if (callback) callback(error, instance)
+                        else console.error(error)
                     }
                 })
                 .queue(function(next) {
@@ -1105,7 +1111,15 @@ define(
             }
 
             // 调用自定义销毁行为
-            if (instance._destroy) instance._destroy()
+            if (instance._destroy) {
+                try {
+                    instance._destroy()
+                } catch (error) {
+                    if (callback) callback(error)
+                    else console.error(error)
+                }
+
+            }
 
             // 从缓存中移除
             delete CACHE[instance.clientId]

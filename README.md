@@ -117,4 +117,5 @@ r.js
     r.js -o build.js
     https://github.com/jrburke/r.js/blob/master/build/example.build.js
  
+ http://localhost:4244/test/test.loader.html
  -->
