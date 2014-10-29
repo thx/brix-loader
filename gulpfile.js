@@ -40,8 +40,9 @@ gulp.task('rjs', function() {
 })
 
 // https://github.com/floatdrop/gulp-watch
+var watchTasks = ['madge', 'jshint', 'rjs', 'mocha']
 gulp.task('watch', function( /*callback*/ ) {
-    gulp.watch(['src/*.js', 'gulpfile.js'], ['madge', 'jshint', 'rjs', 'mocha'])
+    gulp.watch(['src/*.js', 'gulpfile.js'], watchTasks)
 })
 
 // https://github.com/pahen/madge
@@ -71,5 +72,5 @@ gulp.task('connect', function() {
 // https://github.com/search?utf8=%E2%9C%93&q=gulp-mocha-phantomjs+coveralls&type=Code&ref=searchresults
 gulp.task('coveralls', function() {})
 
-gulp.task('default', ['connect', 'watch'])
+gulp.task('default', watchTasks.concat(['connect', 'watch']))
 gulp.task('build', ['jshint', 'rjs', 'mocha'])

@@ -585,7 +585,7 @@ define(
 
     详见方法注释。
     
-    ### Loader.boot( [ context ] [, callback ] )
+    ### Loader.boot( [ context ] [, callback ]  [, progress ] )
     ### Loader.destroy( component [, callback ] )
     ### Loader.query( moduleId [, context ] )
 
@@ -678,7 +678,7 @@ define(
         var DEBUG = ~location.search.indexOf('debug')
 
         /*
-            ### Loader.boot( [ context ] [, callback ] )
+            ### Loader.boot( [ context ] [, callback ] [, progress ] )
 
             * Loader.boot()
             * Loader.boot( component )
@@ -693,23 +693,15 @@ define(
 
             * **context** 可选。一个 DOM 元素，或一组 DOM 元素。默认为 document.body。
             * **callback** 可选。一个回调函数，当所有组件初始化完成后被执行。
+            * **progress** 可选。一个回调函数，当每个组件初始化完成后被执行。
 
             简：初始化所有组件。
         */
-        function boot(context, callback, extraOptions /* Internal Use Only */ ) {
-            // boot(callback)
-            if (Util.isFunction(context)) {
-                callback = context
-                context = document.body
-            } else {
-                // boot( component )                    context.element
-                // boot( element )                      element
-                // boot( array{element|component} )     element
-                // boot()                               document.body
-                context = context && context.element ||
-                    context ||
-                    document.body
-            }
+        function boot(context, callback, extraOptions /* Internal Use Only */ , progress /* Internal Use Only */ ) {
+            // boot( component )                    context.element
+            // boot( element )                      element
+            // boot( array{element|component} )     array
+            context = context.element || context
 
             // 初始化任务队列
             var queue = Util.queue()
@@ -734,11 +726,12 @@ define(
             }()
 
             // 2. 顺序把初始化任务放入队列
-            Util.each(elements, function(element /*, index*/ ) {
+            Util.each(elements, function(element, index) {
                 queue
                     .queue(function(next) {
                         init(element, function(error /*, instance*/ ) {
                             if (error) console.error(error.stack)
+                            if (progress) progress(index, elements.length)
                             next()
                         }, extraOptions)
                     })
@@ -1387,26 +1380,26 @@ define(
         var booting = false
         var Loader = {
             CACHE: CACHE,
-            boot: function(context, callback) {
-                // boot(callback)
+            boot: function(context, callback, progress) {
+                // boot( callback, progress )
                 if (Util.isFunction(context)) {
+                    progress = callback
                     callback = context
                     context = document.body
                 } else {
                     // boot( component )
                     // boot( element )
                     // boot()
-                    context = context && context.element ||
-                        context ||
-                        document.body
+                    context = context ? context.element || context : document.body
                 }
+                
                 tasks.queue(function(next) {
                     booting = true
                     boot(context, function() {
                         booting = false
                         if (callback) callback()
                         next()
-                    })
+                    }, null, progress)
                 })
                 if (!booting) tasks.dequeue()
                 return this
