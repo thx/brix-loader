@@ -212,6 +212,7 @@ define('util',[],function() {
     }
 
     // Add some isType methods
+    // isBoolean isNumber isString isFunction isArray isDate isRegExp isObject isError
     _.each('Boolean Number String Function Array Date RegExp Object Error'.split(' '), function(name) {
         _['is' + name] = function(obj) {
             return toString.call(obj) == '[object ' + name + ']'
