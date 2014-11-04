@@ -11,9 +11,7 @@ var exec = require('child_process').exec
 // https://github.com/spenceralger/gulp-jshint
 gulp.task('jshint', function() {
     var globs = [
-        'src/*.js', 'gulpfile.js',
-        '../brix-components/**/*.js',
-        '!../brix-components/bower_components/**/*'
+        'src/*.js', 'gulpfile.js'
     ]
     return gulp.src(globs)
         .pipe(jshint('.jshintrc'))
@@ -42,7 +40,7 @@ gulp.task('rjs', function() {
 // https://github.com/floatdrop/gulp-watch
 var watchTasks = ['madge', 'jshint', 'rjs', 'mocha']
 gulp.task('watch', function( /*callback*/ ) {
-    gulp.watch(['src/*.js', 'gulpfile.js'], watchTasks)
+    gulp.watch(['src/*.js', 'gulpfile.js', 'test/*'], watchTasks)
 })
 
 // https://github.com/pahen/madge
@@ -71,6 +69,14 @@ gulp.task('connect', function() {
 // TODO
 // https://github.com/search?utf8=%E2%9C%93&q=gulp-mocha-phantomjs+coveralls&type=Code&ref=searchresults
 gulp.task('coveralls', function() {})
+
+// 
+gulp.task('publish', function() {
+    var child_process = require('child_process')
+    child_process.exec('ls', function(error, stdout, stderr) {
+        console.log(error, stdout, stderr)
+    })
+})
 
 gulp.task('default', watchTasks.concat(['connect', 'watch']))
 gulp.task('build', ['jshint', 'rjs', 'mocha'])

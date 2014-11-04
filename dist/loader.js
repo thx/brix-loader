@@ -546,7 +546,6 @@ define(
     });
 /* global define, require, document, location, console  */
 /*
-    
     # BCD
     
     **Brix 组件定义规范**（BCD，Brix Component Definition）定义了组件的基本使用方式、公共方法和公共事件。
@@ -678,22 +677,31 @@ define(
         var DEBUG = ~location.search.indexOf('debug')
 
         /*
-            ### Loader.boot( [ context ] [, callback ] [, progress ] )
+            ### Loader.boot( [ context ] [, callback( records ) ] [, progress(error, instance, index, count) ] )
 
             * Loader.boot()
             * Loader.boot( component )
             * Loader.boot( component, callback )
+            * Loader.boot( component, callback, progress )
             * Loader.boot( element )
             * Loader.boot( element, callback )
+            * Loader.boot( element, callback, progress )
             * Loader.boot( array{element|component} )
             * Loader.boot( array{element|component}, callback )
+            * Loader.boot( array{element|component}, callback, progress )
             * Loader.boot( callback )
+            * Loader.boot( callback, progress )
 
             初始化节点 context 以及节点 context 内的所有组件，当所有组件初始化完成后回调函数 callback 被执行。
 
             * **context** 可选。一个 DOM 元素，或一组 DOM 元素。默认为 document.body。
-            * **callback** 可选。一个回调函数，当所有组件初始化完成后被执行。
-            * **progress** 可选。一个回调函数，当每个组件初始化完成后被执行。
+            * **callback( records )** 可选。一个回调函数，当所有组件初始化完成后被执行。
+                * records 二维数组，记录了组件在初始化过程中的相关信息，包括：异常、实例、在初始化队列中的下标、初始化队列长度。详见参数 progress。
+            * **progress(error, instance, index, count)** 可选。一个回调函数，当每个组件初始化完成后被执行。
+                * error 初始化过程中可能抛出的 Error 对象。如果没有发生任何错误，这为 undefined。
+                * instance 当前组件的实例。
+                * index 当前组件在初始化队列中的下标，即初始化的顺序。
+                * count 初始化队列的长度。
 
             简：初始化所有组件。
         */
@@ -705,6 +713,7 @@ define(
 
             // 初始化任务队列
             var queue = Util.queue()
+            var callbackArgs = []
 
             // 1. 查找组件节点 [bx-name]
             var elements = function() {
@@ -729,9 +738,10 @@ define(
             Util.each(elements, function(element, index) {
                 queue
                     .queue(function(next) {
-                        init(element, function(error /*, instance*/ ) {
+                        init(element, function(error, instance) {
+                            callbackArgs.push([error, instance, index, elements.length])
                             if (error) console.error(error.stack)
-                            if (progress) progress(index, elements.length)
+                            if (progress) progress(error, instance, index, elements.length)
                             next()
                         }, extraOptions)
                     })
@@ -741,7 +751,7 @@ define(
             // 4. 全部任务执行完成（无论成败）
             queue
                 .queue(function() {
-                    if (callback) callback()
+                    if (callback) callback(callbackArgs)
                 })
                 .dequeue() // 开始出队执行
 
@@ -856,10 +866,9 @@ define(
                 })
                 .queue(function(next) {
                     // 拦截渲染方法
-                    if (instance._render) next()
+                    if (instance.wrapper) next()
 
-                    instance._render = instance.render
-                    instance.render = function() {
+                    instance.wrapper = function() {
                         var deferred = Util.defer()
                         var promise = deferred.promise
 
@@ -872,7 +881,7 @@ define(
                             })
                         }
                         // 调用组件的 .render()
-                        var result = instance._render.apply(instance, arguments)
+                        var result = instance.render.apply(instance, arguments)
 
                         // 如果返回了 Promise，则依赖 Promise 的状态
                         if (result && result.then) {
@@ -922,7 +931,7 @@ define(
                 .queue(function(next) {
                     // 5. 执行渲染（不存在怎么办？必须有！）
                     try {
-                        var result = instance.render(function(error /*, instance*/ ) {
+                        var result = instance.wrapper(function(error /*, instance*/ ) {
                             if (error) {}
                         })
                         if (DEBUG) console.log(label, 'call  render')
@@ -939,6 +948,7 @@ define(
                             next()
                         }
                     } catch (error) {
+                        // TODO 渲染时发生错误的组件是否应该自动销毁？
                         if (callback) callback(error, instance)
                         else console.error(error)
                     }
@@ -1020,6 +1030,8 @@ define(
             * Loader.destroy( element, callback )
             * Loader.destroy( array )
             * Loader.destroy( array, callback )
+            * Loader.destroy( context )
+            * Loader.destroy( context, callback )
             
             私有方法：
 
@@ -1039,14 +1051,28 @@ define(
                 return this
             }
 
-            // destroy( [] )
-            if (!Util.isNumber(instance) && !instance.nodeType && !instance.length) {
+            // destroy( !component )
+            // destroy( !clientId )
+            // destroy( !element )
+            // destroy( !array )
+            if (
+                (instance.clientId === undefined) &&
+                !Util.isNumber(instance) &&
+                !instance.nodeType &&
+                !instance.length
+            ) {
                 if (callback) callback()
                 return this
             }
 
             // destroy( clientId )
-            if (Util.isNumber(instance)) instance = CACHE[instance]
+            if (Util.isNumber(instance)) {
+                instance = CACHE[instance]
+                if (!instance) {
+                    if (callback) callback()
+                    return this
+                }
+            }
 
             // destroy( array )
             if (!instance.nodeType && instance.length) {
@@ -1392,12 +1418,12 @@ define(
                     // boot()
                     context = context ? context.element || context : document.body
                 }
-                
+
                 tasks.queue(function(next) {
                     booting = true
-                    boot(context, function() {
+                    boot(context, function(records) {
                         booting = false
-                        if (callback) callback()
+                        if (callback) callback(records)
                         next()
                     }, null, progress)
                 })

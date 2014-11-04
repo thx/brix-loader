@@ -12,6 +12,7 @@
     "doc",
     "package.json",
     "gulpfile.js",
+    "AUTHORS.txt",
     "CONTRIBUTING.md",
     "HISTORY.md"
   ],
