@@ -4,7 +4,6 @@
 var gulp = require('gulp')
 var jshint = require('gulp-jshint')
 var mochaPhantomJS = require('gulp-mocha-phantomjs')
-var connect = require('gulp-connect')
 var rjs = require('gulp-requirejs')
 var exec = require('child_process').exec
 
@@ -59,13 +58,6 @@ gulp.task('madge', function( /*callback*/ ) {
     )
 })
 
-// https://github.com/AveVlad/gulp-connect
-gulp.task('connect', function() {
-    connect.server({
-        port: 4244
-    })
-})
-
 // TODO
 // https://github.com/search?utf8=%E2%9C%93&q=gulp-mocha-phantomjs+coveralls&type=Code&ref=searchresults
 gulp.task('coveralls', function() {})
@@ -78,5 +70,5 @@ gulp.task('publish', function() {
     })
 })
 
-gulp.task('default', watchTasks.concat(['connect', 'watch']))
+gulp.task('default', watchTasks.concat(['watch']))
 gulp.task('build', ['jshint', 'rjs', 'mocha'])
