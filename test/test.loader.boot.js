@@ -52,27 +52,30 @@ describe('Loader', function() {
                 Loader.destroy(container, done)
             })
         })
-        it('has not .render()', function(done) {
-            define('test/has_not_render', function() {
-                function Impl() {}
-                _.extend(Impl.prototype, {})
-                return Impl
-            })
-            container.html('<div bx-name="test/has_not_render"></div><div bx-name="test/has_not_render"></div><div bx-name="test/has_not_render"></div>')
-            Loader.boot(container, function(records) {
-                var components = Loader.query('test/has_not_render')
-                expect(components).to.have.length(3)
-                var errors = _.map(records, function(item, index) {
-                    return item[0]
+        // PhantomJS 环境下不执行该测试用例
+        if (!window.mochaPhantomJS) {
+            it('has not .render()', function(done) {
+                define('test/has_not_render', function() {
+                    function Impl() {}
+                    _.extend(Impl.prototype, {})
+                    return Impl
                 })
-                expect(errors).to.have.length(3)
-                _.each(errors, function(item) {
-                    expect(item.name).to.equal('TypeError')
-                    expect(item.message).to.equal('Cannot read property \'apply\' of undefined')
+                container.html('<div bx-name="test/has_not_render"></div><div bx-name="test/has_not_render"></div><div bx-name="test/has_not_render"></div>')
+                Loader.boot(container, function(records) {
+                    var components = Loader.query('test/has_not_render')
+                    expect(components).to.have.length(3)
+                    var errors = _.map(records, function(item, index) {
+                        return item[0]
+                    })
+                    expect(errors).to.have.length(3)
+                    _.each(errors, function(item) {
+                        expect(item.name).to.equal('TypeError')
+                        expect(item.message).to.equal('Cannot read property \'apply\' of undefined')
+                    })
+                    Loader.destroy(container, done)
                 })
-                Loader.destroy(container, done)
             })
-        })
+        }
         it('async .init()', function(done) {
             define('test/async_init', function() {
                 function Impl() {}
