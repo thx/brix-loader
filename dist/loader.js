@@ -855,6 +855,8 @@ define(
                         if (result && result.then) {
                             result.then(function() {
                                 next()
+                            }, function(error) {
+                                throw error
                             })
                         } else {
                             next()
@@ -888,6 +890,8 @@ define(
                             result.then(function() {
                                 renderChildren()
                                 syncClientId()
+                            }, function(error) {
+                                throw error
                             })
                         } else {
                             renderChildren()
