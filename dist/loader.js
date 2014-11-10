@@ -868,9 +868,9 @@ define(
                 })
                 .queue(function(next) {
                     // 拦截渲染方法
-                    if (instance.wrapper) next()
+                    if (instance._wrapper) next()
 
-                    instance.wrapper = function() {
+                    instance._wrapper = function() {
                         var deferred = Util.defer()
                         var promise = deferred.promise
 
@@ -935,7 +935,7 @@ define(
                 .queue(function(next) {
                     // 5. 执行渲染（不存在怎么办？必须有！）
                     try {
-                        var result = instance.wrapper(function(error /*, instance*/ ) {
+                        var result = instance._wrapper(function(error /*, instance*/ ) {
                             if (error) {}
                         })
                         if (DEBUG) console.log(label, 'call  render')
@@ -1235,7 +1235,7 @@ define(
                             results.push(instance)
                             // 收集组件方法
                             Util.each(instance.constructor.prototype, function(value, name) {
-                                if (Util.isFunction(value)) methods.push(name)
+                                if (Util.isFunction(value) && (name[0] !== '_')) methods.push(name)
                             })
                         }
                     }
@@ -1245,10 +1245,11 @@ define(
             // 2. 绑定组件方法至 query() 返回的对象上
             Util.each(Util.unique(methods), function(name /*, index*/ ) {
                 results[name] = function() {
+                    var that = this
                     var args = [].slice.call(arguments)
-                    Util.each(this, function(instance) {
+                    Util.each(this, function(instance, index) {
                         if (!instance[name]) return
-                        instance[name].apply(instance, args)
+                        that[index] = instance[name].apply(instance, args)
                     })
                     return this
                 }
