@@ -1245,11 +1245,12 @@ define(
             // 2. 绑定组件方法至 query() 返回的对象上
             Util.each(Util.unique(methods), function(name /*, index*/ ) {
                 results[name] = function() {
-                    var that = this
+                    // var that = this
                     var args = [].slice.call(arguments)
                     Util.each(this, function(instance, index) {
                         if (!instance[name]) return
-                        that[index] = instance[name].apply(instance, args)
+                            // that[index] = 
+                        instance[name].apply(instance, args)
                     })
                     return this
                 }
