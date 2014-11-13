@@ -7,7 +7,7 @@
 1. event
 2. reactive
 3. render promise
-4. module
+4. modle
 5. requirejs + config.js
 
 ## 2014.9.1

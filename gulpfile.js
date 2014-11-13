@@ -10,7 +10,7 @@ var exec = require('child_process').exec
 // https://github.com/spenceralger/gulp-jshint
 gulp.task('jshint', function() {
     var globs = [
-        'src/*.js', 'gulpfile.js'
+        'src/*.js', 'test/*.js', 'gulpfile.js'
     ]
     return gulp.src(globs)
         .pipe(jshint('.jshintrc'))
