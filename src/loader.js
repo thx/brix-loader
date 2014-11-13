@@ -704,7 +704,7 @@ define(
                 results[name] = function() {
                     // var that = this
                     var args = [].slice.call(arguments)
-                    Util.each(this, function(instance, index) {
+                    Util.each(this, function(instance /*, index*/ ) {
                         if (!instance[name]) return
                             // that[index] = 
                         instance[name].apply(instance, args)
