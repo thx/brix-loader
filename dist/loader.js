@@ -40,7 +40,7 @@
 
  */
 define('constant',[],function() {
-    var VERSION = '0.0.1'
+    var VERSION = '0.0.x'
     var EXPANDO = (Math.random() + '').replace(/\D/g, '')
     return {
         VERSION: VERSION,
@@ -677,31 +677,33 @@ define(
         var DEBUG = ~location.search.indexOf('debug')
 
         /*
-            ### Loader.boot( [ context ] [, callback( records ) ] [, progress(error, instance, index, count) ] )
+            ### Loader.boot( [ context ] [, complete( records ) ] [, progress(error, instance, index, count) ] )
 
             * Loader.boot()
             * Loader.boot( component )
-            * Loader.boot( component, callback )
-            * Loader.boot( component, callback, progress )
+            * Loader.boot( component, complete )
+            * Loader.boot( component, complete, progress )
             * Loader.boot( element )
-            * Loader.boot( element, callback )
-            * Loader.boot( element, callback, progress )
+            * Loader.boot( element, complete )
+            * Loader.boot( element, complete, progress )
             * Loader.boot( array{element|component} )
-            * Loader.boot( array{element|component}, callback )
-            * Loader.boot( array{element|component}, callback, progress )
-            * Loader.boot( callback )
-            * Loader.boot( callback, progress )
+            * Loader.boot( array{element|component}, complete )
+            * Loader.boot( array{element|component}, complete, progress )
+            * Loader.boot( complete )
+            * Loader.boot( complete, progress )
 
-            初始化节点 context 以及节点 context 内的所有组件，当所有组件初始化完成后回调函数 callback 被执行。
+            初始化节点 `context` 以及节点 `context` 内的所有组件。当每个组件初始化完成后回调函数 `progress` 被执行，当所有组件初始化完成后回调函数 `complete` 被执行。
+            
+            参数的含义和默认值如下：
 
-            * **context** 可选。一个 DOM 元素，或一组 DOM 元素。默认为 document.body。
-            * **callback( records )** 可选。一个回调函数，当所有组件初始化完成后被执行。
-                * records 二维数组，记录了组件在初始化过程中的相关信息，包括：异常、实例、在初始化队列中的下标、初始化队列长度。详见参数 progress。
-            * **progress(error, instance, index, count)** 可选。一个回调函数，当每个组件初始化完成后被执行。
-                * error 初始化过程中可能抛出的 Error 对象。如果没有发生任何错误，这为 undefined。
-                * instance 当前组件的实例。
-                * index 当前组件在初始化队列中的下标，即初始化的顺序。
-                * count 初始化队列的长度。
+            * `context` 可选。一个 DOM 元素，或一组 DOM 元素。默认为 `document.body`。
+            * `complete( records )` 可选。一个回调函数，当所有组件初始化完成后被执行。
+                * `records` 二维数组，记录了组件在初始化过程中的相关信息，包括：异常、实例、在初始化队列中的下标、初始化队列的长度。详见下一个参数 `progress`。
+            * `progress(error, instance, index, count)` 可选。一个回调函数，当每个组件初始化完成后被执行。
+                * `error` 初始化过程中可能抛出的 `Error` 对象。如果没有发生任何错误，则为 `undefined`。
+                * `instance` 当前组件的实例。
+                * `index` 当前组件在初始化队列中的下标，即初始化的顺序。
+                * `count` 初始化队列的长度。
 
             简：初始化所有组件。
         */
@@ -1026,28 +1028,29 @@ define(
         }
 
         /*
-            ### Loader.destroy(component [, callback ] )
+            ### Loader.destroy(component [, complete() ] )
             
             * Loader.destroy( component )
-            * Loader.destroy( component, callback )
+            * Loader.destroy( component, complete )
             * Loader.destroy( element )
-            * Loader.destroy( element, callback )
-            * Loader.destroy( array )
-            * Loader.destroy( array, callback )
+            * Loader.destroy( element, complete )
+            * Loader.destroy( array{element|component} )
+            * Loader.destroy( array{element|component}, complete )
             * Loader.destroy( context )
-            * Loader.destroy( context, callback )
+            * Loader.destroy( context, complete )
             
             私有方法：
 
             * Loader.destroy( clientId )
-            * Loader.destroy( clientId, callback )
+            * Loader.destroy( clientId, complete )
             
             销毁某个组件，包括它的后代组件。
 
-            * **component** 某个组件实例。
-            * **element** 一个 DOM 元素。
-            * **array** 一个含有组件实例或 DOM 元素的数组。
-            * **callback** 可选。一个回调函数，当组件销毁后被执行。
+            * `component` 某个组件实例。
+            * `element` 一个关联了某个组件的 DOM 元素。
+            * `array{element|component}` 一个含有组件实例或 DOM 元素的数组。
+            * `context` 一个 DOM 元素。
+            * `complete()` 可选。一个回调函数，当组件销毁后被执行。
         */
         function destroy(instance, callback) {
             if (instance === undefined) {

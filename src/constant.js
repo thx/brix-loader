@@ -39,7 +39,7 @@
 
  */
 define(function() {
-    var VERSION = '0.0.1'
+    var VERSION = '0.0.x'
     var EXPANDO = (Math.random() + '').replace(/\D/g, '')
     return {
         VERSION: VERSION,

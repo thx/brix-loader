@@ -1,6 +1,6 @@
 {
   "name": "brix-loader",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "brix-loader",
   "main": "index.js",
   "scripts": {
@@ -17,6 +17,7 @@
     "url": "https://github.com/thx/brix-loader/issues"
   },
   "homepage": "https://github.com/thx/brix-loader",
+  "dependencies": {},
   "devDependencies": {
     "gulp": "*",
     "gulp-connect": "*",
@@ -25,6 +26,5 @@
     "gulp-requirejs": "*",
     "gulp-uglify": "*",
     "jshint-stylish": "*"
-  },
-  "dependencies": {}
+  }
 }
