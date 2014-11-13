@@ -678,23 +678,27 @@ define(
 
         /*
             ### Loader.boot( [ context ] [, complete( records ) ] [, progress(error, instance, index, count) ] )
-
-            * Loader.boot()
-            * Loader.boot( component )
-            * Loader.boot( component, complete )
-            * Loader.boot( component, complete, progress )
-            * Loader.boot( element )
-            * Loader.boot( element, complete )
-            * Loader.boot( element, complete, progress )
-            * Loader.boot( array{element|component} )
-            * Loader.boot( array{element|component}, complete )
-            * Loader.boot( array{element|component}, complete, progress )
-            * Loader.boot( complete )
-            * Loader.boot( complete, progress )
-
-            初始化节点 `context` 以及节点 `context` 内的所有组件。当每个组件初始化完成后回调函数 `progress` 被执行，当所有组件初始化完成后回调函数 `complete` 被执行。
             
-            参数的含义和默认值如下：
+            **初始化节点 `context` 以及节点 `context` 内的所有组件。**当所有组件初始化完成后回调函数 `complete` 被执行，当每个组件初始化完成后回调函数 `progress` 被执行。
+
+            * **Loader.boot( complete, progress )**
+                * Loader.boot()
+                * Loader.boot( complete )
+                * Loader.boot( complete, progress )
+            * **Loader.boot( component, complete, progress )**
+                * Loader.boot( component )
+                * Loader.boot( component, complete )
+                * Loader.boot( component, complete, progress )
+            * **Loader.boot( element, complete, progress )**
+                * Loader.boot( element )
+                * Loader.boot( element, complete )
+                * Loader.boot( element, complete, progress )
+            * **Loader.boot( array{element|component}, complete, progress )**
+                * Loader.boot( array )
+                * Loader.boot( array, complete )
+                * Loader.boot( array, complete, progress )
+
+            **参数的含义和默认值**如下：
 
             * `context` 可选。一个 DOM 元素，或一组 DOM 元素。默认为 `document.body`。
             * `complete( records )` 可选。一个回调函数，当所有组件初始化完成后被执行。
@@ -1028,29 +1032,35 @@ define(
         }
 
         /*
-            ### Loader.destroy(component [, complete() ] )
-            
-            * Loader.destroy( component )
-            * Loader.destroy( component, complete )
-            * Loader.destroy( element )
-            * Loader.destroy( element, complete )
-            * Loader.destroy( array{element|component} )
-            * Loader.destroy( array{element|component}, complete )
-            * Loader.destroy( context )
-            * Loader.destroy( context, complete )
-            
-            私有方法：
+            ### Loader.destroy( component [, complete() ] )
 
-            * Loader.destroy( clientId )
-            * Loader.destroy( clientId, complete )
-            
             销毁某个组件，包括它的后代组件。
+
+            * **Loader.destroy( component, complete )**
+                * Loader.destroy( component )
+                * Loader.destroy( component, complete )
+            * **Loader.destroy( element, complete )**
+                * Loader.destroy( element )
+                * Loader.destroy( element, complete )
+            * **Loader.destroy( array{element|component}, complete )**
+                * Loader.destroy( array )
+                * Loader.destroy( array, complete )
+            * **Loader.destroy( context, complete )**
+                * Loader.destroy( context )
+                * Loader.destroy( context, complete )
+
+            **参数的含义和默认值**如下：
 
             * `component` 某个组件实例。
             * `element` 一个关联了某个组件的 DOM 元素。
             * `array{element|component}` 一个含有组件实例或 DOM 元素的数组。
             * `context` 一个 DOM 元素。
             * `complete()` 可选。一个回调函数，当组件销毁后被执行。
+            
+            私有方法：
+
+            * Loader.destroy( clientId )
+            * Loader.destroy( clientId, complete )
         */
         function destroy(instance, callback) {
             if (instance === undefined) {
@@ -1190,19 +1200,21 @@ define(
 
         /*
             ### Loader.query( moduleId [, context ] )
-            
+
+            根据模块标识符 `moduleId` 查找组件实例。
+
             * Loader.query( moduleId, context )
-            * Loader.query( moduleId )
+                * Loader.query( moduleId, context )
+                * Loader.query( moduleId )
             * Loader.query( element )
-            * Loader.query( elementArray )
-            
-            // * Loader.query( array{element} )
+                * Loader.query( element )
+                * Loader.query( elementArray )
 
-            根据模块标识符 moduleId 查找组件实例。
+            **参数的含义和默认值**如下：
 
-            * **moduleId** 模块标识符。
-            * **context** 限定参查找的范围，可以是 moduleId、component、element。
-            * **element** 设置了属性 bx-name 的 DOM 元素。
+            * `moduleId` 模块标识符。
+            * `context` 限定查找的范围，可以是模块标识符 `moduleId`、组件示例 `component` 或 DOM 元素 `element`。
+            * `element` 设置了属性 `bx-name` 的 DOM 元素。
 
             > 该方法的返回值是一个数组，包含了一组 Brix 组件实例，并且，数组上含有所有 Brix 组件实例的方法。
          */
@@ -1299,19 +1311,21 @@ define(
 
         /*
             
-            ### Loader.load( element, moduleId, options [, callback ] )
-            
-            * Loader.load( element, moduleId, options [, callback ] )
-            * Loader.load( elementArray, moduleId, options [, callback ] )
+            ### Loader.load( element, moduleId, options [, complete ] )
 
-            加载组件 moduleId 到指定的节点 element 中。
-
-            * **moduleId** 必选。模块标识符。
-            * **element** 必选。目标元素。
-            * **elementArray** 必选。目标元素数组。
-            * **callback** 可选。一个回调函数，当组件加载完成后被执行。
+            加载组件 `moduleId` 到指定的节点 `element` 中。
             
-            > 因为每个组件的行为不可以预测（例如，table 是增强，dropdwon 是替换，pagination 是插入），导致销毁和再次加载的行为也不可预测，所以不能直接在节点 element 上加载，而是在其内新建一个容器元素 `<div>`，在这个容器元素上加载组件 moduleId。
+            * Loader.load( element, moduleId, options [, complete ] )
+            * Loader.load( elementArray, moduleId, options [, complete ] )
+    
+            **参数的含义和默认值**如下：
+            
+            * `moduleId` 必选。模块标识符。
+            * `element` 必选。目标 DOM 元素。
+            * `elementArray` 必选。目标 DOM 元素数组。
+            * `complete` 可选。一个回调函数，当组件加载完成后被执行。
+            
+            > 因为每个组件的行为不可以预测（例如，`table` 是增强，`dropdwon` 是替换，`pagination` 是插入），导致销毁和再次加载的行为也不可预测，所以不能直接在节点 `element` 上加载，而是在其内新建一个容器元素 `<div>`，在这个容器元素上加载组件 `moduleId`。
 
             #### Examples
             
@@ -1350,14 +1364,16 @@ define(
         }
 
         /*
-            ### Loader.unload( element [, callback ] )
+            ### Loader.unload( element [, complete ] )
+
+            卸载节点 `element` 中加载的组件。
             
-            * Loader.unload( element [, callback ] )
+            * Loader.unload( element [, complete ] )
 
-            卸载节点 element 中加载的组件。
+            **参数的含义和默认值**如下：
 
-            * **element** 必选。目标元素。
-            * **callback** 可选。一个回调函数，当组件卸载完成后被执行。
+            * `element` 必选。目标 DOM 元素。
+            * `complete` 可选。一个回调函数，当组件卸载完成后被执行。
          */
         function unload(element, callback) {
             destroy(element, callback)

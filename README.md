@@ -38,11 +38,13 @@ require(['loader'], function(Loader){
 
 ### 方法 <small>Methods</small>
 
-共计 4 个公开方法：
+共计 5 个公开方法：
 
 1. Loader.boot( context, complete, progress )
 2. Loader.destroy( component, complete )
-3. 
+3. Loader.query( moduleId, context )
+4. Loader.load( element, moduleId, options, complete )
+5. Loader.unload( element, complete )
 
 #### Loader.boot( [ context ] [, complete( records ) ] [, progress(error, instance, index, count) ] )
 
@@ -76,7 +78,7 @@ require(['loader'], function(Loader){
     * `index` 当前组件在初始化队列中的下标，即初始化的顺序。
     * `count` 初始化队列的长度。
 
-#### Loader.destroy(component [, complete() ] )
+#### Loader.destroy( component [, complete() ] )
 
 销毁某个组件，包括它的后代组件。
 
@@ -106,9 +108,11 @@ require(['loader'], function(Loader){
 根据模块标识符 `moduleId` 查找组件实例。
 
 * Loader.query( moduleId, context )
-* Loader.query( moduleId )
+    * Loader.query( moduleId, context )
+    * Loader.query( moduleId )
 * Loader.query( element )
-* Loader.query( elementArray )
+    * Loader.query( element )
+    * Loader.query( elementArray )
 
 **参数的含义和默认值**如下：
 
@@ -117,6 +121,33 @@ require(['loader'], function(Loader){
 * `element` 设置了属性 `bx-name` 的 DOM 元素。
 
 > 该方法的返回值是一个数组，包含了一组 Brix 组件实例，并且，数组上含有所有 Brix 组件实例的方法。
+
+#### Loader.load( element, moduleId, options [, complete ] )
+
+加载组件 `moduleId` 到指定的节点 `element` 中。
+
+* Loader.load( element, moduleId, options [, complete ] )
+* Loader.load( elementArray, moduleId, options [, complete ] )
+
+**参数的含义和默认值**如下：
+
+* `moduleId` 必选。模块标识符。
+* `element` 必选。目标 DOM 元素。
+* `elementArray` 必选。目标 DOM 元素数组。
+* `complete` 可选。一个回调函数，当组件加载完成后被执行。
+
+> 因为每个组件的行为不可以预测（例如，`table` 是增强，`dropdwon` 是替换，`pagination` 是插入），导致销毁和再次加载的行为也不可预测，所以不能直接在节点 `element` 上加载，而是在其内新建一个容器元素 `<div>`，在这个容器元素上加载组件 `moduleId`。
+
+#### Loader.unload( element [, complete ] )
+
+卸载节点 `element` 中加载的组件。
+
+* Loader.unload( element [, complete ] )
+
+**参数的含义和默认值**如下：
+
+* `element` 必选。目标 DOM 元素。
+* `complete` 可选。一个回调函数，当组件卸载完成后被执行。
 
 ### 文件结构 <small>Structure</small>
 

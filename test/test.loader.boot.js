@@ -5,6 +5,9 @@ describe('Loader', function() {
 
     var Loader, $, _, container
     var TPL_CONTENT = '<pre>{ moduleId: <%= moduleId %>, clientId: <%= clientId %>, parentClientId: <%= parentClientId %> }</pre>'
+    var FN_RENDER = function() {
+        this.element.innerHTML = _.template(TPL_CONTENT)(this)
+    }
 
     before(function(done) {
         require(['loader', 'jquery', 'underscore'], function(moduel1, moduel2) {
@@ -17,18 +20,28 @@ describe('Loader', function() {
     })
 
     describe('boot()', function() {
-        it('Loader.boot()', function(done) {
-            define('test/impl', function() {
-                function Impl() {}
-                _.extend(Impl.prototype, {
-                    render: function() {
-                        this.element.innerHTML = _.template(TPL_CONTENT)(this)
-                    }
-                })
-                return Impl
+
+        define('test/impl', function() {
+            function Impl() {}
+            _.extend(Impl.prototype, {
+                render: FN_RENDER
             })
+            return Impl
+        })
+
+        it('Loader.boot()', function(done) {
+            container.html('<div bx-name="test/impl"></div><div bx-name="test/impl"></div><div bx-name="test/impl"></div>')
+            Loader.boot()
+            setTimeout(function() {
+                var components = Loader.query('test/impl')
+                expect(components).to.have.length(3)
+                Loader.destroy(container, done)
+            }, 100)
+        })
+        it('Loader.boot( complete )', function(done) {
             container.html('<div bx-name="test/impl"></div><div bx-name="test/impl"></div><div bx-name="test/impl"></div>')
             Loader.boot(function(records) {
+                expect(records).to.have.length(3)
                 var components = Loader.query('test/impl')
                 expect(components).to.have.length(3)
                 Loader.destroy(container, done)
@@ -36,23 +49,23 @@ describe('Loader', function() {
         })
 
         it('has not .init() and .destroy()', function(done) {
-            define('test/has_not_init_and_destroy', function() {
-                function Impl() {}
-                _.extend(Impl.prototype, {
-                    render: function() {
-                        this.element.innerHTML = _.template(TPL_CONTENT)(this)
-                    }
+                define('test/has_not_init_and_destroy', function() {
+                    function Impl() {}
+                    _.extend(Impl.prototype, {
+                        render: function() {
+                            this.element.innerHTML = _.template(TPL_CONTENT)(this)
+                        }
+                    })
+                    return Impl
                 })
-                return Impl
+                container.html('<div bx-name="test/has_not_init_and_destroy"></div><div bx-name="test/has_not_init_and_destroy"></div>')
+                Loader.boot(container, function(records) {
+                    var components = Loader.query('test/has_not_init_and_destroy')
+                    expect(components).to.have.length(2)
+                    Loader.destroy(container, done)
+                })
             })
-            container.html('<div bx-name="test/has_not_init_and_destroy"></div><div bx-name="test/has_not_init_and_destroy"></div>')
-            Loader.boot(container, function(records) {
-                var components = Loader.query('test/has_not_init_and_destroy')
-                expect(components).to.have.length(2)
-                Loader.destroy(container, done)
-            })
-        })
-        // PhantomJS 环境下不执行该测试用例
+            // PhantomJS 环境下不执行该测试用例
         if (!window.mochaPhantomJS) {
             it('has not .render()', function(done) {
                 define('test/has_not_render', function() {
