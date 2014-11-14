@@ -66,13 +66,11 @@ gulp.task('madge', function( /*callback*/ ) {
 // https://github.com/search?utf8=%E2%9C%93&q=gulp-mocha-phantomjs+coveralls&type=Code&ref=searchresults
 
 gulp.task('istanbul', function(cb) {
-    gulp.src(['dist/*.js'])
+    gulp.src(['test/test.coveralls.js'])
         .pipe(istanbul()) // Covering files
         .on('finish', function() {
             gulp.src(['test/test.coveralls.js'])
-                .pipe(mocha({
-                    reporter: 'dot'
-                }))
+                .pipe(mocha({}))
                 .pipe(istanbul.writeReports()) // Creating the reports after tests runned
                 .on('end', cb);
         });
