@@ -67,7 +67,18 @@ require(['loader'], function(Loader){
 
 * `context` 可选。一个 DOM 元素，或一组 DOM 元素。默认为 `document.body`。
 * `complete( records )` 可选。一个回调函数，当所有组件初始化完成后被执行。
-    * `records` 二维数组，记录了组件在初始化过程中的相关信息，包括：异常、实例、在初始化队列中的下标、初始化队列的长度。详见下一个参数 `notify`。
+    * `records` 二维数组，记录了组件在初始化过程中的相关信息，包括：异常 `error`、组件实例 `instance`、在初始化队列中的下标 `index`、初始化队列的长度 `count`。数据结构为：
+        
+        ```js
+        [
+            [error, instance, index, count],
+            [error, instance, index, count],
+            ...
+        ]
+        ```
+
+        详见下一个参数 `notify`。
+
 * `notify( error, instance, index, count )` 可选。一个回调函数，当每个组件初始化完成后被执行。
     * `error` 初始化过程中可能抛出的 `Error` 对象。如果没有发生任何错误，则为 `undefined`。
     * `instance` 当前组件的实例。
@@ -98,6 +109,28 @@ require(['loader'], function(Loader){
 * `element` 一个关联了某个组件的 DOM 元素。
 * `array{element|component}` 一个含有组件实例或 DOM 元素的数组。
 * `context` 一个 DOM 元素。
+* `complete()` 可选。一个回调函数，当组件销毁后被执行。
+
+
+#### Loader.destroy( moduleId [, context] [, complete() ] )
+
+* **Loader.destroy( moduleId, complete )**
+    * Loader.destroy( moduleId )
+    * Loader.destroy( moduleId, complete )
+* **Loader.destroy( moduleId, context, complete )**
+    * Loader.destroy( moduleId, context )
+        * Loader.destroy( moduleId, parentModuleId )
+        * Loader.destroy( moduleId, parentComponent )
+        * Loader.destroy( moduleId, parentElement )
+        * Loader.destroy( moduleId, array{parentModuleId} )
+        * Loader.destroy( moduleId, array{parentComponent} )
+        * Loader.destroy( moduleId, array{parentElement} )
+    * Loader.destroy( moduleId, context, complete )
+
+**参数的含义和默认值**如下：
+
+* `moduleId` 模块标识符。
+* `context` 限定销毁的范围。可以是父（祖先）模块标识符 `parentModuleId`、父（祖先）组件实例 `parentComponent`、父（祖先）节点 `parentElement` 或数组 `array{parentModuleId|parentComponent|parentElement}`。
 * `complete()` 可选。一个回调函数，当组件销毁后被执行。
 
 

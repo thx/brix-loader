@@ -152,7 +152,18 @@ define(
 
             * `context` 可选。一个 DOM 元素，或一组 DOM 元素。默认为 `document.body`。
             * `complete( records )` 可选。一个回调函数，当所有组件初始化完成后被执行。
-                * `records` 二维数组，记录了组件在初始化过程中的相关信息，包括：异常、实例、在初始化队列中的下标、初始化队列的长度。详见下一个参数 `notify`。
+                * `records` 二维数组，记录了组件在初始化过程中的相关信息，包括：异常 `error`、组件实例 `instance`、在初始化队列中的下标 `index`、初始化队列的长度 `count`。数据结构为：
+                    
+                    ```js
+                    [
+                        [error, instance, index, count],
+                        [error, instance, index, count],
+                        ...
+                    ]
+                    ```
+
+                    详见下一个参数 `notify`。
+
             * `notify( error, instance, index, count )` 可选。一个回调函数，当每个组件初始化完成后被执行。
                 * `error` 初始化过程中可能抛出的 `Error` 对象。如果没有发生任何错误，则为 `undefined`。
                 * `instance` 当前组件的实例。
@@ -504,8 +515,10 @@ define(
                 * Loader.destroy( element )
                 * Loader.destroy( element, complete )
             * **Loader.destroy( array{element|component}, complete )**
-                * Loader.destroy( array )
-                * Loader.destroy( array, complete )
+                * Loader.destroy( array{component} )
+                * Loader.destroy( array{element} )
+                * Loader.destroy( array{component}, complete )
+                * Loader.destroy( array{element}, complete )
             * **Loader.destroy( context, complete )**
                 * Loader.destroy( context )
                 * Loader.destroy( context, complete )
@@ -518,15 +531,64 @@ define(
             * `context` 一个 DOM 元素。
             * `complete()` 可选。一个回调函数，当组件销毁后被执行。
             
+            #### Loader.destroy( moduleId [, context] [, complete ] )
+            
+            * **Loader.destroy( moduleId, complete )**
+                * Loader.destroy( moduleId )
+                * Loader.destroy( moduleId, complete )
+            * **Loader.destroy( moduleId, context, complete )**
+                * Loader.destroy( moduleId, context )
+                    * Loader.destroy( moduleId, parentModuleId )
+                    * Loader.destroy( moduleId, parentComponent )
+                    * Loader.destroy( moduleId, parentElement )
+                    * Loader.destroy( moduleId, array{parentModuleId} )
+                    * Loader.destroy( moduleId, array{parentComponent} )
+                    * Loader.destroy( moduleId, array{parentElement} )
+                * Loader.destroy( moduleId, context, complete )
+            
+            **参数的含义和默认值**如下：
+            
+            * `moduleId` 模块标识符。
+            * `context` 限定销毁的范围。可以是父（祖先）模块标识符 `parentModuleId`、父（祖先）组件实例 `parentComponent`、父（祖先）节点 `parentElement` 或数组 `array{parentModuleId|parentComponent|parentElement}`。
+            * `complete()` 可选。一个回调函数，当组件销毁后被执行。
+            
             私有方法：
-
+            
+            * ~~**Loader.destroy()**~~
             * Loader.destroy( clientId )
             * Loader.destroy( clientId, complete )
+            
         */
-        function destroy(instance, callback) {
+        function destroy(instance, complete) {
+            // ~~Loader.destroy()~~
             if (instance === undefined) {
-                if (callback) callback()
+                if (complete) complete()
                 return this
+            }
+
+            // destroy( moduleId, context, complete )
+            if (Util.isString(instance)) {
+                switch (arguments.length) {
+                    case 1:
+                        // destroy( moduleId )
+                        instance = query(instance)
+                        break
+                    case 2:
+                        // destroy( moduleId, complete )
+                        if (Util.isFunction(complete)) {
+                            instance = query(instance)
+                        } else {
+                            // destroy( moduleId, context )
+                            instance = query(instance, complete)
+                            complete = undefined
+                        }
+                        break
+                    case 3:
+                        // destroy( moduleId, context, complete )
+                        instance = query(instance, complete)
+                        complete = arguments[2]
+                        break
+                }
             }
 
             // destroy( !component )
@@ -539,7 +601,7 @@ define(
                 !instance.nodeType &&
                 !instance.length
             ) {
-                if (callback) callback()
+                if (complete) complete()
                 return this
             }
 
@@ -547,7 +609,7 @@ define(
             if (Util.isNumber(instance)) {
                 instance = CACHE[instance]
                 if (!instance) {
-                    if (callback) callback()
+                    if (complete) complete()
                     return this
                 }
             }
@@ -557,7 +619,7 @@ define(
                 Util.each(instance, function(item) {
                     destroy(item)
                 })
-                if (callback) callback()
+                if (complete) complete()
                 return this
             }
 
@@ -573,7 +635,7 @@ define(
                         if (descendant.nodeType !== 1) return
                         if (descendant.getAttribute(Constant.ATTRS.id)) destroy(descendant)
                     }
-                    if (callback) callback()
+                    if (complete) complete()
                     return this
                 } else {
                     // destroy( element )
@@ -585,7 +647,7 @@ define(
 
             // 如果已经被移除，则立即返回
             if (!instance) {
-                if (callback) callback()
+                if (complete) complete()
                 return this
             }
 
@@ -593,11 +655,11 @@ define(
             if (DEBUG) {
                 console.group(label)
                 console.time(label)
-                var _callback = callback
-                callback = function(error, instance) {
+                var _complete = complete
+                complete = function(error, instance) {
                     console.timeEnd(label)
                     console.groupEnd(label)
-                    if (_callback) _callback(error, instance)
+                    if (_complete) _complete(error, instance)
                 }
             }
 
@@ -613,7 +675,7 @@ define(
                 try {
                     instance._destroy()
                 } catch (error) {
-                    if (callback) callback(error)
+                    if (complete) complete(error)
                     else console.error(error)
                 }
 
@@ -645,7 +707,7 @@ define(
 
             if (DEBUG) console.log(label, 'destroy')
 
-            if (callback) callback()
+            if (complete) complete()
 
             return this
         }

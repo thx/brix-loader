@@ -6,13 +6,9 @@ describe('Loader.query()', function() {
 
     this.timeout(5000)
 
-    var expect = chai.expect
-        // var assert = chai.assert
-
-    var Loader, $, _, container
     before(function(done) {
         require(['loader', 'jquery', 'underscore'], function() {
-            window.Loader = Loader = arguments[0]
+            Loader = arguments[0]
             $ = arguments[1]
             _ = arguments[2]
             container = $('#container')
@@ -27,76 +23,6 @@ describe('Loader.query()', function() {
     after(function(done) {
         Loader.destroy(container, done)
     })
-
-    var TPL_CONTENT = '<pre>{ moduleId: <%= moduleId %>, clientId: <%= clientId %>, parentClientId: <%= parentClientId %> }</pre>'
-
-    var TPL_TEST_IMPL_COUNT = 3
-    var TPL_NESTED_IMPLS =
-        repeat('<div bx-name="test/0"></div>', TPL_TEST_IMPL_COUNT) +
-        repeat('<div bx-name="test/1"></div>', TPL_TEST_IMPL_COUNT) +
-        repeat('<div bx-name="test/2"></div>', TPL_TEST_IMPL_COUNT)
-    var TPL_CHILDREN = '<ul>\
-                            <li bx-name="<%= moduleId %>/0"></li>\
-                            <li bx-name="<%= moduleId %>/1"></li>\
-                            <li bx-name="<%= moduleId %>/2"></li>\
-                        </ul>'
-
-    function repeat(str, count) {
-        var result = ''
-        for (var i = 0; i < count; i++) result += str
-        return result
-    }
-
-    function genParentBrixImpl() {
-        function ParentBrixImpl() {}
-        _.extend(ParentBrixImpl.prototype, {
-            render: function() {
-                this.element.innerHTML =
-                    _.template(TPL_CONTENT)(this) +
-                    _.template(TPL_CHILDREN)(this)
-            }
-        })
-        return ParentBrixImpl
-    }
-
-    function genChildBrixImpl() {
-        function ChildBrixImpl() {}
-        _.extend(ChildBrixImpl.prototype, {
-            render: function() {
-                this.element.innerHTML =
-                    _.template(TPL_CONTENT)(this) +
-                    _.template(TPL_CHILDREN)(this)
-            }
-        })
-        return ChildBrixImpl
-    }
-
-    function genDescendantBrixImpl() {
-        function DescendantBrixImpl() {}
-        _.extend(DescendantBrixImpl.prototype, {
-            render: function() {
-                this.element.innerHTML =
-                    _.template(TPL_CONTENT)(this)
-            }
-        })
-        return DescendantBrixImpl
-    }
-
-    (function() {
-        var moduleId
-        for (var i = 0; i < 3; i++) {
-            moduleId = ['test', i].join('/')
-            define(moduleId, genParentBrixImpl)
-            for (var ii = 0; ii < 3; ii++) {
-                moduleId = ['test', i, ii].join('/')
-                define(moduleId, genChildBrixImpl)
-                for (var iii = 0; iii < 3; iii++) {
-                    moduleId = ['test', i, ii, iii].join('/')
-                    define(moduleId, genDescendantBrixImpl)
-                }
-            }
-        }
-    })()
 
     it('Loader.query( moduleId )', function() {
         expect(Loader.query('test/0')).to.have.length(TPL_TEST_IMPL_COUNT)
