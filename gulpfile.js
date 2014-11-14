@@ -75,7 +75,7 @@ gulp.task('istanbul', function(cb) {
                 .on('end', cb)
         })
 })
-gulp.task('istanbul2', function(cb) {
+gulp.task('istanbulForMochaPhantomJS', function(cb) {
     gulp.src(['dist/*.js'])
         .pipe(istanbul()) // Covering files
         .on('finish', function() {
@@ -87,7 +87,7 @@ gulp.task('istanbul2', function(cb) {
 })
 
 // https://github.com/markdalgleish/gulp-coveralls
-gulp.task('coveralls', ['istanbul2'], function() {
+gulp.task('coveralls', ['istanbul'], function() {
     return gulp.src('coverage/**/lcov.info')
         .pipe(coveralls())
 })
