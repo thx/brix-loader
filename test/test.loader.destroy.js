@@ -1,6 +1,7 @@
-/* global window */
-/* global define, require */
-/* global describe, chai, before, it */
+/* global require */
+/* global describe, before, beforeEach, afterEach, it, expect */
+/* global Loader: true, $: true, _: true, container: true */
+/* global TPL_NESTED_IMPLS, TPL_TEST_IMPL_COUNT */
 /* jshint multistr: true */
 describe('Loader.destroy()', function() {
 
@@ -40,6 +41,7 @@ describe('Loader.destroy()', function() {
         var components = Loader.query('test/0/0')
         expect(components).to.have.length(TPL_TEST_IMPL_COUNT)
         for (var i = 0; i < TPL_TEST_IMPL_COUNT;) {
+            /* jshint loopfunc:true */
             Loader.destroy(components[i], function() {
                 expect(Loader.query('test/0/0')).to.have.length(TPL_TEST_IMPL_COUNT - 1 - i)
                 i++
@@ -60,6 +62,7 @@ describe('Loader.destroy()', function() {
         var components = Loader.query('test/0/0')
         expect(components).to.have.length(TPL_TEST_IMPL_COUNT)
         for (var i = 0; i < TPL_TEST_IMPL_COUNT;) {
+            /* jshint loopfunc:true */
             Loader.destroy(components[i].element, function() {
                 expect(Loader.query('test/0/0')).to.have.length(TPL_TEST_IMPL_COUNT - 1 - i)
                 i++

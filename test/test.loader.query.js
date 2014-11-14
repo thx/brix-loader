@@ -1,6 +1,7 @@
-/* global window */
-/* global define, require */
-/* global describe, chai, before, after, it */
+/* global require */
+/* global describe, before, after, it, expect */
+/* global Loader: true, $: true, _: true, container: true */
+/* global TPL_NESTED_IMPLS, TPL_TEST_IMPL_COUNT */
 /* jshint multistr: true */
 describe('Loader.query()', function() {
 

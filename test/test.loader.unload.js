@@ -1,6 +1,6 @@
-/* global window */
-/* global define, require */
-/* global describe, chai, before, it */
+/* global require */
+/* global describe, before, it, expect */
+/* global Loader: true, $: true, _: true, container: true */
 /* jshint multistr: true */
 describe('Loader.load()', function() {
 

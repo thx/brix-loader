@@ -7,6 +7,10 @@ var mochaPhantomJS = require('gulp-mocha-phantomjs')
 var rjs = require('gulp-requirejs')
 var exec = require('child_process').exec
 
+var istanbul = require('gulp-istanbul')
+var mocha = require('gulp-mocha')
+var coveralls = require('gulp-coveralls')
+
 // https://github.com/spenceralger/gulp-jshint
 gulp.task('jshint', function() {
     var globs = [
@@ -60,7 +64,25 @@ gulp.task('madge', function( /*callback*/ ) {
 
 // TODO
 // https://github.com/search?utf8=%E2%9C%93&q=gulp-mocha-phantomjs+coveralls&type=Code&ref=searchresults
-gulp.task('coveralls', function() {})
+
+gulp.task('istanbul', function(cb) {
+    gulp.src(['dist/*.js'])
+        .pipe(istanbul()) // Covering files
+        .on('finish', function() {
+            gulp.src(['test/test.coveralls.js'])
+                .pipe(mocha({
+                    reporter: 'dot'
+                }))
+                .pipe(istanbul.writeReports()) // Creating the reports after tests runned
+                .on('end', cb);
+        });
+});
+
+// https://github.com/markdalgleish/gulp-coveralls
+gulp.task('coveralls', function() {
+    return gulp.src('coverage/**/lcov.info')
+        .pipe(coveralls())
+})
 
 // 
 gulp.task('publish', function() {

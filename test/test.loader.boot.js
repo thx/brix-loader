@@ -1,6 +1,8 @@
 /* global window, setTimeout */
 /* global define, require */
-/* global describe, chai, before, it */
+/* global describe, before, it, expect */
+/* global Loader: true, $: true, _: true, container: true */
+/* global TPL_TEST_IMPL, TPL_CONTENT, FN_CONTENT, TPL_TEST_IMPL_COUNT, repeat */
 /* jshint multistr: true */
 describe('Loader.boot()', function() {
 

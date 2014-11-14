@@ -1,3 +1,6 @@
+/* global define, chai */
+/* jshint unused:false */
+
 var expect = chai.expect
 	// var assert = chai.assert
 
