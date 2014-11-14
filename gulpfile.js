@@ -79,7 +79,7 @@ gulp.task('istanbul', function(cb) {
 });
 
 // https://github.com/markdalgleish/gulp-coveralls
-gulp.task('coveralls', function() {
+gulp.task('coveralls', ['istanbul']function() {
     return gulp.src('coverage/**/lcov.info')
         .pipe(coveralls())
 })
