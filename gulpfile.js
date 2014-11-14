@@ -63,8 +63,8 @@ gulp.task('madge', function( /*callback*/ ) {
 })
 
 // TODO
-// https://github.com/search?utf8=%E2%9C%93&q=gulp-mocha-phantomjs+coveralls&type=Code&ref=searchresults
 
+// https://github.com/SBoudrias/gulp-istanbul
 gulp.task('istanbul', function(cb) {
     gulp.src(['test/test.coveralls.js'])
         .pipe(istanbul()) // Covering files
@@ -72,12 +72,22 @@ gulp.task('istanbul', function(cb) {
             gulp.src(['test/test.coveralls.js'])
                 .pipe(mocha({}))
                 .pipe(istanbul.writeReports()) // Creating the reports after tests runned
-                .on('end', cb);
-        });
-});
+                .on('end', cb)
+        })
+})
+gulp.task('istanbul2', function(cb) {
+    gulp.src(['dist/*.js'])
+        .pipe(istanbul()) // Covering files
+        .on('finish', function() {
+            gulp.src(['test/*.html'])
+                .pipe(mochaPhantomJS({}))
+                .pipe(istanbul.writeReports()) // Creating the reports after tests runned
+                .on('end', cb)
+        })
+})
 
 // https://github.com/markdalgleish/gulp-coveralls
-gulp.task('coveralls', ['istanbul'], function() {
+gulp.task('coveralls', ['istanbul2'], function() {
     return gulp.src('coverage/**/lcov.info')
         .pipe(coveralls())
 })
