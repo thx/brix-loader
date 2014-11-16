@@ -531,7 +531,7 @@ define(
             * `context` 一个 DOM 元素。
             * `complete()` 可选。一个回调函数，当组件销毁后被执行。
             
-            #### Loader.destroy( moduleId [, context] [, complete ] )
+            #### Loader.destroy( moduleId [, context] [, complete() ] )
             
             * **Loader.destroy( moduleId, complete )**
                 * Loader.destroy( moduleId )
