@@ -25,16 +25,15 @@ define(
             var options
             var parent, moduleId, clientId, parentClientId
 
-
             // 如果没有模块标识符，则无需（也无法）加载，立即返回
             moduleId = element.getAttribute(Constant.ATTRS.id)
             if (!moduleId) return {}
 
             // 为组件关联的 DOM 节点分配唯一标识
             clientId = Constant.UUID++
-            if (element.clientId === undefined) element.clientId = clientId
+                if (element.clientId === undefined) element.clientId = clientId
 
-            // 查找父节点
+                // 查找父节点
             parent = element
             do {
                 parent = parent.parentNode
@@ -88,6 +87,9 @@ define(
                 } catch (error) {
                     options[ma[1]] = value
                 }
+                
+                if (options[ma[1]] === 'true') options[ma[1]] = true
+                if (options[ma[1]] === 'false') options[ma[1]] = false
             })
             return options
         }
