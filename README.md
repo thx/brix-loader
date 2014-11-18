@@ -22,11 +22,11 @@ $ bower install --save brix-loader
 // 配置 Loader 路径
 require.config({
     paths: {
-        'loader': 'bower_components/brix-loader/dist/'
+        'brix/loader': 'bower_components/brix-loader/dist/'
     }
 })
 // 加载 Loader
-require(['loader'], function(Loader){
+require(['brix/loader'], function(Loader){
     // 加载组件
     Loader.boot('body', function(){
         // 查找组件
