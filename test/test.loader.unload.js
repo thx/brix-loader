@@ -8,7 +8,7 @@ describe('Loader.load()', function() {
 
     var targets
     before(function(done) {
-        require(['loader', 'jquery', 'underscore'], function() {
+        require(['brix/loader', 'jquery', 'underscore'], function() {
             Loader = arguments[0]
             $ = arguments[1]
             _ = arguments[2]

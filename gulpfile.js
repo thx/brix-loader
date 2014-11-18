@@ -34,7 +34,7 @@ gulp.task('rjs', function() {
     var build = {
         baseUrl: 'src',
         out: 'dist/loader.js',
-        name: 'loader'
+        name: 'brix/loader'
     }
     rjs(build)
         .pipe(gulp.dest('.')) // pipe it to the output DIR

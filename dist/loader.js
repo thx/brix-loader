@@ -39,7 +39,7 @@
     * `<div data-msg="world">`
 
  */
-define('constant',[],function() {
+define('brix/loader/constant',[],function() {
     var VERSION = '0.0.x'
     var EXPANDO = (Math.random() + '').replace(/\D/g, '')
     return {
@@ -93,7 +93,7 @@ define('constant',[],function() {
     
     http://underscorejs.org/
 */
-define('util',[],function() {
+define('brix/loader/util',[],function() {
 
     var _ = {}
 
@@ -470,9 +470,9 @@ define('util',[],function() {
 });
 /* global define */
 define(
-    'options',[
-        'constant',
-        'util'
+    'brix/loader/options',[
+        './constant',
+        './util'
     ],
     function(
         Constant,
@@ -687,10 +687,10 @@ define(
             http://gitlab.alibaba-inc.com/limu/brix-central/wikis/BCD
 */
 define(
-    'loader',[
-        'constant',
-        'options',
-        'util'
+    'brix/loader',[
+        './loader/constant',
+        './loader/options',
+        './loader/util'
     ],
     function(
         Constant,

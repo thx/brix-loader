@@ -117,9 +117,9 @@
 */
 define(
     [
-        'constant',
-        'options',
-        'util'
+        './loader/constant',
+        './loader/options',
+        './loader/util'
     ],
     function(
         Constant,

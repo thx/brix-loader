@@ -8,7 +8,7 @@ describe('Loader.destroy()', function() {
     this.timeout(5000)
 
     before(function(done) {
-        require(['loader', 'jquery', 'underscore'], function() {
+        require(['brix/loader', 'jquery', 'underscore'], function() {
             Loader = arguments[0]
             $ = arguments[1]
             _ = arguments[2]

@@ -1,8 +1,8 @@
 /* global define */
 define(
     [
-        'constant',
-        'util'
+        './constant',
+        './util'
     ],
     function(
         Constant,
