@@ -85,8 +85,8 @@ define('constant',[],function() {
         PREFIX: 'bx-'
     }
 });
-/* global define        */
-/* global setTimeout, setInterval, clearInterval */
+/* global define */
+/* global location, setTimeout, setInterval, clearInterval */
 
 /*
     Brix Loader Utility Functions
@@ -251,6 +251,29 @@ define('util',[],function() {
     }
 
     /* 非 Underscore 方法 */
+
+    // 解析 hash
+    _.parse = function(fragment) {
+        fragment = fragment || location.hash
+        var rhash = /#?!?([^?]*)\??(.*)?/
+        var parts = rhash.exec(fragment)
+        return {
+            path: parts[1],
+            params: this.unparam(parts[2])
+        }
+    }
+
+    // 解析参数为 string
+    _.param = function(params) {
+        if (!params) return ''
+        var r20 = /%20/g
+        var re = [];
+        _.each(params, function(value, key) {
+            if (value === '') return
+            re.push(encodeURIComponent(key) + "=" + encodeURIComponent(value))
+        })
+        return re.join("&").replace(r20, "+")
+    }
 
     // 解析参数为 object
     _.unparam = function(param) {
