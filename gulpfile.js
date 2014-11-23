@@ -11,6 +11,20 @@ var istanbul = require('gulp-istanbul')
 var mocha = require('gulp-mocha')
 var coveralls = require('gulp-coveralls')
 
+gulp.task('hello', function() {
+    console.log((function() {
+        /*
+______        _         _                        _             
+| ___ \      (_)       | |                      | |            
+| |_/ / _ __  _ __  __ | |      ___    __ _   __| |  ___  _ __ 
+| ___ \| '__|| |\ \/ / | |     / _ \  / _` | / _` | / _ \| '__|
+| |_/ /| |   | | >  <  | |____| (_) || (_| || (_| ||  __/| |   
+\____/ |_|   |_|/_/\_\ \_____/ \___/  \__,_| \__,_| \___||_|   
+                                                
+        */
+    }).toString().split('\n').slice(2, -2).join('\n') + '\n')
+})
+
 // https://github.com/spenceralger/gulp-jshint
 gulp.task('jshint', function() {
     var globs = [
@@ -41,7 +55,7 @@ gulp.task('rjs', function() {
 })
 
 // https://github.com/floatdrop/gulp-watch
-var watchTasks = ['madge', 'jshint', 'rjs', 'mocha']
+var watchTasks = ['hello', 'madge', 'jshint', 'rjs', 'mocha']
 gulp.task('watch', function( /*callback*/ ) {
     gulp.watch(['src/*.js', 'gulpfile.js', 'test/*'], watchTasks)
 })
