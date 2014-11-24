@@ -716,7 +716,7 @@ define(
         function cache(instance) {
             // 放入缓存
             CACHE[instance.clientId] = instance
-                // 关联父组件
+            // 关联父组件
             var parent = CACHE[instance.parentClientId]
             if (parent) parent.childClientIds.push(instance.clientId)
         }

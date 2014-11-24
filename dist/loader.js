@@ -48,13 +48,11 @@ define('brix/loader/constant',[],function() {
         ROOT_CLIENT_ID: -1,
         ATTRS: {
             id: 'bx-name',
-            options: 'bx-options',
-            cid: 'data-cid'
+            options: 'bx-options'
         },
         SELECTORS: {
             id: '[bx-name]',
-            options: '[bx-options]',
-            cid: '[data-cid]',
+            options: '[bx-options]'
         },
         EVENTS: {
             ready: 'ready',
@@ -63,7 +61,9 @@ define('brix/loader/constant',[],function() {
         /*
             以下属性会被自动从 options 复制到组件实例上。
             其他预设但是不会自动复制的选项有：
-            * css 组件关联的 CSS 文件
+            * `css` 组件关联的 CSS 文件
+            * `data`  组件关联的数据
+            * `template` 组件关联的 HTML 模板
          */
         OPTIONS: [ // 以下属性会被自动复制到组件实例上
             'element', // 组件关联的节点
@@ -71,9 +71,7 @@ define('brix/loader/constant',[],function() {
             'moduleId', // 组件的模块标识符
             'clientId', // 组件实例的标识符
             'parentClientId', // 父组件实例的标识符
-            'childClientIds', // 父组件实例的标识符数组
-            'data', // 组件关联的数据
-            'template' // 组件关联的 HTML 模板
+            'childClientIds' // 父组件实例的标识符数组
         ],
         EXPANDO: 'Brix' + VERSION + EXPANDO,
         UUID: 0,
@@ -501,9 +499,9 @@ define(
 
             // 为组件关联的 DOM 节点分配唯一标识
             clientId = Constant.UUID++
-                if (element.clientId === undefined) element.clientId = clientId
+            if (element.clientId === undefined) element.clientId = clientId
 
-                // 查找父节点
+            // 查找父节点
             parent = element
             do {
                 parent = parent.parentNode
@@ -557,7 +555,7 @@ define(
                 } catch (error) {
                     options[ma[1]] = value
                 }
-                
+
                 if (options[ma[1]] === 'true') options[ma[1]] = true
                 if (options[ma[1]] === 'false') options[ma[1]] = false
             })
@@ -1287,7 +1285,7 @@ define(
         function cache(instance) {
             // 放入缓存
             CACHE[instance.clientId] = instance
-                // 关联父组件
+            // 关联父组件
             var parent = CACHE[instance.parentClientId]
             if (parent) parent.childClientIds.push(instance.clientId)
         }

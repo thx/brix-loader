@@ -1,5 +1,24 @@
 # 会议纪要
 
+## 2014.11.21
+
+左莫 行列 墨智
+
+1. 版本号 4.0.0
+2. Event.setup 避免干扰
+3. bx-target-type 都执行，不再限制从事件触发元素
+4. .on .off 移入 brix-base
+5. 约定发布命名空间
+    thx
+    brix
+        loader.js
+        event.js
+        base.js
+        ...
+    magix
+    require('brix/')
+    require('magix/')
+
 ## 2014.11.12
 
 李牧 左莫 行列 墨智
