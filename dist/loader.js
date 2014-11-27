@@ -915,9 +915,13 @@ define(
                 })
                 .queue(function(next) {
                     // 拦截渲染方法
-                    if (instance._wrapper) next()
+                    if (instance._render) {
+                        next()
+                        return
+                    }
 
-                    instance._wrapper = function() {
+                    instance._render = instance.render
+                    instance.render = function() {
                         var deferred = Util.defer()
                         var promise = deferred.promise
 
@@ -930,7 +934,7 @@ define(
                             })
                         }
                         // 调用组件的 .render()
-                        var result = instance.render.apply(instance, arguments)
+                        var result = instance._render.apply(instance, arguments)
 
                         // 如果返回了 Promise，则依赖 Promise 的状态
                         if (result && result.then) {
@@ -982,7 +986,7 @@ define(
                 .queue(function(next) {
                     // 5. 执行渲染（不存在怎么办？必须有！）
                     try {
-                        var result = instance._wrapper(function(error /*, instance*/ ) {
+                        var result = instance.render(function(error /*, instance*/ ) {
                             if (error) {}
                         })
                         if (DEBUG) console.log(label, 'call  render')
@@ -1285,7 +1289,7 @@ define(
         function cache(instance) {
             // 放入缓存
             CACHE[instance.clientId] = instance
-            // 关联父组件
+                // 关联父组件
             var parent = CACHE[instance.parentClientId]
             if (parent) parent.childClientIds.push(instance.clientId)
         }
