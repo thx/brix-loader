@@ -1,5 +1,14 @@
 # 会议纪要
 
+## 2014.11.27
+
+1. Event => EventManager
+	* delegateBxTypeEvents => delegate
+	* undelegateBxTypeEvents => undelegate
+2. components/module => brix/module
+3. brix-event 过滤 mx-frame mx-view
+4. 文档
+
 ## 2014.11.21
 
 左莫 行列 墨智
