@@ -1041,7 +1041,16 @@ define(
                         })
                     }
                     // 从最终的关联元素上解析事件配置项 bx-type，然后逐个绑定。
-                    // if (instance.delegateBxTypeEvents) instance.delegateBxTypeEvents()
+                    if (instance.delegateBxTypeEvents) {
+                        if (instance.element) {
+                            instance.undelegateBxTypeEvents(instance.element)
+                            instance.delegateBxTypeEvents(instance.element)
+                        }
+                        if (instance.relatedElement) {
+                            instance.undelegateBxTypeEvents(instance.relatedElement)
+                            instance.delegateBxTypeEvents(instance.relatedElement)
+                        }
+                    }
                     next()
                 })
                 .queue(function(next) {
@@ -1246,6 +1255,14 @@ define(
             // 调用自定义销毁行为
             if (instance._destroy) {
                 try {
+                    if (instance.delegateBxTypeEvents) {
+                        if (instance.element) {
+                            instance.undelegateBxTypeEvents(instance.element)
+                        }
+                        if (instance.relatedElement) {
+                            instance.undelegateBxTypeEvents(instance.relatedElement)
+                        }
+                    }
                     instance._destroy()
                 } catch (error) {
                     if (complete) complete(error)
@@ -1289,7 +1306,8 @@ define(
         function cache(instance) {
             // 放入缓存
             CACHE[instance.clientId] = instance
-                // 关联父组件
+
+            // 关联父组件
             var parent = CACHE[instance.parentClientId]
             if (parent) parent.childClientIds.push(instance.clientId)
         }
