@@ -1260,14 +1260,14 @@ define(
             // 调用自定义销毁行为
             if (instance._destroy) {
                 try {
-                    if (instance.delegateBxTypeEvents) {
+                    /*if (instance.delegateBxTypeEvents) {
                         if (instance.element) {
                             instance.undelegateBxTypeEvents(instance.element)
                         }
                         if (instance.relatedElement) {
                             instance.undelegateBxTypeEvents(instance.relatedElement)
                         }
-                    }
+                    }*/
                     instance._destroy()
                 } catch (error) {
                     if (complete) complete(error)
