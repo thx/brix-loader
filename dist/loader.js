@@ -1018,9 +1018,13 @@ define(
                         }
                     })
                     next()
-                        // .delay(100, queueName) // 每个组件之间的渲染间隔 100ms，方便观察
+                        // .delay(100) // 每个组件之间的渲染间隔 100ms，方便观察
                 })
                 .queue(function(next) {
+                    next()
+                    return
+
+                    // 暂停支持
                     // 6. 绑定事件
                     // 从初始的关联元素上解析事件配置项 bx-type，然后逐个绑定到最终的关联元素上。
                     // 以 Dropdown 为例，初试的关联元素是 <select>，最终的关联元素却是 <div class="dropdown">
@@ -1058,13 +1062,14 @@ define(
                     var descendants = element.getElementsByTagName('*')
                     var hasBrixElement = false
                     Util.each(descendants, function(descendant /*, index*/ ) {
-                            if (descendant.nodeType !== 1) return
-                            if (!hasBrixElement &&
-                                descendant.getAttribute(Constant.ATTRS.id)) {
-                                hasBrixElement = true
-                            }
-                        })
-                        // 7. 如果有后代组件，则递归加载
+                        if (descendant.nodeType !== 1) return
+                        if (!hasBrixElement &&
+                            descendant.getAttribute(Constant.ATTRS.id)) {
+                            hasBrixElement = true
+                        }
+                    })
+
+                    // 7. 如果有后代组件，则递归加载
                     if (hasBrixElement) {
                         boot(instance, function() {
                             next()

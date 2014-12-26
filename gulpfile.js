@@ -57,7 +57,7 @@ gulp.task('rjs', function() {
 // https://github.com/floatdrop/gulp-watch
 var watchTasks = ['hello', 'madge', 'jshint', 'rjs', 'mocha']
 gulp.task('watch', function( /*callback*/ ) {
-    gulp.watch(['src/*.js', 'gulpfile.js', 'test/*'], watchTasks)
+    gulp.watch(['src/**/*.js', 'gulpfile.js', 'test/*'], watchTasks)
 })
 
 // https://github.com/pahen/madge

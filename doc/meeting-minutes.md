@@ -1,5 +1,27 @@
 # 会议纪要
 
+## 2014.12.15
+1. 事件类型的解析独立出来
+2. Brix Event 接受事件类型数组，再代理（绑定）
+3. Loader 不处理 Brix Event，在组件的 render 里显式调用
+    不处理：保险
+    处理：方便
+4. √ new EventManager( prefix )
+5. boilerplate
+            render: function() {
+                this.data = this.data || _.extend({}, this.options)
+                var html = _.template(template)(this.data)
+
+                this.manager = new EventMan....
+                $(this.element).append(html)
+                var types = [];
+                var types = manager.parseTypes() // Magix
+                this.manager.delegate( this.element, types, owner )
+            },
+            destroy: function(){
+                this.manager.undelegate()
+            }
+
 ## 2014.11.27
 
 1. Event => EventManager
