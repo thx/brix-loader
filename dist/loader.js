@@ -1632,7 +1632,24 @@ define(
             query: query,
             tree: tree,
 
-            load: load,
+            load: function(element, moduleId, options, complete) {
+                // load( element, moduleId, complete )
+                if (Util.isFunction(options)) {
+                    complete = options
+                    options = undefined
+                }
+
+                tasks.queue(function(next) {
+                    booting = true
+                    load(element, moduleId, options, function(records) {
+                        booting = false
+                        if (complete) complete(records)
+                        next()
+                    })
+                })
+                if (!booting) tasks.dequeue()
+                return this
+            },
             unload: unload,
 
             Util: Util,
