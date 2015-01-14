@@ -1389,7 +1389,7 @@ define(
                     var that = this
                     var args = [].slice.call(arguments)
                     var result
-                    Util.each(this, function(instance /*, index*/ ) {
+                    Util.each(this, function(instance, index) {
                         if (!instance[name]) return
                         result = instance[name].apply(instance, args)
                         if (result !== undefined) that[index] = result
