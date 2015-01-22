@@ -54,6 +54,7 @@ define(
             } catch (exception) {
                 options = {}
             }
+            
             options.element = element
             options.moduleId = moduleId
             options.clientId = clientId

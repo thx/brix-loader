@@ -522,6 +522,7 @@ define(
             } catch (exception) {
                 options = {}
             }
+            
             options.element = element
             options.moduleId = moduleId
             options.clientId = clientId
@@ -964,7 +965,7 @@ define(
 
                         // 同步 clientId
                         function syncClientId() {
-                            var relatedElement = instance.relatedElement
+                            var relatedElement = instance.relatedElement || instance.$relatedElement
                             if (relatedElement) {
                                 // element
                                 if (relatedElement.nodeType && (relatedElement.clientId === undefined)) {
@@ -1260,20 +1261,11 @@ define(
             // 调用自定义销毁行为
             if (instance._destroy) {
                 try {
-                    /*if (instance.delegateBxTypeEvents) {
-                        if (instance.element) {
-                            instance.undelegateBxTypeEvents(instance.element)
-                        }
-                        if (instance.relatedElement) {
-                            instance.undelegateBxTypeEvents(instance.relatedElement)
-                        }
-                    }*/
                     instance._destroy()
                 } catch (error) {
                     if (complete) complete(error)
                     else console.error(error)
                 }
-
             }
 
             // 从缓存中移除
