@@ -796,14 +796,17 @@ define(
                         // 是否在 context 内
                         if (context === undefined || parents(instance, context).length) {
                             results.push(instance)
-                                // 收集组件方法
-                            Util.each(instance.constructor.prototype, function(value, name) {
-                                if (Util.isFunction(value) && (name[0] !== '_')) methods.push(name)
-                            })
                         }
                     }
                 })
             }
+
+            // 收集组件方法
+            Util.each(results, function(instance, index) {
+                Util.each(instance.constructor.prototype, function(value, name) {
+                    if (Util.isFunction(value) && (name[0] !== '_')) methods.push(name)
+                })
+            })
 
             // 2. 绑定组件方法至 query() 返回的对象上
             Util.each(Util.unique(methods), function(name /*, index*/ ) {
@@ -811,11 +814,17 @@ define(
                     var that = this
                     var args = [].slice.call(arguments)
                     var result
+                    var hasNewResults = false
+                    var tmpNewResults = []
                     Util.each(this, function(instance, index) {
                         if (!instance[name]) return
                         result = instance[name].apply(instance, args)
-                        if (result !== undefined) that[index] = result
+                        if (result !== undefined && result !== instance) {
+                            hasNewResults = true
+                            tmpNewResults.push(result)
+                        }
                     })
+                    if (hasNewResults) return tmpNewResults
                     return this
                 }
             })
