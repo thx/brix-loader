@@ -863,12 +863,15 @@ define(
                 })
                 .queue(function(next) {
                     try {
-                        // 3. 创建组件实例
-                        instance = new BrixImpl(options)
+                        // 3. 创建组件实例（按需传入参数 options）
+                        instance = BrixImpl.length ? new BrixImpl(options) : new BrixImpl()
                             // 设置属性 options
                         instance.options = Util.extend({}, instance.options, options)
                             // 设置其他公共属性
                         Util.extend(instance, Util.pick(options, Constant.OPTIONS))
+
+                        // 增强通过 Loader 加载的组件
+                        // enhance(instance)
                         next()
                     } catch (error) {
                         if (callback) callback(error, instance)
@@ -1600,6 +1603,22 @@ define(
             _parseChildren(Constant.ROOT_CLIENT_ID, result.children)
 
             return result
+        }
+
+        /*
+            增强通过 Loader 加载的组件
+         */
+        function enhance(instance) {
+            if (!instance.constructor.prototype.query) instance.constructor.prototype.query = function(moduleId) {
+                //  TODO element, relatedElement, $relatedElement
+                return query(moduleId, this)
+            }
+            if (!instance.constructor.prototype.boot) instance.constructor.prototype.boot = function(callback, progress) {
+                //  TODO element, relatedElement, $relatedElement
+                Loader.boot(this.element, callback, progress)
+                // if (this.relatedElement || this.$relatedElement) Loader.boot(this.relatedElement || this.$relatedElement, callback, progress)
+                return this
+            }
         }
 
         var tasks = Util.queue()
