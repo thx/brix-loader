@@ -1344,21 +1344,17 @@ define(
             // 1. 根据 element 查找组件实例
             // query( element )
             if (moduleId.nodeType) {
-                results.push(
-                    CACHE[
-                        moduleId.clientId
-                    ]
-                )
+                if (moduleId.clientId !== undefined && CACHE[moduleId.clientId]) {
+                    results.push(CACHE[moduleId.clientId])
+                }
 
             } else if (moduleId.length && !Util.isString(moduleId)) {
                 // 1. 根据 elementArray 逐个查找组件实例
                 // query( elementArray )
                 Util.each(moduleId, function(element /*, index*/ ) {
-                    results.push(
-                        CACHE[
-                            element.clientId
-                        ]
-                    )
+                    if (element.clientId !== undefined && CACHE[element.clientId]) {
+                        results.push(CACHE[element.clientId])
+                    }
                 })
             } else {
                 // 1. 根据 moduleId 查找组件实例
@@ -1376,6 +1372,7 @@ define(
 
             // 收集组件方法
             Util.each(results, function(instance, index) {
+                if (!instance) return // 容错
                 Util.each(instance.constructor.prototype, function(value, name) {
                     if (Util.isFunction(value) && (name[0] !== '_')) methods.push(name)
                 })
@@ -1616,7 +1613,7 @@ define(
             if (!instance.constructor.prototype.boot) instance.constructor.prototype.boot = function(callback, progress) {
                 //  TODO element, relatedElement, $relatedElement
                 Loader.boot(this.element, callback, progress)
-                // if (this.relatedElement || this.$relatedElement) Loader.boot(this.relatedElement || this.$relatedElement, callback, progress)
+                    // if (this.relatedElement || this.$relatedElement) Loader.boot(this.relatedElement || this.$relatedElement, callback, progress)
                 return this
             }
         }
