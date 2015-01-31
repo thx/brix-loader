@@ -698,7 +698,7 @@ define(
     ) {
 
         var CACHE = {}
-        var DEBUG = ~location.search.indexOf('debug')
+        var DEBUG = ~location.search.indexOf('brix.loader.debug')
 
         /*
             #### Loader.boot( [ context ] [, complete( records ) ] [, notify( error, instance, index, count ) ] )
@@ -1620,6 +1620,33 @@ define(
 
         var tasks = Util.queue()
         var booting = false
+
+        function queueBoot(context, complete, extraOptions /* Internal Use Only */ , notify) {
+            tasks.queue(function(next) {
+                var label = 'queue boot'
+                if (DEBUG) {
+                    console.group(label)
+                    console.time(label)
+                    console.log('context:', context)
+                    console.log('takks.list:', tasks.list.length)
+                }
+
+                booting = true
+                boot(context, function(records) {
+                    if (complete) complete(records)
+                    booting = false
+
+                    if (DEBUG) {
+                        console.timeEnd(label)
+                        console.groupEnd(label)
+                    }
+
+                    next()
+                }, extraOptions, notify)
+            })
+            if (!booting) tasks.dequeue()
+        }
+
         var Loader = {
             CACHE: CACHE,
             boot: function(context, callback, progress) {
@@ -1635,15 +1662,20 @@ define(
                     context = context ? context.element || context : document.body
                 }
 
-                tasks.queue(function(next) {
-                    booting = true
-                    boot(context, function(records) {
-                        booting = false
-                        if (callback) callback(records)
-                        next()
-                    }, null, progress)
-                })
-                if (!booting) tasks.dequeue()
+                queueBoot(context, callback, undefined, progress)
+
+                // tasks.queue(function(next) {
+                //     if (DEBUG) console.log('queue boot', context)
+                //     if (DEBUG) console.log('takks.list', tasks.list.length)
+
+                //     booting = true
+                //     boot(context, function(records) {
+                //         booting = false
+                //         if (callback) callback(records)
+                //         next()
+                //     }, null, progress)
+                // })
+                // if (!booting) tasks.dequeue()
                 return this
             },
             destroy: destroy,
@@ -1657,15 +1689,20 @@ define(
                     options = undefined
                 }
 
-                tasks.queue(function(next) {
-                    booting = true
-                    load(element, moduleId, options, function(records) {
-                        booting = false
-                        if (complete) complete(records)
-                        next()
-                    })
-                })
-                if (!booting) tasks.dequeue()
+                load(element, moduleId, options, complete)
+
+                // tasks.queue(function(next) {
+                //     if (DEBUG) console.log('queue load', element)
+                //     if (DEBUG) console.log('takks.list', tasks.list.length)
+
+                //     booting = true
+                //     load(element, moduleId, options, function(records) {
+                //         booting = false
+                //         if (complete) complete(records)
+                //         next()
+                //     })
+                // })
+                // if (!booting) tasks.dequeue()
                 return this
             },
             unload: unload,
