@@ -698,7 +698,7 @@ define(
     ) {
 
         var CACHE = {}
-        var DEBUG = ~location.search.indexOf('debug')
+        var DEBUG = ~location.search.indexOf('brix.loader.debug')
 
         /*
             #### Loader.boot( [ context ] [, complete( records ) ] [, notify( error, instance, index, count ) ] )
@@ -1635,11 +1635,28 @@ define(
                     context = context ? context.element || context : document.body
                 }
 
+                if (DEBUG) console.log('call boot', context)
+
                 tasks.queue(function(next) {
+                    var label = 'queue boot'
+                    if (DEBUG) {
+                        console.group(label)
+                        console.time(label)
+                        console.log('context:', context)
+                        console.log('takks.list:', tasks.list.length)
+                    }
+
                     booting = true
                     boot(context, function(records) {
-                        booting = false
                         if (callback) callback(records)
+                        booting = false
+
+                        if (DEBUG) {
+                            console.log(records.length, records)
+                            console.timeEnd(label)
+                            console.groupEnd(label)
+                        }
+
                         next()
                     }, null, progress)
                 })
