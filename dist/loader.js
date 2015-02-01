@@ -938,7 +938,9 @@ define(
                             })
                         }
                         // 调用组件的 .render()
-                        var result = instance._render.apply(instance, arguments)
+                        var result
+                        if (instance._render) result = instance._render.apply(instance, arguments)
+                        else console.warn(instance.clientId, instance.moduleId, '找不到方法 render() ')
 
                         // 如果返回了 Promise，则依赖 Promise 的状态
                         if (result && result.then) {

@@ -6,6 +6,7 @@ describe('Loader.load()', function() {
 
     this.timeout(5000)
 
+    // 其他变量和模块的定义在文件 `./test.loader.init.js` 中。
     var targets
     before(function(done) {
         require(['brix/loader', 'jquery', 'underscore'], function() {
