@@ -1624,6 +1624,7 @@ define(
         var booting = false
         var Loader = {
             CACHE: CACHE,
+            tasks: tasks,
             boot: function(context, callback, progress) {
                 // boot( callback, progress )
                 if (Util.isFunction(context)) {
@@ -1639,6 +1640,7 @@ define(
 
                 if (DEBUG) console.log('call boot', context)
 
+                var caller = arguments.callee.caller
                 tasks.queue(function(next) {
                     var label = 'queue boot'
                     if (DEBUG) {
@@ -1648,7 +1650,7 @@ define(
                         console.log('takks.list:', tasks.list.length)
                     }
 
-                    booting = true
+                    booting = caller
                     boot(context, function(records) {
                         if (callback) callback(records)
                         booting = false
