@@ -1051,10 +1051,10 @@ define(
         }
 
         var tasks = Util.queue()
-        var booting = false
         var Loader = {
             CACHE: CACHE,
             tasks: tasks,
+            booting: false,
             boot: function(context, callback, progress) {
                 // boot( callback, progress )
                 if (Util.isFunction(context)) {
@@ -1080,10 +1080,17 @@ define(
                         console.log('takks.list:', tasks.list.length)
                     }
 
-                    booting = caller
+                    Loader.booting = caller
                     boot(context, function(records) {
-                        if (callback) callback(records)
-                        booting = false
+                        if (callback) {
+                            try {
+                                callback(records)
+                            } catch (e) {
+                                console.error(e)
+                            }
+                        }
+
+                        Loader.booting = false
 
                         if (DEBUG) {
                             console.log(records.length, records)
@@ -1094,7 +1101,7 @@ define(
                         next()
                     }, null, progress)
                 })
-                if (!booting) tasks.dequeue()
+                if (!Loader.booting) tasks.dequeue()
                 return this
             },
             destroy: destroy,
@@ -1108,15 +1115,24 @@ define(
                     options = undefined
                 }
 
+                var caller = arguments.callee.caller
                 tasks.queue(function(next) {
-                    booting = true
+                    Loader.booting = caller
                     load(element, moduleId, options, function(records) {
-                        booting = false
-                        if (complete) complete(records)
+                        Loader.booting = false
+
+                        if (complete) {
+                            try {
+                                complete(records)
+                            } catch (e) {
+                                console.error(e)
+                            }
+                        }
+
                         next()
                     })
                 })
-                if (!booting) tasks.dequeue()
+                if (!Loader.booting) tasks.dequeue()
                 return this
             },
             unload: unload,
