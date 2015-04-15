@@ -278,8 +278,8 @@ define(function() {
                 that.then.apply(that, arguments)
                 return this
             },
-            finally: function() {
-                that.finally.apply(that, arguments)
+            'finally': function() {
+                that['finally'].apply(that, arguments)
                 return this
             }
         }
@@ -287,11 +287,11 @@ define(function() {
     Deferred.prototype = {
         then: function(resolved, rejected, progressed) {
             if (resolved) {
-                if (resolved.finally) this.resolvedList.push(resolved)
+                if (resolved['finally']) this.resolvedList.push(resolved)
                 else this.resolvedList.splice(this.resolvedListIndex++, 0, resolved)
             }
             if (rejected) {
-                if (rejected.finally) this.rejectedList.push(rejected)
+                if (rejected['finally']) this.rejectedList.push(rejected)
                 else this.rejectedList.splice(this.rejectedListIndex++, 0, rejected)
             }
             if (progressed) this.progressedList.push(progressed)
@@ -328,8 +328,8 @@ define(function() {
             }
             return this
         },
-        finally: function(callback) {
-            callback.finally = true
+        'finally': function(callback) {
+            callback['finally'] = true
             return this.then(callback, callback)
         }
     }

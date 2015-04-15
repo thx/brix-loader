@@ -363,8 +363,8 @@ define('brix/loader/util',[],function() {
                 that.then.apply(that, arguments)
                 return this
             },
-            finally: function() {
-                that.finally.apply(that, arguments)
+            'finally': function() {
+                that['finally'].apply(that, arguments)
                 return this
             }
         }
@@ -372,11 +372,11 @@ define('brix/loader/util',[],function() {
     Deferred.prototype = {
         then: function(resolved, rejected, progressed) {
             if (resolved) {
-                if (resolved.finally) this.resolvedList.push(resolved)
+                if (resolved['finally']) this.resolvedList.push(resolved)
                 else this.resolvedList.splice(this.resolvedListIndex++, 0, resolved)
             }
             if (rejected) {
-                if (rejected.finally) this.rejectedList.push(rejected)
+                if (rejected['finally']) this.rejectedList.push(rejected)
                 else this.rejectedList.splice(this.rejectedListIndex++, 0, rejected)
             }
             if (progressed) this.progressedList.push(progressed)
@@ -413,8 +413,8 @@ define('brix/loader/util',[],function() {
             }
             return this
         },
-        finally: function(callback) {
-            callback.finally = true
+        'finally': function(callback) {
+            callback['finally'] = true
             return this.then(callback, callback)
         }
     }
@@ -1373,7 +1373,7 @@ define(
             }
 
             // 收集组件方法
-            Util.each(results, function(instance, index) {
+            Util.each(results, function(instance /*, index*/ ) {
                 if (!instance) return // 容错
                 Util.each(instance.constructor.prototype, function(value, name) {
                     if (Util.isFunction(value) && (name[0] !== '_')) methods.push(name)
@@ -1383,12 +1383,11 @@ define(
             // 2. 绑定组件方法至 query() 返回的对象上
             Util.each(Util.unique(methods), function(name /*, index*/ ) {
                 results[name] = function() {
-                    var that = this
                     var args = [].slice.call(arguments)
                     var result
                     var hasNewResults = false
                     var tmpNewResults = []
-                    Util.each(this, function(instance, index) {
+                    Util.each(this, function(instance /*, index*/ ) {
                         if (!instance[name]) return
                         result = instance[name].apply(instance, args)
                         if (result !== undefined && result !== instance) {

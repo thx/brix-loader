@@ -803,7 +803,7 @@ define(
             }
 
             // 收集组件方法
-            Util.each(results, function(instance, index) {
+            Util.each(results, function(instance /*, index*/ ) {
                 if (!instance) return // 容错
                 Util.each(instance.constructor.prototype, function(value, name) {
                     if (Util.isFunction(value) && (name[0] !== '_')) methods.push(name)
@@ -813,12 +813,11 @@ define(
             // 2. 绑定组件方法至 query() 返回的对象上
             Util.each(Util.unique(methods), function(name /*, index*/ ) {
                 results[name] = function() {
-                    var that = this
                     var args = [].slice.call(arguments)
                     var result
                     var hasNewResults = false
                     var tmpNewResults = []
-                    Util.each(this, function(instance, index) {
+                    Util.each(this, function(instance /*, index*/ ) {
                         if (!instance[name]) return
                         result = instance[name].apply(instance, args)
                         if (result !== undefined && result !== instance) {
