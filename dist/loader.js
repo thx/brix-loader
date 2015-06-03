@@ -551,7 +551,7 @@ define(
                 try {
                     /* jshint evil:true */
                     options[ma[1]] = /^\s*[\[{]/.test(value) ?
-                        eval('(function(){ return [].splice.call(arguments, 0, arguments.length)[0] })(' + value + ')') :
+                        eval('(function(){ return Array.prototype.slice.call(arguments)[0] })(' + value + ')') :
                         value
                 } catch (error) {
                     options[ma[1]] = value
