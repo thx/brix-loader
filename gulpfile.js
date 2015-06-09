@@ -2,9 +2,11 @@
 /* global console */
 
 var gulp = require('gulp')
+var through = require('through2')
 var jshint = require('gulp-jshint')
 var mochaPhantomJS = require('gulp-mocha-phantomjs')
 var rjs = require('gulp-requirejs')
+var uglify = require('gulp-uglify')
 var exec = require('child_process').exec
 
 var istanbul = require('gulp-istanbul')
@@ -54,8 +56,24 @@ gulp.task('rjs', function() {
         .pipe(gulp.dest('.')) // pipe it to the output DIR
 })
 
+// https://github.com/terinjokes/gulp-uglify
+gulp.task('compress', function() {
+    gulp.src(['dist/**.js','!dist/**-debug.js'])
+        .pipe(through.obj(function(file, encoding, callback) { /* jshint unused:false */
+            file.path = file.path.replace(
+                '.js',
+                '-debug.js'
+            )
+            callback(null, file)
+        }))
+        .pipe(gulp.dest('dist/'))
+    gulp.src(['dist/**.js','!dist/**-debug.js'])
+        .pipe(uglify())
+        .pipe(gulp.dest('dist/'))
+})
+
 // https://github.com/floatdrop/gulp-watch
-var watchTasks = ['hello', 'madge', 'jshint', 'rjs', 'mocha']
+var watchTasks = ['hello', 'madge', 'jshint', 'rjs', 'compress', 'mocha']
 gulp.task('watch', function( /*callback*/ ) {
     gulp.watch(['src/**/*.js', 'gulpfile.js', 'test/*'], watchTasks)
 })

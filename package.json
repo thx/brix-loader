@@ -26,6 +26,8 @@
     "gulp-mocha": "^1.1.1",
     "gulp-mocha-phantomjs": "*",
     "gulp-requirejs": "*",
-    "jshint-stylish": "*"
+    "gulp-uglify": "^1.2.0",
+    "jshint-stylish": "*",
+    "through2": "^0.6.5"
   }
 }
