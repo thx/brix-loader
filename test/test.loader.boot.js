@@ -1,4 +1,4 @@
-/* global window, setTimeout */
+/* global window, setTimeout, document */
 /* global define, require */
 /* global describe, before, it, expect */
 /* global Loader: true, $: true, _: true, container: true */
@@ -7,7 +7,7 @@
 describe('Loader.boot()', function() {
 
     this.timeout(5000)
-    
+
     // 其他变量和模块的定义在文件 `./test.loader.init.js` 中。
     before(function(done) {
         require(['brix/loader', 'jquery', 'underscore'], function() {
@@ -116,6 +116,20 @@ describe('Loader.boot()', function() {
             Loader.destroy(container, done)
         }, function( /*error, instance, index, count*/ ) {
             expectRecord(arguments, expectedIndex++, TPL_TEST_IMPL_COUNT)
+        })
+    })
+
+    it('Loader.boot( textNode )', function(done) {
+        var t = document.createTextNode('hello')
+        Loader.boot(t, function() {
+            done()
+        })
+    })
+
+    it('Loader.boot( comment )', function(done) {
+        var t = document.createComment('hello')
+        Loader.boot(t, function() {
+            done()
         })
     })
 

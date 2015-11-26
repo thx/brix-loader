@@ -771,7 +771,8 @@ define(
                 Util.each(contextArray, function(item /*, index*/ ) {
                     // component or element
                     item = item.element || item
-                    if (item.nodeType === 1 && item.getAttribute(Constant.ATTRS.id)) elements.push(item)
+                    if (item.nodeType !== 1) return
+                    if (item.getAttribute(Constant.ATTRS.id)) elements.push(item)
                     var descendants = item.getElementsByTagName('*')
                     Util.each(descendants, function(descendant /*, index*/ ) {
                         if (/pre|code/i.test(descendant.parentNode.nodeName)) return
@@ -1222,8 +1223,8 @@ define(
                         // 倒序遍历，以避免某个元素被移除后，漏掉相邻的元素
                     for (var i = descendants.length - 1, descendant; i >= 0; i--) {
                         descendant = descendants[i]
-                        if (!descendant) return
-                        if (descendant.nodeType !== 1) return
+                        if (!descendant) continue
+                        if (descendant.nodeType !== 1) continue
                         if (descendant.getAttribute(Constant.ATTRS.id)) destroy(descendant)
                     }
                     if (complete) complete()
@@ -1600,7 +1601,7 @@ define(
 
             return result
         }
-        
+
         var tasks = Util.queue()
         var Loader = {
             CACHE: CACHE,
