@@ -1,8 +1,7 @@
-/* global window, setTimeout, document */
+/* global window */
 /* global define, require */
-/* global describe, before, it, expect */
+/* global describe, before, beforeEach, it, expect */
 /* global Loader: true, $: true, _: true, container: true */
-/* global TPL_TEST_IMPL, TPL_CONTENT, FN_CONTENT, TPL_TEST_IMPL_COUNT, repeat */
 /* jshint multistr: true */
 describe('Loader.boot(force)', function() {
 
@@ -44,6 +43,7 @@ describe('Loader.boot(force)', function() {
             var defer = $.Deferred()
             Loader.boot(true, this.element, function(records) {
                 forced++
+                expectRecords(records, 2)
                 defer.resolve()
             })
 
@@ -59,6 +59,7 @@ describe('Loader.boot(force)', function() {
             var defer = $.Deferred()
             Loader.boot(true, this.element, function(records) {
                 forced++
+                expectRecords(records, 1)
                 defer.resolve()
             })
 
@@ -76,8 +77,9 @@ describe('Loader.boot(force)', function() {
 
     it('Loader.boot(true)', function(done) {
         container.append('<div bx-name="outer"></hello>')
-        Loader.boot(function() {
+        Loader.boot(function(records) {
             expect(forced).to.equal(2)
+            expectRecords(records, 1)
             Loader.destroy(container, done)
         })
     })
