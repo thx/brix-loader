@@ -1037,7 +1037,15 @@ define(
             CACHE: CACHE,
             tasks: tasks,
             booting: false,
-            boot: function(context, callback, progress) {
+            boot: function(force /* Internal Use Only */ , context, callback, progress) {
+                // boot( context, callback, progress )
+                if (!Util.isBoolean(force)) {
+                    progress = callback
+                    callback = context
+                    context = force
+                    force = false
+                }
+
                 // boot( callback, progress )
                 if (Util.isFunction(context)) {
                     progress = callback
@@ -1083,14 +1091,23 @@ define(
                         next()
                     }, null, progress)
                 })
-                if (!Loader.booting) tasks.dequeue()
+                if (!Loader.booting || force) tasks.dequeue()
                 return this
             },
             destroy: destroy,
             query: query,
             tree: tree,
 
-            load: function(element, moduleId, options, complete) {
+            load: function(force /* Internal Use Only */ , element, moduleId, options, complete) {
+                // boot( element, moduleId, options, complete )
+                if (!Util.isBoolean(force)) {
+                    complete = options
+                    options = moduleId
+                    moduleId = element
+                    element = force
+                    force = false
+                }
+
                 // load( element, moduleId, complete )
                 if (Util.isFunction(options)) {
                     complete = options
@@ -1114,7 +1131,7 @@ define(
                         next()
                     })
                 })
-                if (!Loader.booting) tasks.dequeue()
+                if (!Loader.booting || force) tasks.dequeue()
                 return this
             },
             unload: unload,

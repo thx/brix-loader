@@ -17,7 +17,7 @@
     <script type="text/javascript">
         require.config({
             paths: {
-                'brix/loader': '../dist/loader',
+                'brix/loader': '../dist/loader-debug',
                 jquery: 'bower_components/jquery/dist/jquery',
                 underscore: 'bower_components/underscore/underscore'
             }
@@ -30,7 +30,7 @@
     <!-- Include the actual tests. -->
     <script src="./test.loader.init.js"></script>
     <script src="./test.loader.boot.js"></script>
-    <!-- <script src="./test.loader.boot.lock.js"></script> -->
+    <script src="./test.loader.boot.force.js"></script>
     <script src="./test.loader.destroy.js"></script>
     <script src="./test.loader.query.js"></script>
     <script src="./test.loader.load.js"></script>

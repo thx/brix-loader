@@ -2,7 +2,7 @@
 /* global describe, before, it, expect */
 /* global Loader: true, $: true, _: true, container: true */
 /* jshint multistr: true */
-describe('Loader.load()', function() {
+describe('Loader.unload()', function() {
 
     this.timeout(5000)
 
