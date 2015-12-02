@@ -581,35 +581,35 @@ define(
             * Loader.destroy( clientId, complete )
             
         */
-        function destroy(instance, complete) {
+        function destroy(remove /* Internal Use Only */ , moduleId, context, complete) {
+            var instance
+
+            // destroy( moduleId, context, complete )
+            if (!Util.isBoolean(remove)) {
+                complete = context
+                context = moduleId
+                moduleId = remove
+                remove = true
+            }
+
+            // destroy( remove, moduleId, complete )
+            if (Util.isFunction(context)) {
+                complete = context
+                context = undefined
+            }
+
             // ~~Loader.destroy()~~
-            if (instance === undefined) {
+            if (moduleId === undefined) {
                 if (complete) complete()
                 return this
             }
 
-            // destroy( moduleId, context, complete )
-            if (Util.isString(instance)) {
-                switch (arguments.length) {
-                    case 1:
-                        // destroy( moduleId )
-                        instance = query(instance)
-                        break
-                    case 2:
-                        // destroy( moduleId, complete )
-                        if (Util.isFunction(complete)) {
-                            instance = query(instance)
-                        } else {
-                            // destroy( moduleId, context )
-                            instance = query(instance, complete)
-                            complete = undefined
-                        }
-                        break
-                    case 3:
-                        // destroy( moduleId, context, complete )
-                        instance = query(instance, complete)
-                        complete = arguments[2]
-                        break
+            // destroy( remove, moduleId, context, complete )
+            if (Util.isString(moduleId)) {
+                instance = query(moduleId, context)
+                if (!instance) {
+                    if (complete) complete()
+                    return this
                 }
             }
 
@@ -618,57 +618,71 @@ define(
             // destroy( !element )
             // destroy( !array )
             if (
-                (instance.clientId === undefined) &&
-                !Util.isNumber(instance) &&
-                !instance.nodeType &&
-                !instance.length
+                (moduleId.clientId === undefined) &&
+                !Util.isNumber(moduleId) &&
+                !moduleId.nodeType &&
+                !moduleId.length
             ) {
                 if (complete) complete()
                 return this
             }
 
-            // destroy( clientId )
-            if (Util.isNumber(instance)) {
-                instance = CACHE[instance]
+            // destroy( remove, component, complete )
+            if (moduleId.clientId) {
+                instance = moduleId
+            }
+
+            // destroy( remove, clientId )
+            if (Util.isNumber(moduleId)) {
+                instance = CACHE[moduleId]
                 if (!instance) {
                     if (complete) complete()
                     return this
                 }
             }
 
-            // destroy( array )
-            if (!instance.nodeType && instance.length) {
-                Util.each(instance, function(item) {
-                    destroy(item)
+            // destroy( remove, array )
+            if (!Util.isString(moduleId) && !Util.isNumber(moduleId) &&
+                !moduleId.nodeType && moduleId.length) {
+                Util.each(moduleId, function(item) {
+                    destroy(remove, item, context)
                 })
                 if (complete) complete()
                 return this
             }
 
-            // destroy( element )
-            if (instance.nodeType === 1) {
+            // destroy( remove, element )
+            if (moduleId.nodeType === 1) {
                 // destroy( context )
-                if (instance.clientId === undefined) {
-                    var descendants = instance.getElementsByTagName('*')
+                if (moduleId.clientId === undefined) {
+                    var descendants = moduleId.getElementsByTagName('*')
                         // 倒序遍历，以避免某个元素被移除后，漏掉相邻的元素
                     for (var i = descendants.length - 1, descendant; i >= 0; i--) {
                         descendant = descendants[i]
                         if (!descendant) continue
                         if (descendant.nodeType !== 1) continue
-                        if (descendant.getAttribute(Constant.ATTRS.id)) destroy(descendant)
+                        if (descendant.getAttribute(Constant.ATTRS.id)) destroy(remove, descendant)
                     }
                     if (complete) complete()
                     return this
                 } else {
                     // destroy( element )
                     instance = CACHE[
-                        instance.clientId
+                        moduleId.clientId
                     ]
                 }
             }
 
             // 如果已经被移除，则立即返回
             if (!instance) {
+                if (complete) complete()
+                return this
+            }
+
+            if (Util.isArray(instance) && instance.length) {
+                Util.each(instance, function(item) {
+                    destroy(remove, item, context)
+                })
                 if (complete) complete()
                 return this
             }
@@ -722,8 +736,11 @@ define(
                 })
             }
             // 从 DOM 树中移除当前组件关联的元素。
-            if (instance.element.parentNode) {
-                instance.element.parentNode.removeChild(instance.element)
+            if (instance.element) {
+                instance.element.clientId = undefined
+                if (remove && instance.element.parentNode) {
+                    instance.element.parentNode.removeChild(instance.element)
+                }
             }
 
             if (DEBUG) console.log(label, 'destroy')
