@@ -1272,7 +1272,7 @@ define(
             // 先递归销毁后代组件
             if (instance.childClientIds.length) {
                 Util.each(instance.childClientIds, function(clientId) {
-                    destroy(clientId)
+                    destroy(remove, clientId)
                 })
             }
 

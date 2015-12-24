@@ -92,6 +92,7 @@ describe('Loader.destroy()', function() {
             Loader.destroy(false, components[i], function() {
                 expect(Loader.query('test/0/0')).to.have.length(TPL_TEST_IMPL_COUNT - i - 1)
                 expect($('[bx-name="test/0/0"]')).to.have.length(TPL_TEST_IMPL_COUNT)
+                expect($('[bx-name="test/0/0/0"]')).to.have.length(TPL_TEST_IMPL_COUNT)
                 i++
             })
         }
