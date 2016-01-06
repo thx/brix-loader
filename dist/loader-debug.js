@@ -881,7 +881,7 @@ define(
                     // 拦截销毁方法
                     instance._destroy = instance.destroy
                     instance.destroy = function() {
-                        destroy(instance)
+                        destroy(false, instance)
                     }
                     next()
                 })
