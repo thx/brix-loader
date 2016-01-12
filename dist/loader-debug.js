@@ -182,6 +182,55 @@ define('brix/loader/util',[],function() {
         return obj
     }
 
+    // overwrite
+    // http://api.jquery.com/jQuery.extend/
+    _.extend = function() {
+        var target = arguments[0]
+        var index = 1
+        var length = arguments.length
+        var deep = false
+        var options, name, src, copy, clone
+
+        if (typeof target === "boolean") {
+            deep = target
+            target = arguments[index] || {}
+            index++
+        }
+
+        if (typeof target !== "object" && typeof target !== "function") {
+            target = {}
+        }
+
+        if (length === 1) {
+            target = this
+            index = 0
+        }
+
+        for (; index < length; index++) {
+            options = arguments[index]
+            if (!options) continue
+
+            for (name in options) {
+                src = target[name]
+                copy = options[name]
+
+                if (target === copy) continue
+                if (copy === undefined) continue
+
+                if (deep && (_.isArray(copy) || _.isObject(copy))) {
+                    if (_.isArray(copy)) clone = src && _.isArray(src) ? src : []
+                    if (_.isObject(copy)) clone = src && _.isObject(src) ? src : {}
+
+                    target[name] = _.extend(deep, clone, copy)
+                } else {
+                    target[name] = copy
+                }
+            }
+        }
+
+        return target
+    }
+
     // Retrieve the names of an object's properties.
     // Delegates to **ECMAScript 5**'s native `Object.keys`
     _.keys = function(obj) {
@@ -866,9 +915,9 @@ define(
                     try {
                         // 3. 创建组件实例（按需传入参数 options）
                         instance = BrixImpl.length ? new BrixImpl(options) : new BrixImpl()
-                            // 设置属性 options
-                        instance.options = Util.extend({}, instance.options, options)
-                            // 设置其他公共属性
+                        // 设置属性 options
+                        instance.options = Util.extend(true, {}, instance.options, options)
+                        // 设置其他公共属性
                         Util.extend(instance, Util.pick(options, Constant.OPTIONS))
 
                         next()
@@ -1654,7 +1703,7 @@ define(
                         console.group(label)
                         console.time(label)
                         console.log('context:', context)
-                        console.log('takks.list:', tasks.list.length)
+                        console.log('tasks.list:', tasks.list.length)
                     }
 
                     Loader.booting = caller

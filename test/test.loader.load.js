@@ -13,7 +13,7 @@ describe('Loader.load()', function() {
             Loader = arguments[0]
             $ = arguments[1]
             _ = arguments[2]
-            container = $('#container').append('<div class="target"></div>')
+            container = $('#container').empty().append('<div class="target"></div>')
                 .append('<div class="target"></div>')
                 .append('<div class="target"></div>')
             targets = container.find('div.target')

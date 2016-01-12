@@ -3,7 +3,7 @@
 /* global describe, before, beforeEach, it, expect */
 /* global Loader: true, $: true, _: true, container: true */
 /* jshint multistr: true */
-describe('Loader.boot(force)', function() {
+describe('Loader.boot( force )', function() {
 
     this.timeout(5000)
 
@@ -75,7 +75,7 @@ describe('Loader.boot(force)', function() {
 
     // Go go go
 
-    it('Loader.boot(true)', function(done) {
+    it('Loader.boot( true )', function(done) {
         container.append('<div bx-name="outer"></hello>')
         Loader.boot(function(records) {
             expect(forced).to.equal(2)

@@ -97,6 +97,55 @@ define(function() {
         return obj
     }
 
+    // overwrite
+    // http://api.jquery.com/jQuery.extend/
+    _.extend = function() {
+        var target = arguments[0]
+        var index = 1
+        var length = arguments.length
+        var deep = false
+        var options, name, src, copy, clone
+
+        if (typeof target === "boolean") {
+            deep = target
+            target = arguments[index] || {}
+            index++
+        }
+
+        if (typeof target !== "object" && typeof target !== "function") {
+            target = {}
+        }
+
+        if (length === 1) {
+            target = this
+            index = 0
+        }
+
+        for (; index < length; index++) {
+            options = arguments[index]
+            if (!options) continue
+
+            for (name in options) {
+                src = target[name]
+                copy = options[name]
+
+                if (target === copy) continue
+                if (copy === undefined) continue
+
+                if (deep && (_.isArray(copy) || _.isObject(copy))) {
+                    if (_.isArray(copy)) clone = src && _.isArray(src) ? src : []
+                    if (_.isObject(copy)) clone = src && _.isObject(src) ? src : {}
+
+                    target[name] = _.extend(deep, clone, copy)
+                } else {
+                    target[name] = copy
+                }
+            }
+        }
+
+        return target
+    }
+
     // Retrieve the names of an object's properties.
     // Delegates to **ECMAScript 5**'s native `Object.keys`
     _.keys = function(obj) {

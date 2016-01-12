@@ -296,9 +296,9 @@ define(
                     try {
                         // 3. 创建组件实例（按需传入参数 options）
                         instance = BrixImpl.length ? new BrixImpl(options) : new BrixImpl()
-                            // 设置属性 options
-                        instance.options = Util.extend({}, instance.options, options)
-                            // 设置其他公共属性
+                        // 设置属性 options
+                        instance.options = Util.extend(true, {}, instance.options, options)
+                        // 设置其他公共属性
                         Util.extend(instance, Util.pick(options, Constant.OPTIONS))
 
                         next()
@@ -1084,7 +1084,7 @@ define(
                         console.group(label)
                         console.time(label)
                         console.log('context:', context)
-                        console.log('takks.list:', tasks.list.length)
+                        console.log('tasks.list:', tasks.list.length)
                     }
 
                     Loader.booting = caller
