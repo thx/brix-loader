@@ -217,9 +217,9 @@ define('brix/loader/util',[],function() {
                 if (target === copy) continue
                 if (copy === undefined) continue
 
-                if (deep && (_.isArray(copy) || _.isObject(copy))) {
+                if (deep && (_.isArray(copy) || _.isPlainObject(copy))) {
                     if (_.isArray(copy)) clone = src && _.isArray(src) ? src : []
-                    if (_.isObject(copy)) clone = src && _.isObject(src) ? src : {}
+                    if (_.isPlainObject(copy)) clone = src && _.isPlainObject(src) ? src : {}
 
                     target[name] = _.extend(deep, clone, copy)
                 } else {
@@ -265,6 +265,41 @@ define('brix/loader/util',[],function() {
             return toString.call(obj) == '[object ' + name + ']'
         }
     })
+
+    // http://api.jquery.com/jQuery.isPlainObject/
+    _.isPlainObject = function(obj) {
+        // Must be an Object.
+        // Because of IE, we also have to check the presence of the constructor property.
+        // Make sure that DOM nodes and window objects don't pass through, as well
+        if (!obj || !_.isObject(obj) || obj.nodeType || _.isWindow(obj)) {
+            return false
+        }
+
+        try {
+            // Not own constructor property must be Object
+            if (obj.constructor &&
+                !hasOwnProperty.call(obj, 'constructor') &&
+                !hasOwnProperty.call(obj.constructor.prototype, 'isPrototypeOf')) {
+                return false;
+            }
+        } catch (e) {
+            // IE8,9 Will throw exceptions on certain host objects #9897
+            return false
+        }
+
+        // Own properties are enumerated firstly, so to speed up,
+        // if last one is own, then all properties are own.
+
+        var key
+        for (key in obj) {}
+
+        return key === undefined || hasOwnProperty.call(obj, key)
+    }
+
+    // http://api.jquery.com/jQuery.isWindow/
+    _.isWindow = function(obj) {
+        return obj && obj === obj.window
+    }
 
     // Is a given object a finite number?
     _.isFinite = function(obj) {
@@ -918,7 +953,7 @@ define(
                         // create a new module instance
                         instance = BrixImpl.length ? new BrixImpl(options) : new BrixImpl()
 
-                        // 设置属性 options
+                        // 设置实例属性 options
                         instance.options = Util.extend(true, {}, instance.options, options)
 
                         // 设置其他公共属性
@@ -1392,6 +1427,7 @@ define(
                         results.push(CACHE[element.clientId])
                     }
                 })
+
             } else {
                 // 1. 根据 moduleId 查找组件实例
                 // query( moduleId )

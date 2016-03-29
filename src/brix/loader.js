@@ -299,7 +299,7 @@ define(
                         // create a new module instance
                         instance = BrixImpl.length ? new BrixImpl(options) : new BrixImpl()
 
-                        // 设置属性 options
+                        // 设置实例属性 options
                         instance.options = Util.extend(true, {}, instance.options, options)
 
                         // 设置其他公共属性
@@ -773,6 +773,7 @@ define(
                         results.push(CACHE[element.clientId])
                     }
                 })
+
             } else {
                 // 1. 根据 moduleId 查找组件实例
                 // query( moduleId )

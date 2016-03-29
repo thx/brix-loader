@@ -18,22 +18,25 @@ describe('Options', function() {
 
         define('test/options/impl', function() {
             function BrixImpl(options) {
-                expect(options.foo).to.equal(undefined)
+                expect(options.foo).to.equal('faz')
                 expect(options.bar).to.equal(undefined)
-                done()
             }
             BrixImpl.prototype = {
                 options: {
                     foo: 'foo',
                     bar: 'bar'
                 },
-                init: function() {},
+                init: function() {
+                    expect(this.options.foo).to.equal('faz')
+                    expect(this.options.bar).to.equal('bar')
+                    done()
+                },
                 render: function() {}
             }
             return BrixImpl
         })
 
-        var html = '<div bx-name="test/options/impl"></div>'
+        var html = '<div bx-name="test/options/impl" data-foo="faz"></div>'
         var container = $('#container').empty().append(html)
         Loader.boot(container)
     })

@@ -1,5 +1,6 @@
 /* global require */
 /* global describe, before, it, expect */
+/* global document, window */
 /* jshint multistr: true */
 describe('Util _', function() {
     this.timeout(100)
@@ -10,6 +11,26 @@ describe('Util _', function() {
             Util = Loader.Util
             done()
         })
+    })
+
+    it('_.isPlainObject( obj ) - Reproduce BUG', function(done) {
+        expect(Util.isPlainObject(123)).to.equal(false)
+        expect(Util.isPlainObject('abc')).to.equal(false)
+        expect(Util.isPlainObject(true)).to.equal(false)
+        expect(Util.isPlainObject(false)).to.equal(false)
+        expect(Util.isPlainObject([])).to.equal(false)
+        expect(Util.isPlainObject(document)).to.equal(false)
+        expect(Util.isPlainObject(document.body)).to.equal(false)
+        expect(Util.isPlainObject(window)).to.equal(false)
+
+        expect(Util.isPlainObject({})).to.equal(true)
+        expect(Util.isPlainObject({
+            foo: {
+                bar: Math.random()
+            }
+        })).to.equal(true)
+
+        done()
     })
 
     // BUG
@@ -29,7 +50,7 @@ describe('Util _', function() {
 
         this.test.title += ' : ' + JSON.stringify(options1.foo.bar)
         this.test.title += ' VS ' + JSON.stringify(options2.foo.bar)
-        
+
         done()
     })
 
