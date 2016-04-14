@@ -30,7 +30,7 @@ define(
             if (!moduleId) return {}
 
             // 为组件关联的 DOM 节点分配唯一标识
-            clientId = Constant.UUID++
+            clientId = Constant.UUID++;
             if (element.clientId === undefined) element.clientId = clientId
 
             // 查找父节点
@@ -54,7 +54,7 @@ define(
             } catch (exception) {
                 options = {}
             }
-            
+
             options.element = element
             options.moduleId = moduleId
             options.clientId = clientId
