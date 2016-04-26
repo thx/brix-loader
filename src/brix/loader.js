@@ -221,6 +221,9 @@ define(
                             completeArgs.push([error, instance, index, elements.length])
                             if (error) console.error(error.stack || error)
                             if (notify) notify(error, instance, index, elements.length)
+
+                            if (error && Loader.onerror) Loader.onerror(error) // 运行时异常收集
+
                             next()
                         }, extraOptions)
                     })
@@ -291,6 +294,8 @@ define(
                         // http://requirejs.org/docs/api.html#errbacks
                         if (callback) callback(new Error(error.message), instance)
                         else console.error(error.stack || error)
+
+                        if (Loader.onerror) Loader.onerror(error) // 运行时异常收集
                     })
                 })
                 .queue(function(next) {
@@ -318,6 +323,8 @@ define(
                     } catch (error) {
                         if (callback) callback(error, instance)
                         else console.error(error.stack || error)
+
+                        if (Loader.onerror) Loader.onerror(error) // 运行时异常收集
                     }
                 })
                 .queue(function(next) {
@@ -344,8 +351,9 @@ define(
                     }
 
                     try {
+                        if (DEBUG) console.time(label + ' call  init')
                         var result = instance.init()
-                        if (DEBUG) console.log(label, 'call  init')
+                        if (DEBUG) console.timeEnd(label + ' call  init')
 
                         // 如果返回了 Promise，则依赖 Promise 的状态
                         if (result && result.then) {
@@ -360,6 +368,8 @@ define(
                     } catch (error) {
                         if (callback) callback(error, instance)
                         else console.error(error)
+
+                        if (Loader.onerror) Loader.onerror(error) // 运行时异常收集
                     }
                 })
                 .queue(function(next) {
@@ -439,10 +449,11 @@ define(
                     // 5. 执行渲染（不存在怎么办？必须有！）
                     // exec render method of the module instance
                     try {
+                        if (DEBUG) console.time(label + ' call  render')
                         var result = instance.render(function(error /*, instance*/ ) {
                             if (error) {}
                         })
-                        if (DEBUG) console.log(label, 'call  render')
+                        if (DEBUG) console.timeEnd(label + ' call  render')
 
                         // deferred
                         if (result && result.then) {
@@ -451,6 +462,8 @@ define(
                             }, function(error) {
                                 if (callback) callback(error, instance)
                                 else console.error(error.stack || error)
+
+                                if (Loader.onerror) Loader.onerror(error) // 运行时异常收集
                             })
                         } else {
                             next()
@@ -459,6 +472,8 @@ define(
                         // TODO 渲染时发生错误的组件是否应该自动销毁？
                         if (callback) callback(error, instance)
                         else console.error(error.stack || error)
+
+                        if (Loader.onerror) Loader.onerror(error) // 运行时异常收集
                     }
                 })
                 .queue(function(next) {
@@ -697,6 +712,8 @@ define(
                 } catch (error) {
                     if (complete) complete(error)
                     else console.error(error.stack || error)
+
+                    if (Loader.onerror) Loader.onerror(error) // 运行时异常收集
                 }
             }
 
@@ -1073,6 +1090,8 @@ define(
                                 callback(records)
                             } catch (error) {
                                 console.error(error.stack || error)
+
+                                if (Loader.onerror) Loader.onerror(error) // 运行时异常收集
                             }
                         }
 
@@ -1095,6 +1114,8 @@ define(
                     destroy.apply(this, arguments)
                 } catch (error) {
                     console.error(error.stack || error)
+
+                    if (Loader.onerror) Loader.onerror(error) // 运行时异常收集
                 }
                 return this
             },
