@@ -941,6 +941,13 @@ define(
                     // 2. 加载组件模块
                     // load module file
                     /* jshint unused:false */
+                    try {
+                        // 尝试快速获取已经加载过的模块
+                        BrixImpl = require(options.moduleId)
+                        next()
+                        return
+                    } catch (error) {}
+
                     require([options.moduleId], function(module) {
                         BrixImpl = module
                         next()
