@@ -4,6 +4,7 @@
   "description": "brix-loader",
   "main": "index.js",
   "scripts": {
+    "dev": "gulp",
     "test": "gulp mocha",
     "coveralls": "gulp coveralls"
   },

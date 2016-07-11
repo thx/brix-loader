@@ -222,7 +222,10 @@ define(
                             if (error) console.error(error.stack || error)
                             if (notify) notify(error, instance, index, elements.length)
 
-                            if (error && Loader.onerror) Loader.onerror(error) // 运行时异常收集
+                            if (error && Loader.onerror) {
+                                error.moduleId = element.getAttribute(Constant.ATTRS.id)
+                                Loader.onerror(error) // 运行时异常收集
+                            }
 
                             next()
                         }, extraOptions)
@@ -302,7 +305,10 @@ define(
                         if (callback) callback(new Error(error.message), instance)
                         else console.error(error.stack || error)
 
-                        if (Loader.onerror) Loader.onerror(error) // 运行时异常收集
+                        if (Loader.onerror) {
+                            error.moduleId = options.moduleId
+                            Loader.onerror(error) // 运行时异常收集
+                        }
                     })
                 })
                 .queue(function(next) {
@@ -331,7 +337,10 @@ define(
                         if (callback) callback(error, instance)
                         else console.error(error.stack || error)
 
-                        if (Loader.onerror) Loader.onerror(error) // 运行时异常收集
+                        if (Loader.onerror) {
+                            error.moduleId = options.moduleId
+                            Loader.onerror(error) // 运行时异常收集
+                        }
                     }
                 })
                 .queue(function(next) {
@@ -376,7 +385,10 @@ define(
                         if (callback) callback(error, instance)
                         else console.error(error)
 
-                        if (Loader.onerror) Loader.onerror(error) // 运行时异常收集
+                        if (Loader.onerror) {
+                            error.moduleId = options.moduleId
+                            Loader.onerror(error) // 运行时异常收集
+                        }
                     }
                 })
                 .queue(function(next) {
@@ -470,7 +482,10 @@ define(
                                 if (callback) callback(error, instance)
                                 else console.error(error.stack || error)
 
-                                if (Loader.onerror) Loader.onerror(error) // 运行时异常收集
+                                if (Loader.onerror) {
+                                    error.moduleId = options.moduleId
+                                    Loader.onerror(error) // 运行时异常收集
+                                }
                             })
                         } else {
                             next()
@@ -480,7 +495,10 @@ define(
                         if (callback) callback(error, instance)
                         else console.error(error.stack || error)
 
-                        if (Loader.onerror) Loader.onerror(error) // 运行时异常收集
+                        if (Loader.onerror) {
+                            error.moduleId = options.moduleId
+                            Loader.onerror(error) // 运行时异常收集
+                        }
                     }
                 })
                 .queue(function(next) {
@@ -720,7 +738,10 @@ define(
                     if (complete) complete(error)
                     else console.error(error.stack || error)
 
-                    if (Loader.onerror) Loader.onerror(error) // 运行时异常收集
+                    if (Loader.onerror) {
+                        error.moduleId = instance.moduleId
+                        Loader.onerror(error) // 运行时异常收集
+                    }
                 }
             }
 
