@@ -5,10 +5,17 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="./bower_components/mocha/mocha.css" rel="stylesheet">
+    <script type="bower_components/es5-shim/es5-shim.js"></script>
 </head>
 <body>
     <div id="mocha"></div>
     <!-- Include local Mocha. -->
+    <script type="text/javascript">
+        if (!window.console) window.console = {
+            log: function() {},
+            error: function() {}
+        }
+    </script>
     <script src="./bower_components/mocha/mocha.js"></script>
     <script src="./bower_components/chai/chai.js"></script>
     <script>mocha.setup('bdd')</script>

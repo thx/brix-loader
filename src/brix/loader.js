@@ -183,6 +183,10 @@ define(
 
             简：初始化所有组件。
         */
+
+        var rnative = /^[^{]+\{\s*\[native \w/
+        var qsa = rnative.test(document.querySelectorAll)
+
         function boot(context, complete, extraOptions /* Internal Use Only */ , notify) {
             // boot( component )                    context.element
             // boot( element )                      element
@@ -203,11 +207,11 @@ define(
                     item = item.element || item
                     if (item.nodeType !== 1) return
                     if (item.getAttribute(Constant.ATTRS.id)) elements.push(item)
-                    var descendants = item.getElementsByTagName('*')
+                    var descendants = qsa ? item.querySelectorAll(Constant.SELECTORS.id) : item.getElementsByTagName('*')
                     Util.each(descendants, function(descendant /*, index*/ ) {
                         if (/pre|code/i.test(descendant.parentNode.nodeName)) return
                         if (descendant.nodeType !== 1) return
-                        if (descendant.getAttribute(Constant.ATTRS.id)) elements.push(descendant)
+                        if (qsa || descendant.getAttribute(Constant.ATTRS.id)) elements.push(descendant)
                     })
                 })
                 return elements
@@ -516,7 +520,7 @@ define(
                 })
                 .queue(function(next) {
                     // 检测是否有后代组件
-                    var descendants = element.getElementsByTagName('*')
+                    var descendants = qsa ? element.querySelectorAll(Constant.SELECTORS.id) : element.getElementsByTagName('*')
                     var hasBrixElement = false
                     Util.each(descendants, function(descendant /*, index*/ ) {
                         if (descendant.nodeType !== 1) return
@@ -679,7 +683,7 @@ define(
             if (moduleId.nodeType === 1) {
                 // destroy( context )
                 if (moduleId.clientId === undefined) {
-                    var descendants = moduleId.getElementsByTagName('*')
+                    var descendants = qsa ? moduleId.querySelectorAll(Constant.SELECTORS.id) : moduleId.getElementsByTagName('*')
                         // 倒序遍历，以避免某个元素被移除后，漏掉相邻的元素
                     for (var i = descendants.length - 1, descendant; i >= 0; i--) {
                         descendant = descendants[i]

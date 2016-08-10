@@ -8,6 +8,7 @@ var mochaPhantomJS = require('gulp-mocha-phantomjs')
 var rjs = require('gulp-requirejs')
 var uglify = require('gulp-uglify')
 var exec = require('child_process').exec
+var connect = require('gulp-connect')
 
 var istanbul = require('gulp-istanbul')
 var mocha = require('gulp-mocha')
@@ -92,6 +93,12 @@ gulp.task('madge', function( /*callback*/ ) {
             if (error) console.log('exec error: ' + error)
         }
     )
+})
+
+gulp.task('test:server', function() {
+    connect.server({
+        port: 4248
+    })
 })
 
 // TODO
