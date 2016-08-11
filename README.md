@@ -14,6 +14,7 @@ Brix Loader
 
 ```sh
 $ bower install --save brix-loader
+$ npm install --save brix-loader
 ```
 
 ### 用法 <small>Usage</small>
