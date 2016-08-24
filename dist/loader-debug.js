@@ -906,7 +906,7 @@ define(
         */
         function init(element, callback, extraOptions /* Internal Use Only */ ) {
             // 初始化任务队列
-            var queue = Util.queue()
+            // var queue = Util.queue() // #20
 
             // 如果已经被初始化，则立即返回
             var clientId = element.clientId
@@ -939,268 +939,294 @@ define(
                 }
             }
 
-            queue
-                .queue(function(next) {
-                    // 2. 加载组件模块
-                    // load module file
-                    /* jshint unused:false */
-                    // try {
-                    //     // 尝试快速获取已经加载过的模块
-                    //     BrixImpl = require(options.moduleId)
-                    //     next()
-                    //     return
-                    // } catch (error) {}
+            __loadModule()
 
-                    require([options.moduleId], function(module) {
-                        BrixImpl = module
-                        next()
-                    }, function(error) {
-                        // http://requirejs.org/docs/api.html#errbacks
-                        if (callback) callback(new Error(error.message), instance)
-                        else console.error(error.stack || error)
+            function __loadModule(next) {
+                next = next || __createInstance
 
-                        if (Loader.onerror) {
-                            error.moduleId = options.moduleId
-                            Loader.onerror(error) // 运行时异常收集
-                        }
-                    })
-                })
-                .queue(function(next) {
-                    try {
-                        // 在组件模块上附加标记 __x_created_with，指示负责初始化的是 Brix Loader
-                        // Add a mark to component module, indicating the Brix Loader is response for the initializing.
-                        var __x_created_with = BrixImpl.__x_created_with
-                        BrixImpl.__x_created_with = 'Brix Loader'
+                // 2. 加载组件模块
+                // load module file
+                /* jshint unused:false */
+                // try {
+                //     // 尝试快速获取已经加载过的模块
+                //     BrixImpl = require(options.moduleId)
+                //     setTimeout(next, 4)
+                //     return
+                // } catch (error) {}
 
-                        // 3. 创建组件实例（按需传入参数 options）
-                        // Create a new module instance
-                        instance = BrixImpl.length ? new BrixImpl(options) : new BrixImpl()
-
-                        // 恢复标记
-                        // Recovery the mark
-                        BrixImpl.__x_created_with = __x_created_with
-
-                        // 设置实例属性 options
-                        instance.options = Util.extend(true, {}, instance.options, options)
-
-                        // 设置其他公共属性
-                        Util.extend(instance, Util.pick(options, Constant.OPTIONS))
-
-                        next()
-                    } catch (error) {
-                        if (callback) callback(error, instance)
-                        else console.error(error.stack || error)
-
-                        if (Loader.onerror) {
-                            error.moduleId = options.moduleId
-                            Loader.onerror(error) // 运行时异常收集
-                        }
-                    }
-                })
-                .queue(function(next) {
-                    // 拦截销毁方法
-                    // intercept destroy method of the module instance
-                    instance._destroy = instance.destroy
-                    instance.destroy = function() {
-                        destroy(false, instance)
-                    }
+                require([options.moduleId], function __loadModuleComplete(module) {
+                    BrixImpl = module
                     next()
-                })
-                .queue(function(next) {
-                    // 缓存起来，关联父组件
-                    // cache the module instance
-                    cache(instance)
-                    next()
-                })
-                .queue(function(next) {
-                    // 4. 执行初始化
-                    // exec module instance initialize
-                    if (!instance.init) {
-                        next()
-                        return
+                }, function(error) {
+                    // http://requirejs.org/docs/api.html#errbacks
+                    if (callback) callback(new Error(error.message), instance)
+                    else console.error(error.stack || error)
+
+                    if (Loader.onerror) {
+                        error.moduleId = options.moduleId
+                        Loader.onerror(error) // 运行时异常收集
                     }
+                })
+            }
 
-                    try {
-                        if (DEBUG) console.time(label + ' call  init')
-                        var result = instance.init()
-                        if (DEBUG) console.timeEnd(label + ' call  init')
+            function __createInstance(next) {
+                next = next || __interceptInstanceDestroy
 
-                        // 如果返回了 Promise，则依赖 Promise 的状态
-                        if (result && result.then) {
-                            result.then(function() {
-                                next()
-                            }, function(error) {
-                                throw error
-                            })
-                        } else {
+                try {
+                    // 在组件模块上附加标记 __x_created_with，指示负责初始化的是 Brix Loader
+                    // Add a mark to component module, indicating the Brix Loader is response for the initializing.
+                    var __x_created_with = BrixImpl.__x_created_with
+                    BrixImpl.__x_created_with = 'Brix Loader'
+
+                    // 3. 创建组件实例（按需传入参数 options）
+                    // Create a new module instance
+                    instance = BrixImpl.length ? new BrixImpl(options) : new BrixImpl()
+
+                    // 恢复标记
+                    // Recovery the mark
+                    BrixImpl.__x_created_with = __x_created_with
+
+                    // 设置实例属性 options
+                    instance.options = Util.extend(true, {}, instance.options, options)
+
+                    // 设置其他公共属性
+                    Util.extend(instance, Util.pick(options, Constant.OPTIONS))
+
+                    next()
+                } catch (error) {
+                    if (callback) callback(error, instance)
+                    else console.error(error.stack || error)
+
+                    if (Loader.onerror) {
+                        error.moduleId = options.moduleId
+                        Loader.onerror(error) // 运行时异常收集
+                    }
+                }
+            }
+
+            function __interceptInstanceDestroy(next) {
+                next = next || __cacheInstance
+
+                // 拦截销毁方法
+                // intercept destroy method of the module instance
+                instance._destroy = instance.destroy
+                instance.destroy = function() {
+                    destroy(false, instance)
+                }
+                next()
+            }
+
+            function __cacheInstance(next) {
+                next = next || __callInstanceInitialization
+
+                // 缓存起来，关联父组件
+                // cache the module instance
+                cache(instance)
+                next()
+            }
+
+            function __callInstanceInitialization(next) {
+                next = next || __interceptInstanceRender
+
+                // 4. 执行初始化
+                // exec module instance initialize
+                if (!instance.init) {
+                    next()
+                    return
+                }
+
+                try {
+                    if (DEBUG) console.time(label + ' call  init')
+                    var result = instance.init()
+                    if (DEBUG) console.timeEnd(label + ' call  init')
+
+                    // 如果返回了 Promise，则依赖 Promise 的状态
+                    if (result && result.then) {
+                        result.then(function() {
                             next()
-                        }
-                    } catch (error) {
-                        if (callback) callback(error, instance)
-                        else console.error(error)
-
-                        if (Loader.onerror) {
-                            error.moduleId = options.moduleId
-                            Loader.onerror(error) // 运行时异常收集
-                        }
-                    }
-                })
-                .queue(function(next) {
-                    // 拦截渲染方法
-                    // intercept render method of the module instance
-                    if (instance._render) {
-                        next()
-                        return
-                    }
-
-                    instance._render = instance.render
-                    instance.render = function() {
-                        var deferred = Util.defer()
-                        var promise = deferred.promise
-
-                        // 如果存在已经被渲染的子组件，则先销毁
-                        var hasRenderedChildren
-                        if (instance.childClientIds.length) {
-                            hasRenderedChildren = true
-                            Util.each(instance.childClientIds, function(childClientId) {
-                                if (CACHE[childClientId]) destroy(childClientId)
-                            })
-                        }
-                        // 调用组件的 .render()
-                        var result
-                        if (instance._render) result = instance._render.apply(instance, arguments)
-                        else console.warn(instance.clientId, instance.moduleId, 'render() is not defined')
-
-                        // 如果返回了 Promise，则依赖 Promise 的状态
-                        if (result && result.then) {
-                            result.then(function() {
-                                renderChildren()
-                                syncClientId()
-                            }, function(error) {
-                                throw error
-                            })
-                        } else {
-                            renderChildren()
-                            syncClientId()
-                        }
-
-                        return promise
-
-                        // 再次初始化子组件
-                        function renderChildren() {
-                            if (hasRenderedChildren) {
-                                boot(instance.element, function( /* context */ ) {
-                                    deferred.resolve()
-                                })
-                            } else {
-                                deferred.resolve()
-                            }
-                        }
-
-                        // 同步 clientId
-                        function syncClientId() {
-                            var relatedElement = instance.relatedElement || instance.$relatedElement
-                            if (relatedElement) {
-                                // element
-                                if (relatedElement.nodeType && (relatedElement.clientId === undefined)) {
-                                    relatedElement.clientId = options.clientId
-                                } else if (relatedElement.length) {
-                                    // [ element ]
-                                    Util.each(relatedElement, function(item /*, index*/ ) {
-                                        if (item.nodeType && (item.clientId === undefined)) {
-                                            item.clientId = options.clientId
-                                        }
-                                    })
-                                }
-                            }
-                        }
-
-                    }
-                    next()
-                })
-                .queue(function(next) {
-                    // 5. 执行渲染（不存在怎么办？必须有！）
-                    // exec render method of the module instance
-                    try {
-                        if (DEBUG) console.time(label + ' call  render')
-                        var result = instance.render(function(error /*, instance*/ ) {
-                            if (error) {}
-                        })
-                        if (DEBUG) console.timeEnd(label + ' call  render')
-
-                        // deferred
-                        if (result && result.then) {
-                            result.then(function() {
-                                next()
-                            }, function(error) {
-                                if (callback) callback(error, instance)
-                                else console.error(error.stack || error)
-
-                                if (Loader.onerror) {
-                                    error.moduleId = options.moduleId
-                                    Loader.onerror(error) // 运行时异常收集
-                                }
-                            })
-                        } else {
-                            next()
-                        }
-                    } catch (error) {
-                        // TODO 渲染时发生错误的组件是否应该自动销毁？
-                        if (callback) callback(error, instance)
-                        else console.error(error.stack || error)
-
-                        if (Loader.onerror) {
-                            error.moduleId = options.moduleId
-                            Loader.onerror(error) // 运行时异常收集
-                        }
-                    }
-                })
-                .queue(function(next) {
-                    // 绑定测试事件
-                    // bind lifecycle event of the module instance
-                    if (DEBUG && instance.on) {
-                        Util.each(Constant.EVENTS, function(type) {
-                            instance.on(type + Constant.LOADER_NAMESPACE, function(event) {
-                                console.log(label, 'event', event.type)
-                            })
-                        })
-                    }
-                    next()
-                        // .delay(100) // 每个组件之间的渲染间隔 100ms，方便观察
-                })
-                .queue(function(next) {
-                    // 检测是否有后代组件
-                    var descendants = element.getElementsByTagName('*')
-                    var hasBrixElement = false
-                    Util.each(descendants, function(descendant /*, index*/ ) {
-                        if (descendant.nodeType !== 1) return
-                        if (!hasBrixElement &&
-                            descendant.getAttribute(Constant.ATTRS.id)) {
-                            hasBrixElement = true
-                        }
-                    })
-
-                    // 7. 如果有后代组件，则递归加载
-                    // boot descendants recursively
-                    if (hasBrixElement) {
-                        boot(instance, function() {
-                            next()
+                        }, function(error) {
+                            throw error
                         })
                     } else {
-                        // 如果没有后代组件，那么此时当前组件已经就绪。
                         next()
                     }
-                })
-                .queue(function( /*next*/ ) {
-                    // 8. 当前组件和后代组件的渲染都完成后，触发 ready 事件
-                    // trigger ready event after current module instance and it's descendants are rendered
-                    if (instance.triggerHandler) {
-                        instance.triggerHandler(Constant.EVENTS.ready)
-                    }
-                    if (callback) callback(undefined, instance)
-                })
-                .dequeue() // 开始出队执行
+                } catch (error) {
+                    if (callback) callback(error, instance)
+                    else console.error(error)
 
+                    if (Loader.onerror) {
+                        error.moduleId = options.moduleId
+                        Loader.onerror(error) // 运行时异常收集
+                    }
+                }
+            }
+
+            function __interceptInstanceRender(next) {
+                next = next || __callInstanceRender
+
+                // 拦截渲染方法
+                // intercept render method of the module instance
+                if (instance._render) {
+                    next()
+                    return
+                }
+
+                instance._render = instance.render
+                instance.render = function() {
+                    var deferred = Util.defer()
+                    var promise = deferred.promise
+
+                    // 如果存在已经被渲染的子组件，则先销毁
+                    var hasRenderedChildren
+                    if (instance.childClientIds.length) {
+                        hasRenderedChildren = true
+                        Util.each(instance.childClientIds, function(childClientId) {
+                            if (CACHE[childClientId]) destroy(childClientId)
+                        })
+                    }
+                    // 调用组件的 .render()
+                    var result
+                    if (instance._render) result = instance._render.apply(instance, arguments)
+                    else console.warn(instance.clientId, instance.moduleId, 'render() is not defined')
+
+                    // 如果返回了 Promise，则依赖 Promise 的状态
+                    if (result && result.then) {
+                        result.then(function() {
+                            renderChildren()
+                            syncClientId()
+                        }, function(error) {
+                            throw error
+                        })
+                    } else {
+                        renderChildren()
+                        syncClientId()
+                    }
+
+                    return promise
+
+                    // 再次初始化子组件
+                    function renderChildren() {
+                        if (hasRenderedChildren) {
+                            boot(instance.element, function( /* context */ ) {
+                                deferred.resolve()
+                            })
+                        } else {
+                            deferred.resolve()
+                        }
+                    }
+
+                    // 同步 clientId
+                    function syncClientId() {
+                        var relatedElement = instance.relatedElement || instance.$relatedElement
+                        if (relatedElement) {
+                            // element
+                            if (relatedElement.nodeType && (relatedElement.clientId === undefined)) {
+                                relatedElement.clientId = options.clientId
+                            } else if (relatedElement.length) {
+                                // [ element ]
+                                Util.each(relatedElement, function(item /*, index*/ ) {
+                                    if (item.nodeType && (item.clientId === undefined)) {
+                                        item.clientId = options.clientId
+                                    }
+                                })
+                            }
+                        }
+                    }
+
+                }
+                next()
+            }
+
+            function __callInstanceRender(next) {
+                next = next || __bindLifecycleEvent
+
+                // 5. 执行渲染（不存在怎么办？必须有！）
+                // exec render method of the module instance
+                try {
+                    if (DEBUG) console.time(label + ' call  render')
+                    var result = instance.render(function(error /*, instance*/ ) {
+                        if (error) {}
+                    })
+                    if (DEBUG) console.timeEnd(label + ' call  render')
+
+                    // deferred
+                    if (result && result.then) {
+                        result.then(function() {
+                            next()
+                        }, function(error) {
+                            if (callback) callback(error, instance)
+                            else console.error(error.stack || error)
+
+                            if (Loader.onerror) {
+                                error.moduleId = options.moduleId
+                                Loader.onerror(error) // 运行时异常收集
+                            }
+                        })
+                    } else {
+                        next()
+                    }
+                } catch (error) {
+                    // TODO 渲染时发生错误的组件是否应该自动销毁？
+                    if (callback) callback(error, instance)
+                    else console.error(error.stack || error)
+
+                    if (Loader.onerror) {
+                        error.moduleId = options.moduleId
+                        Loader.onerror(error) // 运行时异常收集
+                    }
+                }
+            }
+
+            function __bindLifecycleEvent(next) {
+                next = next || __inspectDescendants
+
+                // 绑定测试事件
+                // bind lifecycle event of the module instance
+                if (DEBUG && instance.on) {
+                    Util.each(Constant.EVENTS, function(type) {
+                        instance.on(type + Constant.LOADER_NAMESPACE, function(event) {
+                            console.log(label, 'event', event.type)
+                        })
+                    })
+                }
+                next()
+                    // .delay(100) // 每个组件之间的渲染间隔 100ms，方便观察
+            }
+
+            function __inspectDescendants(next) {
+                next = next || __triggerReadyEvent
+
+                // 检测是否有后代组件
+                var descendants = element.getElementsByTagName('*')
+                var hasBrixElement = false
+                Util.each(descendants, function(descendant /*, index*/ ) {
+                    if (descendant.nodeType !== 1) return
+                    if (!hasBrixElement &&
+                        descendant.getAttribute(Constant.ATTRS.id)) {
+                        hasBrixElement = true
+                    }
+                })
+
+                // 7. 如果有后代组件，则递归加载
+                // boot descendants recursively
+                if (hasBrixElement) {
+                    boot(instance, function() {
+                        next()
+                    })
+                } else {
+                    // 如果没有后代组件，那么此时当前组件已经就绪。
+                    next()
+                }
+            }
+
+            function __triggerReadyEvent( /*next*/ ) {
+                // 8. 当前组件和后代组件的渲染都完成后，触发 ready 事件
+                // trigger ready event after current module instance and it's descendants are rendered
+                if (instance.triggerHandler) {
+                    instance.triggerHandler(Constant.EVENTS.ready)
+                }
+                if (callback) callback(undefined, instance)
+            }
         }
 
         /*
