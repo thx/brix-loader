@@ -991,6 +991,7 @@ define(
 
                     // 设置其他公共属性
                     Util.extend(instance, Util.pick(options, Constant.OPTIONS))
+                    instance.element.setAttribute('data-clientId', options.clientId)
 
                     next()
                 } catch (error) {
@@ -1127,6 +1128,8 @@ define(
                                 Util.each(relatedElement, function(item /*, index*/ ) {
                                     if (item.nodeType && (item.clientId === undefined)) {
                                         item.clientId = options.clientId
+                                        item.setAttribute('data-moduleId', options.moduleId)
+                                        item.setAttribute('data-clientId', options.clientId)
                                     }
                                 })
                             }
