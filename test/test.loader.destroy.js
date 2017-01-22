@@ -603,5 +603,10 @@ describe('Loader.destroy()', function() {
         if (count === 18) done()
     })
 
+    it('#25 Loader.destroy( destroyedModuleId )', function(done) {
+        Loader.destroy('test/destroyed/module', function() {
+            done()
+        })
+    })
 
 })

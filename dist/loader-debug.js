@@ -1314,7 +1314,7 @@ define(
             // destroy( remove, moduleId, context, complete )
             if (Util.isString(moduleId)) {
                 instance = query(moduleId, context)
-                if (!instance) {
+                if (!instance || !instance.length) { // fix #25
                     if (complete) complete()
                     return this
                 }
