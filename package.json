@@ -1,6 +1,6 @@
 {
   "name": "brix-loader",
-  "version": "0.0.12",
+  "version": "0.0.13",
   "description": "brix-loader",
   "main": "index.js",
   "scripts": {
