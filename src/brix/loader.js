@@ -215,6 +215,10 @@ define(
 
             // 2. 顺序把初始化任务放入队列
             Util.each(elements, function(element, index) {
+                if (element.clientId !== undefined) {
+                    completeArgs.push([undefined, CACHE[element.clientId], index, elements.length])
+                    return
+                }
                 queue
                     .queue(function(next) {
                         init(element, function(error, instance) {
@@ -1106,6 +1110,7 @@ define(
         var Loader = {
             CACHE: CACHE,
             tasks: tasks,
+            __MAX_STACK_QUEUE: 100,
             booting: false,
             boot: function(force /* Internal Use Only */ , context, callback, progress) {
                 // boot( context, callback, progress )
@@ -1163,6 +1168,7 @@ define(
                         next()
                     }, null, progress)
                 })
+                if (tasks.list.length % Loader.__MAX_STACK_QUEUE === 0) Loader.tasks.delay(0)
                 if (!Loader.booting || force) tasks.dequeue()
                 return this
             },
@@ -1212,6 +1218,7 @@ define(
                         next()
                     })
                 })
+                if (tasks.list.length % Loader.__MAX_STACK_QUEUE === 0) Loader.tasks.delay(0)
                 if (!Loader.booting || force) tasks.dequeue()
                 return this
             },
